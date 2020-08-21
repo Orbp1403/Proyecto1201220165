@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ɵSWITCH_CHANGE_DETECTOR_REF_FACTORY__POST_R3__ } from '@angular/core';
 
 @Component({
   selector: 'app-cuerpo',
@@ -11,6 +11,7 @@ export class CuerpoComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    var pos = document.getElementById("labelpos");
+    pos.textContent = "Posicion: Columna: 0, Fila: 0";
   }
-
 }

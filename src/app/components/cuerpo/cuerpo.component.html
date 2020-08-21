@@ -2,7 +2,16 @@
     <div style="background-color: #A9A9A9; float: left;">
         <h4>Entrada:</h4>
         &nbsp;
-        <textarea name="codigo" cols="100" rows="20"></textarea>
+        <script>
+            var editor = $("#txtcod");
+            function getSelected(){
+                var u = editor.val();
+                alert(u);
+            }
+        </script>
+        <textarea id="txtcod" name="codigo" cols="100" rows="20"></textarea>
+        <br>
+        <label id="labelpos"></label>
     </div>
 
     <div style="float: right;">
@@ -24,5 +33,5 @@
 <div>
     <h4>Terminal:</h4>
     &nbsp;
-    <textarea name="terminal" cols="150" rows="14" readonly></textarea>
+    <textarea name="terminal" cols="150" rows="13" readonly class="term"></textarea>
 </div>
