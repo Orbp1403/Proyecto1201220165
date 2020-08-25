@@ -1,1 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
+/* Add application styles & imports to this file! */
+@import '~codemirror/lib/codemirror.css';
+@import '~codemirror/theme/lucario.css';
+@import '~codemirror/addon/fold/foldgutter.css';
+@import '~codemirror/addon/lint/lint.css';

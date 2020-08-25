@@ -7,6 +7,8 @@ import { AppComponent } from './app.component';
 import { EncabezadoComponent } from './components/encabezado/encabezado.component';
 import { InicioComponent } from './components/inicio/inicio.component';
 import { CuerpoComponent } from './components/cuerpo/cuerpo.component';
+import { CodemirrorModule } from '@ctrl/ngx-codemirror';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -18,6 +20,8 @@ import { CuerpoComponent } from './components/cuerpo/cuerpo.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
+    CodemirrorModule,
+    FormsModule,
     RouterModule.forRoot([
       {path: '', component: InicioComponent}
     ])
