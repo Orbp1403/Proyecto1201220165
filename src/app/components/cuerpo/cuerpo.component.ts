@@ -67,4 +67,8 @@ export class CuerpoComponent implements OnInit {
   async ejecutar(){
     console.log(this.code);
   }
+
+  async ejecutarsalida(){
+    
+  }
 }

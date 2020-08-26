@@ -1,43 +1,45 @@
-<div>
-  <div style="float: left;">
-    
-    <h4>Entrada:</h4>
-    <ngx-codemirror
+<div class="container">
+  <div class="row">
+    <div class="col-md-6">    
+      <h4>Entrada:</h4>
+      <ngx-codemirror
+        #codemirror
+        [options]="OptionsCode"
+        [(ngModel)]="code"
+        style="width: auto; height: auto; resize: none;"
+      >
+      </ngx-codemirror>
+      <br>
+      <button type="button" class="btn btn-success" (click)="traducir()">Traducir Entrada</button>
+      &nbsp; &nbsp;
+      <button type="button" class="btn btn-info" (click)="ejecutar()">Ejecutar Entrada</button>
+    </div>
+    <div class="col-md-6">
+      <h4>Salida:</h4>
+      <ngx-codemirror
       #codemirror
-      [options]="OptionsCode"
-      [(ngModel)]="code"
-      style="width: auto; height: auto; resize: none;"
-    >
-    </ngx-codemirror>
-  </div>
-  <div style="float: right;">
-    <h4>Salida:</h4>
-    <ngx-codemirror
-    #codemirror
-    [options]="OptionsOutput"
-    [(ngModel)]="output"
-    ></ngx-codemirror>
-    &nbsp;
-    &nbsp;
-  </div>
+      [options]="OptionsOutput"
+      [(ngModel)]="output"
+      ></ngx-codemirror>
+      <br>
+      <button type="button" class="btn btn-info" (click)="ejecutarsalida()">Ejecutar Salida</button>
+    </div>
+  </div>  
 </div>
-
-<div style="clear: both;">
-  &nbsp;
-  <button type="button" class="btn btn-success" (click)="traducir()">Traducir</button>
-  &nbsp; &nbsp;
-  <button type="button" class="btn btn-info" (click)="ejecutar()">Ejecutar</button>
-</div>
-<br />
-<div>
-  <h4>Terminal:</h4>
-  &nbsp;
-  <textarea
-    name="terminal"
-    cols="150"
-    rows="13"
-    readonly
-    class="term"
-    style="font-family: Arial, Helvetica, sans-serif; font-size: 10px;"
-  ></textarea>
+<br/>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h4>Terminal:</h4>
+      &nbsp;
+      <textarea
+        name="terminal"
+        cols="150"
+        rows="13"
+        readonly
+        class="form-control"
+        style="font-family: Arial, Helvetica, sans-serif; font-size: 10px;"
+      ></textarea>
+    </div>
+  </div>
 </div>
