@@ -4,7 +4,6 @@ import {
   ɵSWITCH_CHANGE_DETECTOR_REF_FACTORY__POST_R3__,
   EventEmitter,
 } from '@angular/core';
-import * as $ from 'jquery';
 import { CompileSummaryKind } from '@angular/compiler';
 //declare const jquery-linedtextarea.js
 
