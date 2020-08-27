@@ -65,7 +65,8 @@ export class CuerpoComponent implements OnInit {
   }
   
   async ejecutar(){
-    console.log(this.code);
+    const parser = require('../../../Grammar/Grammar/Grammar')
+    const ast = parser.parse(this.code);
   }
 
   async ejecutarsalida(){
