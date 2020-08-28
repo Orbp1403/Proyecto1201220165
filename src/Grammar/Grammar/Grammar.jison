@@ -26,6 +26,8 @@ cadena (\"[^\"]*\")
 "number"                                return 'NUMBER'
 "boolean"                               return 'BOOLEAN'
 "void"                                  return 'VOID'
+"type"                                  return 'TYPE'
+"null"                                  return 'NULL'
 
 ":"                                     return 'DP'
 ";"                                     return 'PYC'
@@ -35,6 +37,12 @@ cadena (\"[^\"]*\")
 "*"                                     return '*'
 "/"                                     return '/'
 "."                                     return '.'
+"("                                     return '('
+")"                                     return ')'
+","                                     return ','
+"{"                                     return '{'
+"}"                                     return '}'
+":"                                     return ':'
 
 ["_" | a-z | A-Z]["_" | a-z | A-Z|0-9]* return 'IDENTIFICADOR';
 <<EOF>>                                 return 'EOF';
@@ -59,15 +67,56 @@ Instrucciones
     | Instruccion;
 
 Instruccion
-    : Declaracion;
+    : Declaracion
+    | Declaracion_type
+    | Llamada
+    | Asignacion;
+
+Asignacion
+    : IDENTIFICADOR Listaatributos '=' Expresion PYC
+    | IDENTIFICADOR '=' Expresion PYC;
+
+Declaracion_type
+    : TYPE IDENTIFICADOR '=' '{' Latributostype '}';
+
+Latributostype
+    : IDENTIFICADOR DP Tipo ',' Latributostype
+    | IDENTIFICADOR DP Tipo PYC Latributostype
+    | IDENTIFICADOR DP Tipo Latributostype
+    | IDENTIFICADOR DP Tipo ','
+    | IDENTIFICADOR DP Tipo PYC
+    | IDENTIFICADOR DP Tipo;
 
 Declaracion
     : LET IDENTIFICADOR DP Tipo '=' Expresion PYC
     | LET IDENTIFICADOR '=' Expresion PYC
     | LET IDENTIFICADOR DP Tipo PYC
     | LET IDENTIFICADOR PYC
-    | CONST IDENTIFICADOR DP Tipo IGUAL Expresion PYC
-    | CONST IDENTIFICADOR '=' Expresion PYC;
+    | LET IDENTIFICADOR DP Tipo '=' Array PYC
+    | LET IDENTIFICADOR DP '=' Array PYC
+    | LET IDENTIFICADOR DP IDENTIFICADOR '=' '{' Lvalorestype '}' PYC
+    | LET IDENTIFICADOR DP IDENTIFICADOR '=' IDENTIFICADOR PYC
+    | CONST IDENTIFICADOR DP Tipo '=' Expresion PYC
+    | CONST IDENTIFICADOR '=' Expresion PYC
+    | CONST IDENTIFICADOR DP Tipo '=' Array PYC
+    | CONST IDENTIFICADOR '=' Array PYC
+    | CONST IDENTIFICADOR DP IDENTIFICADOR '=' '{' Lvalorestype '}' PYC
+    | CONST IDENTIFICADOR DP IDENTIFICADOR '=' IDENTIFICADOR PYC;
+
+Lvalorestype
+    : IDENTIFICADOR DP Expresion',' Lvalorestype
+    | IDENTIFICADOR DP Expresion Lvalorestype
+    | IDENTIFICADOR DP Expresion ','
+    | IDENTIFICADOR DP Expresion;
+
+Array
+    : '[' Lvalores ']'
+    | '[' ']';
+
+Lvalores
+    : Expresion ',' Lvalores
+    | Expresion;
+
 
 Expresion
     : '-' Expresion %prec NEGATIVO
@@ -79,15 +128,24 @@ Expresion
     | DECIMAL
     | CADENA
     | IDENTIFICADOR
-    | IDENTIFICADOR Listaatributos;
+    | IDENTIFICADOR Listaatributos
+    | Llamada
+    | NULL;
 
 Listaatributos
     : '.' IDENTIFICADOR Listaatributos
     | '.' IDENTIFICADOR;
 
+Llamada
+    : IDENTIFICADOR '(' ')'
+    | IDENTIFICADOR '(' Listaparam ')';
+
+Listaparam
+    : Expresion ',' Listaparam
+    | Expresion;
+
 Tipo
     : STRING
     | NUMBER
     | BOOLEAN
-    | VOID
-    | IDENTIFICADOR;
+    | VOID;
