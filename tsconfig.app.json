@@ -7,7 +7,17 @@
   },
   "files": [
     "src/main.ts",
-    "src/polyfills.ts"
+    "src/polyfills.ts",
+    "src/Grammar/Entorno/Entorno.ts",
+    "src/Grammar/Entorno/Funcion.ts",
+    "src/Grammar/Entorno/Simbolo.ts",
+    "src/Grammar/Expresiones/Aritmeticas.ts",
+    "src/Grammar/Expresiones/Literal.ts",
+    "src/Grammar/Expresiones/Opcionesaritmeticas.ts",
+    "src/Grammar/Instrucciones/Declaracion.ts",
+    "src/Grammar/Expresion.ts",
+    "src/Grammar/Instruccion.ts",
+    "src/Grammar/Retorno.ts"
   ],
   "include": [
     "src/**/*.d.ts"

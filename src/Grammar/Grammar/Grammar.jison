@@ -1,23 +1,19 @@
-/**
- * Ejemplo mi primer proyecto con Jison utilizando Nodejs en Ubuntu
- */
-
 /* Definición Léxica */
 %lex
 
 %options case-sensitive
-numero [0-9]+
-decimal {numero}"."{numero}
-cadena (\"[^\"]*\")
+numero [0-9]+("."[0-9]+)?
+cadena (\"[^\"]*\")|("`"[^"`"]*"`")
 
 %%
 
 /* Espacios en blanco */
-[ \r\t]+            {}
-\n                  {}
+[ \r\t]+                                {}
+\n                                      {}
+"//".*                                  {}
+[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]     {} 
 
-{numero}                                return 'ENTERO'
-{decimal}                               return 'DECIMAL'
+{numero}                                return 'NUMERO'
 {cadena}                                return 'CADENA'
 
 "let"                                   return 'LET'
@@ -28,6 +24,8 @@ cadena (\"[^\"]*\")
 "void"                                  return 'VOID'
 "type"                                  return 'TYPE'
 "null"                                  return 'NULL'
+"true"                                  return 'TRUE'
+"false"                                 return 'FALSE'
 
 ":"                                     return 'DP'
 ";"                                     return 'PYC'
@@ -50,6 +48,15 @@ cadena (\"[^\"]*\")
 .                       { console.error('Este es un error léxico: ' + yytext + ', en la linea: ' + yylloc.first_line + ', en la columna: ' + yylloc.first_column); }
 /lex
 
+%{
+    const { Aritmeticas } = require('../Expresiones/Aritmeticas');
+    const { OpcionesAritmeticas } = require('../Expresiones/Opcionesaritmeticas');
+    const { Literal } = require('../Expresiones/Literal');
+    const { TiposSimbolo, Simbolo } = require('../Entorno/Simbolo');
+    const { Declaracion } = require('../Instrucciones/Declaracion');
+    const { Type } = require('../Retorno'); 
+%}
+
 /* Asociación de operadores y precedencia */
 %left '+' '-'
 %left '*' '/'
@@ -67,7 +74,7 @@ Instrucciones
     | Instruccion;
 
 Instruccion
-    : Declaracion
+    : Declaracion PYC
     | Declaracion_type
     | Llamada
     | Asignacion;
@@ -88,20 +95,49 @@ Latributostype
     | IDENTIFICADOR DP Tipo;
 
 Declaracion
-    : LET IDENTIFICADOR DP Tipo '=' Expresion PYC
-    | LET IDENTIFICADOR '=' Expresion PYC
-    | LET IDENTIFICADOR DP Tipo PYC
-    | LET IDENTIFICADOR PYC
-    | LET IDENTIFICADOR DP Tipo '=' Array PYC
-    | LET IDENTIFICADOR DP '=' Array PYC
-    | LET IDENTIFICADOR DP IDENTIFICADOR '=' '{' Lvalorestype '}' PYC
-    | LET IDENTIFICADOR DP IDENTIFICADOR '=' IDENTIFICADOR PYC
-    | CONST IDENTIFICADOR DP Tipo '=' Expresion PYC
-    | CONST IDENTIFICADOR '=' Expresion PYC
-    | CONST IDENTIFICADOR DP Tipo '=' Array PYC
-    | CONST IDENTIFICADOR '=' Array PYC
-    | CONST IDENTIFICADOR DP IDENTIFICADOR '=' '{' Lvalorestype '}' PYC
-    | CONST IDENTIFICADOR DP IDENTIFICADOR '=' IDENTIFICADOR PYC;
+    : LET IDENTIFICADOR DP Tipo '=' Expresion
+    {
+        console.log($2);
+        console.log($4);
+        console.log($6);
+    }
+    | LET IDENTIFICADOR '=' Expresion
+    {
+        console.log($2);
+        console.log($4);
+    }
+    | LET IDENTIFICADOR DP Tipo
+    {
+        console.log($2);
+        console.log($4);
+    }
+    | LET IDENTIFICADOR
+    {
+        console.log($2);
+    }
+    | LET IDENTIFICADOR DP Tipo Lcorchetes '=' LArray
+    | LET IDENTIFICADOR DP '=' LArray
+    | LET IDENTIFICADOR DP IDENTIFICADOR '=' '{' Lvalorestype '}'
+    | LET IDENTIFICADOR DP IDENTIFICADOR '=' IDENTIFICADOR
+    | CONST IDENTIFICADOR DP Tipo '=' Expresion
+    {
+        console.log($2);
+        console.log($4);
+        console.log($6);
+    }
+    | CONST IDENTIFICADOR '=' Expresion
+    {
+        console.log($2);
+        console.log($4);
+    }
+    | CONST IDENTIFICADOR DP Tipo Lcorchetes '=' LArray
+    | CONST IDENTIFICADOR '=' LArray
+    | CONST IDENTIFICADOR DP IDENTIFICADOR '=' '{' Lvalorestype '}'
+    | CONST IDENTIFICADOR DP IDENTIFICADOR '=' IDENTIFICADOR;
+
+Lcorchetes 
+    : '[' ']' Lcorchetes        
+    | '[' ']';
 
 Lvalorestype
     : IDENTIFICADOR DP Expresion',' Lvalorestype
@@ -120,17 +156,49 @@ Lvalores
 
 Expresion
     : '-' Expresion %prec NEGATIVO
+    {
+        let val1 = new Literal("-1", @1.first_line, @1.first_column, 0);
+        $$ = new Aritmeticas(val1, $2, OpcionesAritmeticas.POR, @1.first_line, @1.first_column);
+    }
     | Expresion '+' Expresion
+    {
+        $$ = new Aritmeticas($1, $3, OpcionesAritmeticas.MAS, @1.first_line, @1.first_column);
+    }
     | Expresion '-' Expresion
+    {
+        $$ = new Aritmeticas($1, $3, OpcionesAritmeticas.MENOS, @1.first_line, @1.first_column);
+    }
     | Expresion '*' Expresion
+    {
+        $$ = new Aritmeticas($1, $3, OpcionesAritmeticas.POR, @1.first_line, @1.first_column);
+    }
     | Expresion '/' Expresion
-    | ENTERO
-    | DECIMAL
+    {
+        $$ = new Aritmeticas($1, $3, OpcionesAritmeticas.DIV, @1.first_line, @1.first_column);
+    }
+    | NUMERO
+    {
+        $$ = new Literal($1, @1.first_line, @1.first_column, 0);
+    }
     | CADENA
+    {
+        $$ = new Literal($1, @1.first_line, @1.first_column, 1);
+    }
+    | TRUE
+    {
+        $$ = new Literal($1, @1.first_line, @1.first_column, 2);
+    }
+    | FALSE
+    {
+        $$ = new Literal($1, @1.first_line, @1.first_column, 2);
+    }
     | IDENTIFICADOR
     | IDENTIFICADOR Listaatributos
     | Llamada
-    | NULL;
+    | NULL
+    {
+        $$ = new Literal($1, @1.first_line, @1.first_column, 3)
+    };
 
 Listaatributos
     : '.' IDENTIFICADOR Listaatributos
@@ -146,6 +214,18 @@ Listaparam
 
 Tipo
     : STRING
+    {
+        $$ = Type.CADENA;
+    }
     | NUMBER
+    {
+        $$ = Type.NUMERO;
+    }
     | BOOLEAN
-    | VOID;
+    {
+        $$ = Type.BOOLEANO
+    }
+    | VOID
+    {
+        $$ = Type.VOID;
+    };
