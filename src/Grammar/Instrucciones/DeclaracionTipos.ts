@@ -1,14 +1,12 @@
 import { Instruccion } from '../Instruccion'
 import { Entorno } from '../Entorno/Entorno'
-import { Expresion } from '../Expresion'
-import { TiposSimbolo } from '../Entorno/Simbolo'
-import { Variable } from '../Expresiones/Variable'
+import { VariablesTipo } from '../Expresiones/VariablesTipo'
 
 export class DeclaracionTipos extends Instruccion{
     private nombre : string;
-    private valores : Variable[];
+    private valores : VariablesTipo[];
 
-    constructor(nombre : string, valores : Variable[], linea : number, columna : number){
+    constructor(nombre : string, valores : VariablesTipo[], linea : number, columna : number){
         super(linea, columna);
         this.nombre = nombre;
         this.valores = valores;

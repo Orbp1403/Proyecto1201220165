@@ -57,7 +57,10 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")
     const { Type } = require('../Retorno'); 
     const { Variable } = require('../Expresiones/Variable');
     const { DeclaracionTipos } = require('../Instrucciones/DeclaracionTipos');
-    const { VariablesTipo } = require('../Expresiones/VariablesTipo');
+    const { VariablesTipo, ValoresTipo } = require('../Expresiones/VariablesTipo');
+    const { Asignacion } = require('../Instrucciones/Asignacion');
+    const { DeclaracionVarType } = require('../Instrucciones/DeclaracionVarType');
+    const { AsignacionVarType } = require('../Instrucciones/AsignacionVarType');
 %}
 
 /* Asociación de operadores y precedencia */
@@ -96,11 +99,21 @@ Instruccion
         $$ = $1;
     }
     | Llamada
-    | Asignacion;
+    | Asignacion
+    {
+        $$ = $1;
+    };
 
 Asignacion
     : IDENTIFICADOR Listaatributos '=' Expresion PYC
-    | IDENTIFICADOR '=' Expresion PYC;
+    | IDENTIFICADOR '=' '{' Lvalorestype '}' PYC
+    {
+        $$ = new AsignacionVarType($1, $4, @1.first_line, @1.first_column);
+    }
+    | IDENTIFICADOR '=' Expresion PYC
+    {
+        $$ = new Asignacion($1, $3, @1.first_line, @1.first_column);
+    };
 
 Declaracion_type
     : TYPE IDENTIFICADOR '=' '{' Latributostype '}'
@@ -168,7 +181,17 @@ Declaracion
     | LET IDENTIFICADOR DP Tipo Lcorchetes '=' LArray
     | LET IDENTIFICADOR DP '=' LArray
     | LET IDENTIFICADOR DP IDENTIFICADOR '=' '{' Lvalorestype '}'
+    {
+        $$ = new DeclaracionVarType($2, $7, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+    }
     | LET IDENTIFICADOR DP IDENTIFICADOR '=' IDENTIFICADOR
+    {
+        $$ = new Declaracion($2, $6, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+    }
+    | LET IDENTIFICADOR DP IDENTIFICADOR
+    {
+        $$ = new Declaracion($2, null, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+    }
     | CONST IDENTIFICADOR DP Tipo '=' Expresion
     {
         $$ = new Declaracion($2, $6, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column);
@@ -180,7 +203,13 @@ Declaracion
     | CONST IDENTIFICADOR DP Tipo Lcorchetes '=' LArray
     | CONST IDENTIFICADOR '=' LArray
     | CONST IDENTIFICADOR DP IDENTIFICADOR '=' '{' Lvalorestype '}'
-    | CONST IDENTIFICADOR DP IDENTIFICADOR '=' IDENTIFICADOR;
+    {
+        $$ = new DeclaracionVarType($1, $7, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column);
+    }
+    | CONST IDENTIFICADOR DP IDENTIFICADOR '=' IDENTIFICADOR
+    {
+        $$ = new Declaracion($2, $6, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column);
+    };
 
 Lcorchetes 
     : Lcorchetes '[' ']'        
@@ -188,9 +217,23 @@ Lcorchetes
 
 Lvalorestype
     : Lvalorestype IDENTIFICADOR DP Expresion ',' 
-    | Lvalorestype IDENTIFICADOR DP Expresion 
+    {
+        $1.push(new ValoresTipo($2, $4, @1.first_line, @1.first_column));
+        $$ = $1;
+    }
+    | Lvalorestype IDENTIFICADOR DP Expresion
+    {
+        $1.push(new ValoresTipo($2, $4, @1.first_line, @1.first_column));
+        $$ = $1;
+    } 
     | IDENTIFICADOR DP Expresion ','
-    | IDENTIFICADOR DP Expresion;
+    {
+        $$ = [new ValoresTipo($1, $3, @1.first_line, @1.first_column)];
+    }
+    | IDENTIFICADOR DP Expresion
+    {
+        $$ = [new ValoresTipo($1, $3, @1.first_line, @1.first_column)];
+    };
 
 Array
     : '[' Lvalores ']'
@@ -223,6 +266,7 @@ Expresion
     {
         $$ = new Aritmeticas($1, $3, OpcionesAritmeticas.DIV, @1.first_line, @1.first_column);
     }
+    | '(' Expresion ')'
     | NUMERO
     {
         $$ = new Literal($1, @1.first_line, @1.first_column, 0);
@@ -252,7 +296,12 @@ Expresion
 
 Listaatributos
     : Listaatributos '.' IDENTIFICADOR 
-    | '.' IDENTIFICADOR;
+    {
+    }
+    | '.' IDENTIFICADOR
+    {
+
+    };
 
 Llamada
     : IDENTIFICADOR '(' ')'

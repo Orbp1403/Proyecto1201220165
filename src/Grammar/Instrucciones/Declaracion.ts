@@ -3,14 +3,15 @@ import { Entorno } from '../Entorno/Entorno';
 import { Expresion } from '../Expresion';
 import { TiposSimbolo } from '../Entorno/Simbolo';
 import { Type } from '../Retorno';
+import { Asignacion } from './Asignacion'
 
 export class Declaracion extends Instruccion{
     private nombre : string;
     private valor : Expresion;
     private tiposim : TiposSimbolo
-    private tipovar : Type;
+    private tipovar : Type | string;
 
-    constructor(nombre : string, valor : Expresion | null, tipovar : Type | null, tiposim : TiposSimbolo, linea : number, columna : number){
+    constructor(nombre : string, valor : Expresion | null, tipovar : Type | null | string, tiposim : TiposSimbolo, linea : number, columna : number){
         super(linea, columna);
         this.nombre = nombre;
         this.valor = valor;

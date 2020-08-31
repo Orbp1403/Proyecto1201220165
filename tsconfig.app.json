@@ -22,8 +22,11 @@
     "src/Grammar/Expresiones/VariablesTipo.ts",
     // * FIN DE EXPRESIONES
     // * INICIO DE INSTRUCCIONES
+    "src/Grammar/Instrucciones/Asignacion.ts",
+    "src/Grammar/Instrucciones/AsignacionVarType.ts",
     "src/Grammar/Instrucciones/Declaracion.ts",
     "src/Grammar/Instrucciones/DeclaracionTipos.ts",
+    "src/Grammar/Instrucciones/DeclaracionVarType.ts",
     // * FIN DE INSTRUCCIONES
     // * CLASES AFUERA DE LAS CARPETAS ANTERIORES
     "src/Grammar/Expresion.ts",
