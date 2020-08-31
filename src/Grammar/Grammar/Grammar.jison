@@ -84,15 +84,39 @@ Asignacion
     | IDENTIFICADOR '=' Expresion PYC;
 
 Declaracion_type
-    : TYPE IDENTIFICADOR '=' '{' Latributostype '}';
+    : TYPE IDENTIFICADOR '=' '{' Latributostype '}'
+    {
+        console.log($5);
+    };
 
 Latributostype
-    : IDENTIFICADOR DP Tipo ',' Latributostype
-    | IDENTIFICADOR DP Tipo PYC Latributostype
-    | IDENTIFICADOR DP Tipo Latributostype
+    : Latributostype IDENTIFICADOR DP Tipo ','
+    {
+        $1.push(new Simbolo(undefined, $2, $4, 1))
+        $$ = $1;
+    }
+    | Latributostype IDENTIFICADOR DP Tipo PYC
+    {
+        $1.push(new Simbolo(undefined, $2, $4, 1))
+        $$ = $1;
+    }
+    | Latributostype IDENTIFICADOR DP Tipo
+    {
+        $1.push(new Simbolo(undefined, $2, $4, 1));
+        $$ = $1;
+    }
     | IDENTIFICADOR DP Tipo ','
+    {
+        $$ = [new Simbolo(undefined, $1, $3, 1)];
+    }
     | IDENTIFICADOR DP Tipo PYC
-    | IDENTIFICADOR DP Tipo;
+    {
+        $$ = [new Simbolo(undefined, $1, $3, 1)];
+    }
+    | IDENTIFICADOR DP Tipo
+    {
+        $$ = [new Simbolo(undefined, $1, $3, 1)];
+    };
 
 Declaracion
     : LET IDENTIFICADOR DP Tipo '=' Expresion
@@ -193,6 +217,9 @@ Expresion
         $$ = new Literal($1, @1.first_line, @1.first_column, 2);
     }
     | IDENTIFICADOR
+    {
+        $$ = new Literal($1, @1.first_line, @1.first_column, 7);
+    }
     | IDENTIFICADOR Listaatributos
     | Llamada
     | NULL

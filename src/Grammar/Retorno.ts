@@ -5,7 +5,8 @@ export enum Type{
     NULL = 3,
     ARREGLO = 4,
     UNDEFINED = 5,
-    VOID = 6
+    VOID = 6,
+    IDENTIFICADOR = 7
 }
 
 export type Retorno = {
