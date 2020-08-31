@@ -1,10 +1,12 @@
 import { Simbolo, TiposSimbolo } from "./Simbolo"
+import { Tipo } from "./Tipo"
 import { Funcion } from "./Funcion"
 import { Type } from "../Retorno"
 
 export class Entorno{
     private variables : Map<string, Simbolo>
     private funciones : Map<string, Funcion>
+    private tipos : Map<string, Tipo> 
 
     constructor(public anterior : Entorno | null){
         this.variables = new Map();

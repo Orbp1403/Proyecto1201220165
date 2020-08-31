@@ -55,6 +55,9 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")
     const { TiposSimbolo, Simbolo } = require('../Entorno/Simbolo');
     const { Declaracion } = require('../Instrucciones/Declaracion');
     const { Type } = require('../Retorno'); 
+    const { Variable } = require('../Expresiones/Variable');
+    const { DeclaracionTipos } = require('../Instrucciones/DeclaracionTipos');
+    const { VariablesTipo } = require('../Expresiones/VariablesTipo');
 %}
 
 /* Asociación de operadores y precedencia */
@@ -67,15 +70,31 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")
 %% /* Definición de la gramática */
 
 ini
-	: Instrucciones EOF;
+	: Instrucciones EOF
+    {
+        return $1;
+    };
 
 Instrucciones
     : Instrucciones Instruccion
-    | Instruccion;
+    {
+        $1.push($2);
+        $$ = $1
+    }
+    | Instruccion
+    {
+        $$ = [$1];
+    };
 
 Instruccion
     : Declaracion PYC
+    {
+        $$ = $1;
+    }
     | Declaracion_type
+    {
+        $$ = $1;
+    }
     | Llamada
     | Asignacion;
 
@@ -86,58 +105,65 @@ Asignacion
 Declaracion_type
     : TYPE IDENTIFICADOR '=' '{' Latributostype '}'
     {
-        console.log($5);
+        $$ = new DeclaracionTipos($2, $5, @1.first_line, @1.first_column)
     };
 
 Latributostype
-    : Latributostype IDENTIFICADOR DP Tipo ','
+    : Latributostype IDENTIFICADOR DP TipoatributosType ','
     {
-        $1.push(new Simbolo(undefined, $2, $4, 1))
+        $1.push(new VariablesTipo($2, $4, @1.first_line, @1.first_column))
         $$ = $1;
     }
-    | Latributostype IDENTIFICADOR DP Tipo PYC
+    | Latributostype IDENTIFICADOR DP TipoatributosType PYC
     {
-        $1.push(new Simbolo(undefined, $2, $4, 1))
+        $1.push(new VariablesTipo($2, $4, @1.first_line, @1.first_column))
         $$ = $1;
     }
-    | Latributostype IDENTIFICADOR DP Tipo
+    | Latributostype IDENTIFICADOR DP TipoatributosType
     {
-        $1.push(new Simbolo(undefined, $2, $4, 1));
+        $1.push(new VariablesTipo($2, $4, @1.first_line, @1.first_column));
         $$ = $1;
     }
-    | IDENTIFICADOR DP Tipo ','
+    | IDENTIFICADOR DP TipoatributosType ','
     {
-        $$ = [new Simbolo(undefined, $1, $3, 1)];
+        $$ = [new VariablesTipo($1, $3, @1.first_line, @1.first_column)];
     }
-    | IDENTIFICADOR DP Tipo PYC
+    | IDENTIFICADOR DP TipoatributosType PYC
     {
-        $$ = [new Simbolo(undefined, $1, $3, 1)];
+        $$ = [new VariablesTipo($1, $3, @1.first_line, @1.first_column)];
     }
-    | IDENTIFICADOR DP Tipo
+    | IDENTIFICADOR DP TipoatributosType
     {
-        $$ = [new Simbolo(undefined, $1, $3, 1)];
+        $$ = [new VariablesTipo($1, $3, @1.first_line, @1.first_column)];
     };
+
+TipoatributosType
+    : Tipo
+    {
+        $$ = $1;
+    }
+    | IDENTIFICADOR
+    {
+        $$ = $1
+    };
+
 
 Declaracion
     : LET IDENTIFICADOR DP Tipo '=' Expresion
     {
-        console.log($2);
-        console.log($4);
-        console.log($6);
+        $$ = new Declaracion($2, $6, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column);
     }
     | LET IDENTIFICADOR '=' Expresion
     {
-        console.log($2);
-        console.log($4);
+        $$ = new Declaracion($2, $4, null, TiposSimbolo.VAR, @1.first_line, @1.first_column);
     }
     | LET IDENTIFICADOR DP Tipo
     {
-        console.log($2);
-        console.log($4);
+        $$ = new Declaracion($2, null, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column);
     }
     | LET IDENTIFICADOR
     {
-        console.log($2);
+        $$ = new Declaracion($2, null, null, TiposSimbolo.VAR, @1.first_line, @1.first_column);
     }
     | LET IDENTIFICADOR DP Tipo Lcorchetes '=' LArray
     | LET IDENTIFICADOR DP '=' LArray
@@ -145,14 +171,11 @@ Declaracion
     | LET IDENTIFICADOR DP IDENTIFICADOR '=' IDENTIFICADOR
     | CONST IDENTIFICADOR DP Tipo '=' Expresion
     {
-        console.log($2);
-        console.log($4);
-        console.log($6);
+        $$ = new Declaracion($2, $6, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column);
     }
     | CONST IDENTIFICADOR '=' Expresion
     {
-        console.log($2);
-        console.log($4);
+        $$ = new Declaracion($2, $4, null, TiposSimbolo.CONST, @1.first_line, @1.first_column);
     }
     | CONST IDENTIFICADOR DP Tipo Lcorchetes '=' LArray
     | CONST IDENTIFICADOR '=' LArray
@@ -160,12 +183,12 @@ Declaracion
     | CONST IDENTIFICADOR DP IDENTIFICADOR '=' IDENTIFICADOR;
 
 Lcorchetes 
-    : '[' ']' Lcorchetes        
+    : Lcorchetes '[' ']'        
     | '[' ']';
 
 Lvalorestype
-    : IDENTIFICADOR DP Expresion',' Lvalorestype
-    | IDENTIFICADOR DP Expresion Lvalorestype
+    : Lvalorestype IDENTIFICADOR DP Expresion ',' 
+    | Lvalorestype IDENTIFICADOR DP Expresion 
     | IDENTIFICADOR DP Expresion ','
     | IDENTIFICADOR DP Expresion;
 
@@ -174,7 +197,7 @@ Array
     | '[' ']';
 
 Lvalores
-    : Expresion ',' Lvalores
+    : Lvalores ',' Expresion
     | Expresion;
 
 
@@ -218,7 +241,7 @@ Expresion
     }
     | IDENTIFICADOR
     {
-        $$ = new Literal($1, @1.first_line, @1.first_column, 7);
+        $$ = new Variable($1, @1.first_line, @1.first_column);
     }
     | IDENTIFICADOR Listaatributos
     | Llamada
@@ -228,7 +251,7 @@ Expresion
     };
 
 Listaatributos
-    : '.' IDENTIFICADOR Listaatributos
+    : Listaatributos '.' IDENTIFICADOR 
     | '.' IDENTIFICADOR;
 
 Llamada
@@ -236,7 +259,7 @@ Llamada
     | IDENTIFICADOR '(' Listaparam ')';
 
 Listaparam
-    : Expresion ',' Listaparam
+    : Listaparam ',' Expresion 
     | Expresion;
 
 Tipo
