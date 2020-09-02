@@ -2,5 +2,6 @@ export enum OpcionesAritmeticas{
     MAS,
     MENOS,
     POR,
-    DIV
+    DIV,
+    NEGATIVO
 }

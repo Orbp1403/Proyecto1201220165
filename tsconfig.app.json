@@ -18,6 +18,7 @@
     "src/Grammar/Expresiones/Aritmeticas.ts",
     "src/Grammar/Expresiones/Literal.ts",
     "src/Grammar/Expresiones/Opcionesaritmeticas.ts",
+    "src/Grammar/Expresiones/Relacional.ts",
     "src/Grammar/Expresiones/Variable.ts",
     "src/Grammar/Expresiones/VariablesTipo.ts",
     // * FIN DE EXPRESIONES
@@ -27,6 +28,8 @@
     "src/Grammar/Instrucciones/Declaracion.ts",
     "src/Grammar/Instrucciones/DeclaracionTipos.ts",
     "src/Grammar/Instrucciones/DeclaracionVarType.ts",
+    "src/Grammar/Instrucciones/Imprimir.ts",
+    "src/Grammar/Instrucciones/Llamada.ts",
     // * FIN DE INSTRUCCIONES
     // * CLASES AFUERA DE LAS CARPETAS ANTERIORES
     "src/Grammar/Expresion.ts",

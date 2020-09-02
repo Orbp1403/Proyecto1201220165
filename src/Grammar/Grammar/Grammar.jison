@@ -26,9 +26,37 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")
 "null"                                  return 'NULL'
 "true"                                  return 'TRUE'
 "false"                                 return 'FALSE'
+"if"                                    return 'IF'
+"else"                                  return 'ELSE'
+"switch"                                return 'SWITCH'
+"case"                                  return 'CASE'
+"while"                                 return 'WHILE'
+"do"                                    return 'DO'
+"for"                                   return 'FOR'
+"in"                                    return 'IN'
+"of"                                    return 'OF'
+"break"                                 return 'BREAK'
+"continue"                              return 'CONTINUE'
+"return"                                return 'RETURN'
+"function"                              return 'FUNCTION'
+"console"                               return 'CONSOLE'
+"log"                                   return 'LOG'
+"graficar_ts"                           return 'GRAFICAR_TS'
+
 
 ":"                                     return 'DP'
 ";"                                     return 'PYC'
+"&&"                                    return 'AND'
+"||"                                    return 'OR'
+"!"                                     return 'NOT'
+"%"                                     return '%'
+"**"                                    return '**'
+"<="                                    return '<='
+">="                                    return '>='
+'=='                                    return '=='
+'!='                                    return '!='
+'<'                                     return '<'
+'>'                                     return '>'
 "="                                     return '='
 "+"                                     return '+'
 "-"                                     return '-'
@@ -61,9 +89,17 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")
     const { Asignacion } = require('../Instrucciones/Asignacion');
     const { DeclaracionVarType } = require('../Instrucciones/DeclaracionVarType');
     const { AsignacionVarType } = require('../Instrucciones/AsignacionVarType');
+    const { Llamada } = require('../Instrucciones/Llamada');
+    const { Relacional, OperacionesLogicas } = require('../Expresiones/Relacional');
+    const { Imprimir } = require('../Instrucciones/Imprimir');
 %}
 
 /* Asociación de operadores y precedencia */
+%left 'OR'
+%left 'AND'
+%left '==' '!='
+%left '>=' '<=' '<' '>'
+%left NOT
 %left '+' '-'
 %left '*' '/'
 %left NEGATIVO
@@ -94,11 +130,14 @@ Instruccion
     {
         $$ = $1;
     }
-    | Declaracion_type
+    | Declaracion_type PYC
     {
         $$ = $1;
     }
-    | Llamada
+    | Llamada PYC
+    {
+        $$ = $1;
+    }
     | Asignacion
     {
         $$ = $1;
@@ -178,8 +217,6 @@ Declaracion
     {
         $$ = new Declaracion($2, null, null, TiposSimbolo.VAR, @1.first_line, @1.first_column);
     }
-    | LET IDENTIFICADOR DP Tipo Lcorchetes '=' LArray
-    | LET IDENTIFICADOR DP '=' LArray
     | LET IDENTIFICADOR DP IDENTIFICADOR '=' '{' Lvalorestype '}'
     {
         $$ = new DeclaracionVarType($2, $7, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column);
@@ -200,8 +237,6 @@ Declaracion
     {
         $$ = new Declaracion($2, $4, null, TiposSimbolo.CONST, @1.first_line, @1.first_column);
     }
-    | CONST IDENTIFICADOR DP Tipo Lcorchetes '=' LArray
-    | CONST IDENTIFICADOR '=' LArray
     | CONST IDENTIFICADOR DP IDENTIFICADOR '=' '{' Lvalorestype '}'
     {
         $$ = new DeclaracionVarType($1, $7, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column);
@@ -210,10 +245,6 @@ Declaracion
     {
         $$ = new Declaracion($2, $6, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column);
     };
-
-Lcorchetes 
-    : Lcorchetes '[' ']'        
-    | '[' ']';
 
 Lvalorestype
     : Lvalorestype IDENTIFICADOR DP Expresion ',' 
@@ -235,20 +266,46 @@ Lvalorestype
         $$ = [new ValoresTipo($1, $3, @1.first_line, @1.first_column)];
     };
 
-Array
-    : '[' Lvalores ']'
-    | '[' ']';
-
-Lvalores
-    : Lvalores ',' Expresion
-    | Expresion;
-
-
 Expresion
-    : '-' Expresion %prec NEGATIVO
+    : 'NOT' Expresion
     {
-        let val1 = new Literal("-1", @1.first_line, @1.first_column, 0);
-        $$ = new Aritmeticas(val1, $2, OpcionesAritmeticas.POR, @1.first_line, @1.first_column);
+        $$ = new Relacional($2, null, OperacionesLogicas.NEGADO, @1.first_line, @1.first_column);
+    }
+    | Expresion 'AND' Expresion
+    {
+        $$ = new Relacional($1, $3, OperacionesLogicas.AND, @1.first_line, @1.first_column);
+    }
+    | Expresion 'OR' Expresion
+    {
+        $$ = new Relacional($1, $3, OperacionesLogicas.OR, @1.first_line, @1.first_column);
+    }
+    | Expresion '==' Expresion
+    {
+        $$ = new Relacional($1, $3, OperacionesLogicas.IGUAL, @1.first_line, @1.first_column);
+    }
+    | Expresion '!=' Expresion
+    {
+        $$ = new Relacional($1, $3, OperacionesLogicas.NOIGUAL, @1.first_line, @1.first_column);
+    }
+    | Expresion '<' Expresion
+    {
+        $$ = new Relacional($1, $3, OperacionesLogicas.MENOR, @1.first_line, @1.first_column);
+    }
+    | Expresion '>' Expresion
+    {
+        $$ = new Relacional($1, $3, OperacionesLogicas.MAYOR, @1.first_line, @1.first_column);
+    }
+    | Expresion '<=' Expresion
+    {
+        $$ = new Relacional($1, $3, OperacionesLogicas.MENORIGUAL, @1.first_line, @1.first_column);
+    }
+    | Expresion '>=' Expresion
+    {
+        $$ = new Relacional($1, $3, OperacionesLogicas.MAYORIGUAL, @1.first_line, @1.first_column);
+    }
+    |'-' Expresion %prec NEGATIVO
+    {
+        $$ = new Aritmeticas($2, null, OpcionesAritmeticas.NEGATIVO, @1.first_line, @1.first_column);
     }
     | Expresion '+' Expresion
     {
@@ -267,6 +324,9 @@ Expresion
         $$ = new Aritmeticas($1, $3, OpcionesAritmeticas.DIV, @1.first_line, @1.first_column);
     }
     | '(' Expresion ')'
+    {
+        $$ = $2;
+    }
     | NUMERO
     {
         $$ = new Literal($1, @1.first_line, @1.first_column, 0);
@@ -288,7 +348,15 @@ Expresion
         $$ = new Variable($1, @1.first_line, @1.first_column);
     }
     | IDENTIFICADOR Listaatributos
+    {
+        let a = $1
+        a.concat("." + $2);
+        $$ = new Variable($1, @1.first_line, @1.first_column);
+    }
     | Llamada
+    {
+        $$ = $1;
+    }
     | NULL
     {
         $$ = new Literal($1, @1.first_line, @1.first_column, 3)
@@ -297,19 +365,44 @@ Expresion
 Listaatributos
     : Listaatributos '.' IDENTIFICADOR 
     {
+        let aux = $1;
+        aux.concat("." + $3);
+        $$ = aux;
     }
     | '.' IDENTIFICADOR
     {
-
+        let p = ".";
+        p.concat($2);
+        $$ = p;
     };
 
 Llamada
     : IDENTIFICADOR '(' ')'
-    | IDENTIFICADOR '(' Listaparam ')';
+    {
+        $$ = new Llamada($1, [], @1.first_line, @1.first_column);
+    }
+    | IDENTIFICADOR '(' Listaparam ')'
+    {
+        $$ = new Llamada($1, $3, @1.first_line, @1.first_column);
+    }
+    | 'CONSOLE' '.' 'LOG' '(' ')'
+    {
+        $$ = new Imprimir([], @1.first_line, @1.first_column);
+    }
+    | 'CONSOLE' '.' 'LOG' '(' Listaparam ')'
+    {
+        $$ = new Imprimir($5, @1.first_line, @1.first_column);
+    };
 
 Listaparam
     : Listaparam ',' Expresion 
-    | Expresion;
+    {
+        $1.push($3)
+        $$ = $1;
+    }
+    | Expresion{
+        $$ = [$1];
+    };
 
 Tipo
     : STRING

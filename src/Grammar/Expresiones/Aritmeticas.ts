@@ -30,7 +30,9 @@ export class Aritmeticas extends Expresion{
                 resultado = {value : (izquierdo.value.toString() / derecho.value.toString()), type : Type.NUMERO}
             }
         }else{
-            
+            if(this.tipo == OpcionesAritmeticas.NEGATIVO){
+                resultado = {value : 0 - izquierdo.value.toString(), type : Type.NUMERO}
+            }
         }
         return resultado;
     }
