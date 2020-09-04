@@ -42,7 +42,7 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")
 "console"                               return 'CONSOLE'
 "log"                                   return 'LOG'
 "graficar_ts"                           return 'GRAFICAR_TS'
-
+"default"                               return 'DEFAULT'
 
 ":"                                     return 'DP'
 ";"                                     return 'PYC'
@@ -68,7 +68,6 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")
 ","                                     return ','
 "{"                                     return '{'
 "}"                                     return '}'
-":"                                     return ':'
 
 ["_" | a-z | A-Z]["_" | a-z | A-Z|0-9]* return 'IDENTIFICADOR';
 <<EOF>>                                 return 'EOF';
@@ -92,6 +91,14 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")
     const { Llamada } = require('../Instrucciones/Llamada');
     const { Relacional, OperacionesLogicas } = require('../Expresiones/Relacional');
     const { Imprimir } = require('../Instrucciones/Imprimir');
+    const { SentenciaIf } = require('../Instrucciones/SentenciaIf');
+    const { Cuerposentencia } = require('../Instrucciones/Cuerposentencia');
+    const { Caso } = require('../Instrucciones/Caso');
+    const { CasoDef } = require('../Instrucciones/CasoDef');
+    const { SentenciaSwitch } = require('../Instrucciones/SentenciaSwitch');
+    const { SentenciaWhile } = require('../Instrucciones/SentenciaWhile');
+    const { SentenciaDowhile } = require('../Instrucciones/SentenciaDowhile');
+    const { Incremento } = require('../Instrucciones/Incremento');
 %}
 
 /* Asociación de operadores y precedencia */
@@ -141,6 +148,197 @@ Instruccion
     | Asignacion
     {
         $$ = $1;
+    }
+    | Sentencias_control
+    {
+        $$ = $1
+    };
+
+Sentencias_control
+    : Sentenciaif
+    {
+        $$ = $1;
+    }
+    | Sentenciaswitch
+    {
+        $$ = $1;
+    }
+    | Sentenciawhile
+    {
+        $$ = $1;
+    }
+    | Sentenciadowhile
+    {
+        $$ = $1;
+    }
+    | Sentenciafor
+    {
+        $$ = $1;
+    }
+    | 'BREAK' PYC
+    {
+        $$ = $1;
+    }
+    | 'RETURN' PYC
+    {
+    
+    }
+    | 'RETURN' Expresion PYC
+    {
+
+    };
+
+Sentenciafor
+    : 'FOR' '(' 'LET' IDENTIFICADOR '=' Expresion PYC Expresion PYC Aumento ')' InstruccionesSentencias
+    | 'FOR' '(' IDENTIFICADOR '=' Expresion PYC Expresion PYC Aumento ')' InstruccionesSentencias;
+
+Aumento
+    : IDENTIFICADOR '+' '+'
+    {
+        $$ = new Incremento($1, OpcionesAritmeticas.MAS, new Literal(1, @1.first_line, @1.first_column, 0), @1.first_line, @1.first_column);
+    }
+    | IDENTIFICADOR '-' '-'
+    {
+        $$ = new Incremento($1, OpcionesAritmeticas.MENOS, new Literal(1, @1.first_line, @1.first_column, 0), @1.first_line, @1.first_column);
+    }
+    | IDENTIFICADOR '+' '=' Expresion
+    {
+        $$ = new Incremento($1, OpcionesAritmeticas.MAS, $4, @1.first_line, @1.first_column);
+    }
+    | IDENTIFICADOR '-' '=' Expresion
+    {
+        $$ = new Incremento($1, OpcionesAritmeticas.MENOS, $4, @1.first_line, @1.first_column);
+    }
+    | IDENTIFICADOR '*' '=' Expresion
+    {
+        $$ = new Incremento($1, OpcionesAritmeticas.POR, $4, @1.first_line, @1.first_column);
+    }
+    | IDENTIFICADOR '/' '=' Expresion{
+        $$ = new Incremento($1, OpcionesAritmeticas.DIV, $4, @1.first_line, @1.first_column);
+    };
+
+Sentenciadowhile
+    : 'DO' InstruccionesSentencias 'WHILE' '(' Expresion ')'
+    {
+        $$ = new SentenciaDowhile($5, $2, @1.first_line, @1.first_column);
+    };
+
+Sentenciawhile
+    :'WHILE' '(' Expresion ')' InstruccionesSentencias
+    {
+        $$ = new SentenciaWhile($3, $5, @1.first_line, @1.first_column);
+    };
+
+Sentenciaswitch
+    : 'SWITCH' '(' Expresion ')' '{' Casos '}'
+    {
+        $$ = new SentenciaSwitch($3, $6, @1.first_line, @1.first_column);
+    }
+    | 'SWITCH' '(' Expresion ')' '{' '}'
+    {
+        $$ = new SentenciaSwitch($3, null, @1.first_line, @1.first_column);
+    };
+
+Casos
+    : Casos 'CASE' Expresion DP InstruccionSentencia
+    {
+        $1.push(new Caso($3, $5, @1.first_line, @1.first_column));
+        $$ = $1;
+    }
+    | Casos 'CASE' Expresion DP
+    {
+        $1.push(new Caso($4, null, @1.first_line, @1.first_column));
+        $$ = $1
+    }
+    | Casos 'DEFAULT' DP InstruccionSentencia
+    {
+        $1.push(new CasoDef($4, @1.first_line, @1.first_column));
+        $$ = $1;
+    }
+    | Casos 'DEFAULT' DP
+    {
+        $1.push(new CasoDef(null, @1.first_line, @1.first_column));
+        $$ = $1;
+    }
+    | 'CASE' Expresion DP InstruccionSentencia
+    {
+        $$ = [new Caso($2, $4, @1.first_line, @1.first_column)];
+    }
+    | 'CASE' Expresion DP
+    {
+        $$ = [new Caso($2, null, @1.first_line, @1.first_column)];
+    }
+    | 'DEFAULT' 
+    {
+        $$ = [new CasoDef(null, @1.first_line, @1.first_column)];
+    };
+
+Sentenciaif
+    : 'IF' '(' Expresion ')' InstruccionesSentencias
+    {
+        $$ = new SentenciaIf($3, $5, null, @1.first_line, @1.first_column);
+    }
+    | 'IF' '(' Expresion ')' InstruccionesSentencias SentenciaElse
+    {
+        $$ = new SentenciaIf($3, $5, $6, @1.first_line, @1.first_column);
+    };
+
+SentenciaElse
+    : 'ELSE' Sentenciaif
+    {
+        $$ = $2;
+    }
+    | 'ELSE' InstruccionesSentencias
+    {
+        $$ = $2;
+    };
+
+InstruccionesSentencias
+    : '{' InstruccionSentencia '}'
+    {
+        $$ = new Cuerposentencia($2, @1.first_line, @1.first_column);
+    }
+    | '{' '}'
+    {
+        $$ = new Cuerposentencia(new Array(), @1.first_line, @1.first_column);
+    };
+
+InstruccionSentencia
+    : InstruccionSentencia Declaracion PYC
+    {
+        $1.push($2);
+        $$ = $1;
+    }
+    | InstruccionSentencia Llamada PYC
+    {
+        $1.push($2)
+        $$ = $1;
+    }
+    | InstruccionSentencia Asignacion
+    {
+        $1.push($2);
+        $$ = $1;
+    }
+    | InstruccionSentencia Sentencias_control
+    {
+        $1.push($2)
+        $$ = $1
+    }
+    | Declaracion PYC
+    {
+        $$ = [$1]
+    }
+    | Llamada PYC
+    {
+        $$ = [$1]
+    }
+    | Asignacion
+    {
+        $$ = [$1]
+    }
+    | Sentencias_control
+    {
+        $$ = [$1]
     };
 
 Asignacion
@@ -360,7 +558,8 @@ Expresion
     | NULL
     {
         $$ = new Literal($1, @1.first_line, @1.first_column, 3)
-    };
+    }
+    | Aumento;
 
 Listaatributos
     : Listaatributos '.' IDENTIFICADOR 
