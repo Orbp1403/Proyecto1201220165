@@ -99,6 +99,8 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")
     const { SentenciaWhile } = require('../Instrucciones/SentenciaWhile');
     const { SentenciaDowhile } = require('../Instrucciones/SentenciaDowhile');
     const { Incremento } = require('../Instrucciones/Incremento');
+    const { SentenciaFor } = require('../Instrucciones/SentenciaFor');
+    const { Funcion } = require('../Instrucciones/Funcion');
 %}
 
 /* Asociación de operadores y precedencia */
@@ -190,7 +192,13 @@ Sentencias_control
 
 Sentenciafor
     : 'FOR' '(' 'LET' IDENTIFICADOR '=' Expresion PYC Expresion PYC Aumento ')' InstruccionesSentencias
-    | 'FOR' '(' IDENTIFICADOR '=' Expresion PYC Expresion PYC Aumento ')' InstruccionesSentencias;
+    {
+        $$ = new SentenciaFor($4, $6, $8, $10, $12, @1.first_line, @1.first_column);
+    }
+    | 'FOR' '(' IDENTIFICADOR '=' Expresion PYC Expresion PYC Aumento ')' InstruccionesSentencias
+    {
+        $$ = new SentenciaFor($3, $5, $7, $9, $11, @1.first_line, @1.first_column);
+    };
 
 Aumento
     : IDENTIFICADOR '+' '+'

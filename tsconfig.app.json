@@ -10,7 +10,6 @@
     "src/polyfills.ts",
     // * INICIO DE ENTORNO
     "src/Grammar/Entorno/Entorno.ts",
-    "src/Grammar/Entorno/Funcion.ts",
     "src/Grammar/Entorno/Simbolo.ts",
     "src/Grammar/Entorno/Tipo.ts",
     // * FIN DE ENTORNO
@@ -31,8 +30,11 @@
     "src/Grammar/Instrucciones/Declaracion.ts",
     "src/Grammar/Instrucciones/DeclaracionTipos.ts",
     "src/Grammar/Instrucciones/DeclaracionVarType.ts",
+    "src/Grammar/Instrucciones/Funcion.ts",
     "src/Grammar/Instrucciones/Imprimir.ts",
     "src/Grammar/Instrucciones/Llamada.ts",
+    "src/Grammar/Instrucciones/SentenciaDowhile.ts",
+    "src/Grammar/Instrucciones/SentenciaFor.ts",
     "src/Grammar/Instrucciones/SentenciaIf.ts",
     "src/Grammar/Instrucciones/SentenciaSwitch.ts",
     "src/Grammar/Instrucciones/SentenciaWhile.ts",

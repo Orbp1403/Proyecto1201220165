@@ -1,6 +1,6 @@
 import { Simbolo, TiposSimbolo } from "./Simbolo"
 import { Tipo } from "./Tipo"
-import { Funcion } from "./Funcion"
+import { Funcion } from "../Instrucciones/Funcion";
 import { Type } from "../Retorno"
 
 export class Entorno{
