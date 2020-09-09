@@ -37,6 +37,7 @@
     "src/Grammar/Instrucciones/SentenciaFor.ts",
     "src/Grammar/Instrucciones/SentenciaIf.ts",
     "src/Grammar/Instrucciones/SentenciaSwitch.ts",
+    "src/Grammar/Instrucciones/SentenciaTernaria.ts",
     "src/Grammar/Instrucciones/SentenciaWhile.ts",
     // * FIN DE INSTRUCCIONES
     // * CLASES AFUERA DE LAS CARPETAS ANTERIORES

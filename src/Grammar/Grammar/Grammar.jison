@@ -44,6 +44,14 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")
 "graficar_ts"                           return 'GRAFICAR_TS'
 "default"                               return 'DEFAULT'
 
+"++"                                    return '++'
+"--"                                    return '--'
+"+="                                    return '+='
+"-="                                    return '-='
+"*="                                    return '*='
+"/="                                    return '/='
+"%="                                    return '%='
+'**='                                   return '**='
 ":"                                     return 'DP'
 ";"                                     return 'PYC'
 "&&"                                    return 'AND'
@@ -68,6 +76,7 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")
 ","                                     return ','
 "{"                                     return '{'
 "}"                                     return '}'
+"?"                                     return '?'
 
 ["_" | a-z | A-Z]["_" | a-z | A-Z|0-9]* return 'IDENTIFICADOR';
 <<EOF>>                                 return 'EOF';
@@ -101,17 +110,28 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")
     const { Incremento } = require('../Instrucciones/Incremento');
     const { SentenciaFor } = require('../Instrucciones/SentenciaFor');
     const { Funcion } = require('../Instrucciones/Funcion');
+    const { SentenciaTernaria } = require('../Instrucciones/SentenciaTernaria');
+    const { SentenciaReturn } = require('../Instrucciones/SentenciaReturn');
+    const { Break } = require('../Instrucciones/Break');
 %}
 
 /* Asociación de operadores y precedencia */
+%right '+=' '-=' '*=' '/=' '%=' '**='
+%right '?' 'DP'
 %left 'OR'
 %left 'AND'
 %left '==' '!='
 %left '>=' '<=' '<' '>'
-%left NOT
-%left '+' '-'
-%left '*' '/'
+%left '-'
+%left '+'
+%left '%'
+%left '/'
+%left '*'
 %left NEGATIVO
+%left '**'
+%left NOT
+%nonassoc '--'
+%nonassoc '++'
 
 %start ini
 
@@ -143,7 +163,7 @@ Instruccion
     {
         $$ = $1;
     }
-    | Llamada PYC
+    | Expresion PYC
     {
         $$ = $1;
     }
@@ -179,15 +199,21 @@ Sentencias_control
     }
     | 'BREAK' PYC
     {
-        $$ = $1;
+        $$ = new Break(@1.first_line, @1.first_column);
     }
     | 'RETURN' PYC
     {
-    
+        $$ = new Return(null, @1.first_line, @1.first_column);
     }
     | 'RETURN' Expresion PYC
     {
+        $$ = new Return(Expresion, @1.first_line, @1.first_column);
+    };
 
+SentenciaTernaria
+    : Expresion '?' Expresion DP Expresion
+    {
+        $$ = new SentenciaTernaria($1, $3, $4, @1.first_line, @1.first_column);
     };
 
 Sentenciafor
@@ -201,28 +227,34 @@ Sentenciafor
     };
 
 Aumento
-    : IDENTIFICADOR '+' '+'
+    : IDENTIFICADOR '++'
     {
         $$ = new Incremento($1, OpcionesAritmeticas.MAS, new Literal(1, @1.first_line, @1.first_column, 0), @1.first_line, @1.first_column);
     }
-    | IDENTIFICADOR '-' '-'
+    | IDENTIFICADOR '--'
     {
         $$ = new Incremento($1, OpcionesAritmeticas.MENOS, new Literal(1, @1.first_line, @1.first_column, 0), @1.first_line, @1.first_column);
     }
-    | IDENTIFICADOR '+' '=' Expresion
+    | IDENTIFICADOR '+=' Expresion
     {
-        $$ = new Incremento($1, OpcionesAritmeticas.MAS, $4, @1.first_line, @1.first_column);
+        $$ = new Incremento($1, OpcionesAritmeticas.MAS, $3, @1.first_line, @1.first_column);
     }
-    | IDENTIFICADOR '-' '=' Expresion
+    | IDENTIFICADOR '-=' Expresion
     {
-        $$ = new Incremento($1, OpcionesAritmeticas.MENOS, $4, @1.first_line, @1.first_column);
+        $$ = new Incremento($1, OpcionesAritmeticas.MENOS, $3, @1.first_line, @1.first_column);
     }
-    | IDENTIFICADOR '*' '=' Expresion
+    | IDENTIFICADOR '*=' Expresion
     {
-        $$ = new Incremento($1, OpcionesAritmeticas.POR, $4, @1.first_line, @1.first_column);
+        $$ = new Incremento($1, OpcionesAritmeticas.POR, $3, @1.first_line, @1.first_column);
     }
-    | IDENTIFICADOR '/' '=' Expresion{
-        $$ = new Incremento($1, OpcionesAritmeticas.DIV, $4, @1.first_line, @1.first_column);
+    | IDENTIFICADOR '/=' Expresion{
+        $$ = new Incremento($1, OpcionesAritmeticas.DIV, $3, @1.first_line, @1.first_column);
+    }
+    | IDENTIFICADOR '%=' Expresion{
+        $$ = new Incremento($1, OpcionesAritmeticas.MODULO, $3, @1.first_line, @1.first_column);
+    }
+    | IDENTIFICADOR '**=' Expresion{
+        $$ = new Incremento($1, OpcionesAritmeticas.POTENCIA, $3, @1.first_line, @1.first_column)
     };
 
 Sentenciadowhile
@@ -529,6 +561,14 @@ Expresion
     {
         $$ = new Aritmeticas($1, $3, OpcionesAritmeticas.DIV, @1.first_line, @1.first_column);
     }
+    | Expresion '%' Expresion
+    {
+        $$ = new Aritmeticas($1, $3, OpcionesAritmeticas.MODULO, @1.first_line, @1.first_column);
+    }
+    | Expresion '**' Expresion
+    {
+        $$ = new Aritmeticas($1, $3, OpcionesAritmeticas.POTENCIA, @1.first_line, @1.first_column);
+    }
     | '(' Expresion ')'
     {
         $$ = $2;
@@ -567,7 +607,14 @@ Expresion
     {
         $$ = new Literal($1, @1.first_line, @1.first_column, 3)
     }
-    | Aumento;
+    | Aumento
+    {
+        $$ = $1
+    }
+    | SentenciaTernaria
+    {
+        $$ = $1
+    };
 
 Listaatributos
     : Listaatributos '.' IDENTIFICADOR 

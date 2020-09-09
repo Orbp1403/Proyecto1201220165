@@ -3,5 +3,7 @@ export enum OpcionesAritmeticas{
     MENOS,
     POR,
     DIV,
-    NEGATIVO
+    NEGATIVO,
+    MODULO,
+    POTENCIA
 }
