@@ -3,7 +3,7 @@ import { Entorno } from '../Entorno/Entorno';
 import { Retorno } from '../Retorno';
 
 export class Variable extends Expresion{
-    constructor(private nombre : string, linea : number, columna : number){
+    constructor(private nombre : string, private atributos : Array<string> | null, linea : number, columna : number){
         super(linea, columna);
     }
 

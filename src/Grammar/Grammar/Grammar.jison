@@ -1,9 +1,10 @@
+%{ let hermano = null; %}
 /* Definición Léxica */
 %lex
 
 %options case-sensitive
 numero [0-9]+("."[0-9]+)?
-cadena (\"[^\"]*\")|("`"[^"`"]*"`")
+cadena (\"[^\"]*\")|("`"[^"`"]*"`")|("'" [^"'"]* "'")
 
 %%
 
@@ -56,13 +57,13 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")
 ";"                                     return 'PYC'
 "&&"                                    return 'AND'
 "||"                                    return 'OR'
+'=='                                    return '=='
+'!='                                    return '!='
 "!"                                     return 'NOT'
 "%"                                     return '%'
 "**"                                    return '**'
 "<="                                    return '<='
 ">="                                    return '>='
-'=='                                    return '=='
-'!='                                    return '!='
 '<'                                     return '<'
 '>'                                     return '>'
 "="                                     return '='
@@ -77,6 +78,8 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")
 "{"                                     return '{'
 "}"                                     return '}'
 "?"                                     return '?'
+"["                                     return '['
+"]"                                     return ']'
 
 ["_" | a-z | A-Z]["_" | a-z | A-Z|0-9]* return 'IDENTIFICADOR';
 <<EOF>>                                 return 'EOF';
@@ -127,8 +130,8 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")
 %left '%'
 %left '/'
 %left '*'
-%left NEGATIVO
 %left '**'
+%left NEGATIVO
 %left NOT
 %nonassoc '--'
 %nonassoc '++'
@@ -174,6 +177,10 @@ Instruccion
     | Sentencias_control
     {
         $$ = $1
+    }
+    | Funcion
+    {
+        $$ = $1;
     };
 
 Sentencias_control
@@ -349,11 +356,6 @@ InstruccionSentencia
         $1.push($2);
         $$ = $1;
     }
-    | InstruccionSentencia Llamada PYC
-    {
-        $1.push($2)
-        $$ = $1;
-    }
     | InstruccionSentencia Asignacion
     {
         $1.push($2);
@@ -364,13 +366,18 @@ InstruccionSentencia
         $1.push($2)
         $$ = $1
     }
+    | InstruccionSentencia Expresion PYC
+    {
+        $1.push($2)
+        $$ = $1;
+    }
     | Declaracion PYC
     {
         $$ = [$1]
     }
-    | Llamada PYC
+    | Expresion PYC
     {
-        $$ = [$1]
+        $$ = [$1];
     }
     | Asignacion
     {
@@ -383,13 +390,17 @@ InstruccionSentencia
 
 Asignacion
     : IDENTIFICADOR Listaatributos '=' Expresion PYC
+    {
+        console.log($2);
+        $$ = new Asignacion($1, $2, $4, @1.first_line, @1.first_column);
+    }
     | IDENTIFICADOR '=' '{' Lvalorestype '}' PYC
     {
         $$ = new AsignacionVarType($1, $4, @1.first_line, @1.first_column);
     }
     | IDENTIFICADOR '=' Expresion PYC
     {
-        $$ = new Asignacion($1, $3, @1.first_line, @1.first_column);
+        $$ = new Asignacion($1, null, $3, @1.first_line, @1.first_column);
     };
 
 Declaracion_type
@@ -591,13 +602,13 @@ Expresion
     }
     | IDENTIFICADOR
     {
-        $$ = new Variable($1, @1.first_line, @1.first_column);
+        $$ = new Variable($1, null, @1.first_line, @1.first_column);
     }
     | IDENTIFICADOR Listaatributos
     {
         let a = $1
         a.concat("." + $2);
-        $$ = new Variable($1, @1.first_line, @1.first_column);
+        $$ = new Variable($1, $2, @1.first_line, @1.first_column);
     }
     | Llamada
     {
@@ -619,15 +630,12 @@ Expresion
 Listaatributos
     : Listaatributos '.' IDENTIFICADOR 
     {
-        let aux = $1;
-        aux.concat("." + $3);
-        $$ = aux;
+        $1.push($3);
+        $$ = $1;
     }
     | '.' IDENTIFICADOR
     {
-        let p = ".";
-        p.concat($2);
-        $$ = p;
+        $$ = [$2];
     };
 
 Llamada
@@ -646,7 +654,8 @@ Llamada
     | 'CONSOLE' '.' 'LOG' '(' Listaparam ')'
     {
         $$ = new Imprimir($5, @1.first_line, @1.first_column);
-    };
+    }
+    | 'GRAFICAR_TS' '(' ')';
 
 Listaparam
     : Listaparam ',' Expresion 
@@ -675,3 +684,328 @@ Tipo
     {
         $$ = Type.VOID;
     };
+
+// * inicia la gramatica de las funciones:
+
+Funcion 
+    : FUNCTION IDENTIFICADOR '(' Funcion1;
+
+Funcion1
+    : Lparametrosfuncion ')' DP Tipofuncion InstruccionesFuncion
+    | ')' DP Tipofuncion InstruccionesFuncion;
+
+Tipofuncion
+    : Tipo
+    | IDENTIFICADOR;
+
+InstruccionesFuncion
+    : '{' InstruccionesFuncion1;
+
+InstruccionesFuncion1
+    : Linstrucciones '}'
+    | '}';
+
+Linstrucciones 
+    : Instruccionfuncion Linstrucciones1;
+
+Linstrucciones1
+    : Linstrucciones
+    | ;
+
+Instruccionfuncion
+    : Expresionesfuncion Instruccionfuncion1 PYC
+    | Llamadas_funcion PYC
+    | LET IDENTIFICADOR Auxdeclaracion
+    | CONST IDENTIFICADOR Auxdeclaracion4
+    | sentencia_if
+    | sentencia_switch
+    | sentencia_while
+    | sentencia_dowhile
+    | sentencia_for
+    | sentencia_break
+    | Sentencia_return;
+
+Auxdeclaracion4
+    : DP Auxdeclaracion5
+    | '=' Expresionesfuncion PYC;
+
+Auxdeclaracion5
+    : Tipo '=' Expresionesfuncion PYC
+    | IDENTIFICADOR '=' '{' ValoresType '}' PYC;
+
+Auxdeclaracion
+    : DP Auxdeclaracion1
+    | PYC
+    | '=' Expresionesfuncion PYC;
+
+Auxdeclaracion1
+    : Tipo Auxdeclaracion2
+    | IDENTIFICADOR Auxdeclaracion3;
+
+Auxdeclaracion2
+    : PYC
+    | '=' Expresionesfuncion PYC;
+
+Auxdeclaracion3
+    : PYC
+    | '=' Auxdeclaracion6;
+    
+Auxdeclaracion6
+    : '{' ValoresType '}' PYC
+    | Expresionesfuncion PYC;
+
+Sentencia_return
+    : RETURN Sentencia_return1;
+
+Sentencia_return1
+    : Expresionesfuncion PYC
+    | PYC;
+
+sentencia_break
+    : BREAK PYC;
+
+sentencia_for
+    : FOR '(' sentencia_for1;
+
+sentencia_for1
+    : LET IDENTIFICADOR '=' Expresionesfuncion PYC Expresionesfuncion PYC Expresionesfuncion ')' InstruccionesFuncion
+    | IDENTIFICADOR '=' Expresionesfuncion PYC Expresionesfuncion PYC Expresionesfuncion ')' InstruccionesFuncion;
+
+sentencia_dowhile
+    : DO InstruccionesFuncion WHILE '(' Expresionesfuncion ')' PYC;
+
+sentencia_while
+    : WHILE '(' Expresionesfuncion ')' InstruccionesFuncion;
+
+sentencia_switch
+    : SWITCH '(' Expresionesfuncion ')' '{' Lcasosswitch;
+
+Lcasosswitch 
+    : Lcasos '}'
+    | '}';
+
+Lcasos
+    : CASE Expresionesfuncion DP Lcasos1
+    | DEFAULT DP Lcasos1;
+
+Lcasos1
+    : Linstrucciones Lcasos2
+    | Lcasos
+    | ;
+
+Lcasos2
+    : Lcasos
+    | ;
+
+sentencia_if
+    : IF '(' Expresionesfuncion ')' InstruccionesFuncion sentencia_else;
+
+sentencia_else
+    : ELSE sentencia_else1
+    | ;
+
+sentencia_else1
+    : sentencia_if
+    | InstruccionesFuncion;
+
+Instruccionfuncion9
+    : DP Instruccionfuncion10
+    | '=' Expresionesfuncion PYC;
+
+Instruccionfuncion10
+    : Tipo '=' Expresionesfuncion PYC
+    | IDENTIFICADOR '=' Instruccionfuncion11;
+
+Instruccionfuncion11
+    : '{' ValoresType '}' PYC
+    | Expresionesfuncion PYC;
+
+Instruccionfuncion4
+    : DP Instruccionfuncion5
+    | '=' Expresionesfuncion PYC
+    | PYC;
+
+Instruccionfuncion5
+    : Tipo Instruccionfuncion6
+    | IDENTIFICADOR Instruccionfuncion7;
+
+Instruccionfuncion6
+    : '=' Expresionesfuncion PYC
+    | PYC;
+
+Instruccionfuncion7
+    : '=' Instruccionfuncion8
+    | PYC;
+
+Instruccionfuncion8
+    : '{' ValoresType '}' PYC
+    | Expresionesfuncion PYC;
+
+Instruccionfuncion1
+    : '=' instruccionfuncion12
+    | ;
+
+instruccionfuncion12
+    : Expresionesfuncion
+    | '{' ValoresType '}';
+
+AuxInstruccionfuncion1
+    : '(' Instruccionfuncion2
+    | Atributos
+    | ;
+
+Atributos
+    : Atributo Atributos1;
+
+Atributo
+    : '.' IDENTIFICADOR;
+
+Atributos1
+    : Atributos
+    | ;
+
+Expresionesfuncion
+    : Auxexpresionesfuncion Auxexpresionesfuncion1;
+
+Auxexpresionesfuncion1 
+    : '?' Auxexpresionesfuncion DP Auxexpresionesfuncion;
+
+Auxexpresionesfuncion
+    : Expresionesfuncion1 Expresionesfuncion2;
+
+Expresionesfuncion2
+    : '+=' Expresionesfuncion1 Expresionesfuncion2
+    | '-=' Expresionesfuncion1 Expresionesfuncion2
+    | '*=' Expresionesfuncion1 Expresionesfuncion2
+    | '/=' Expresionesfuncion1 Expresionesfuncion2
+    | '%=' Expresionesfuncion1 Expresionesfuncion2
+    | '**=' Expresionesfuncion1 Expresionesfuncion2
+    | ;
+
+Expresionesfuncion1
+    : Expresionesfuncion3 Expresionesfuncion4;
+
+Expresionesfuncion4
+    : OR Expresionesfuncion3 Expresionesfuncion4
+    | AND Expresionesfuncion3 Expresionesfuncion4
+    | ;
+
+Expresionesfuncion3
+    : Expresionesfuncion5 Expresionesfuncion6;
+
+Expresionesfuncion6
+    : '==' Expresionesfuncion5 Expresionesfuncion6
+    | '!=' Expresionesfuncion5 Expresionesfuncion6
+    | ;
+
+Expresionesfuncion5
+    : Expresionesfuncion7 Expresionesfuncion8;
+
+Expresionesfuncion8
+    : '>=' Expresionesfuncion7 Expresionesfuncion8
+    | '<=' Expresionesfuncion7 Expresionesfuncion8
+    | '<' Expresionesfuncion7 Expresionesfuncion8
+    | '>' Expresionesfuncion7 Expresionesfuncion8
+    | ;
+
+Expresionesfuncion7
+    : Expresionesfuncion9 Expresionesfuncion10;
+
+Expresionesfuncion10
+    : '-' Expresionesfuncion9 Expresionesfuncion10
+    | '+' Expresionesfuncion9 Expresionesfuncion10
+    | ;
+
+Expresionesfuncion9
+    : Expresionesfuncion11 Expresionesfuncion12;
+
+Expresionesfuncion12
+    : '%' Expresionesfuncion11 Expresionesfuncion12
+    | '/' Expresionesfuncion11 Expresionesfuncion12
+    | '*' Expresionesfuncion11 Expresionesfuncion12
+    | ;
+
+Expresionesfuncion11
+    : Expresionesfuncion13 Expresionesfuncion14;
+
+Expresionesfuncion14
+    : '**' Expresionesfuncion13 Expresionesfuncion14
+    | ;
+
+Expresionesfuncion13
+    : NOT Expresionesfuncion13
+    | '-' Expresionesfuncion13
+    | Expresionesfuncion15;
+
+Expresionesfuncion15
+    : Expresionesfuncion16 Expresionesfuncion17;
+
+Expresionesfuncion17
+    : '++'
+    | '--'
+    | Atributos
+    | '(' Instruccionfuncion2
+    | ;
+
+Expresionesfuncion16
+    : NUMERO
+    | CADENA
+    | IDENTIFICADOR
+    | TRUE
+    | FALSE
+    | NULL
+    | '(' Expresionesfuncion ')';
+
+Ternario
+    : Expresionesfuncion '?' Ternario2;
+
+Ternario2
+    : Ternario3 DP Ternario3;
+
+Ternario3
+    : Llamadas_funcion
+    | Expresionesfuncion;
+
+Llamadas_funcion
+    : CONSOLE '.' LOG '(' Instruccionfuncion2
+    | GRAFICAR_TS '(' ')';
+
+Instruccionfuncion2
+    : ')'
+    | Parametrosllamada ')';
+
+Parametrosllamada
+    : Parametrollamada Parametrosllamada1;
+
+Parametrollamada
+    : Expresionesfuncion;
+
+Parametrosllamada1
+    : ',' Parametrosllamada
+    | ;
+
+Instruccionfuncion3
+    : '{' ValoresType '}'
+    | Expresionesfuncion;
+
+ValoresType
+    : Valortype ValoresType1;
+
+Valortype
+    : IDENTIFICADOR DP Expresionesfuncion;
+
+ValoresType1
+    : ',' ValoresType
+    | ValoresType
+    | ;
+
+Lparametrosfuncion
+    : Parametro Auxparametros;
+
+Parametro
+    : IDENTIFICADOR DP Tipo
+    | IDENTIFICADOR DP IDENTIFICADOR;
+
+Auxparametros 
+    : ',' Lparametrosfuncion
+    | ;
