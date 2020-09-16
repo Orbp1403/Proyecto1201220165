@@ -6,7 +6,7 @@ export class AsignacionVarType extends Instruccion{
     private nombre : string;
     private valor : ValoresTipo[];
 
-    constructor(nombre : string, valor : ValoresTipo[], linea : number, columna : number){
+    constructor(nombre : string, atributos : Array<string> | null, valor : ValoresTipo[], linea : number, columna : number){
         super(linea, columna);
         this.nombre = nombre;
         this.valor = valor;

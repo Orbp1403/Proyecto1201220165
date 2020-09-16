@@ -32,6 +32,7 @@
     "src/Grammar/Instrucciones/DeclaracionTipos.ts",
     "src/Grammar/Instrucciones/DeclaracionVarType.ts",
     "src/Grammar/Instrucciones/Funcion.ts",
+    "src/Grammar/Instrucciones/GraficarTs.ts",
     "src/Grammar/Instrucciones/Imprimir.ts",
     "src/Grammar/Instrucciones/Incremento.ts",
     "src/Grammar/Instrucciones/Llamada.ts",

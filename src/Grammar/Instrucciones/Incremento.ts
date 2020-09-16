@@ -4,7 +4,7 @@ import { OpcionesAritmeticas } from '../Expresiones/Opcionesaritmeticas'
 import { Expresion } from '../Expresion'
 
 export class Incremento extends Instruccion{
-    constructor(nombre : string, opcion : OpcionesAritmeticas, valor : Expresion, linea : number, columna : number){
+    constructor(private nombre : string,private opcion : OpcionesAritmeticas, private valor : Expresion, linea : number, columna : number){
         super(linea, columna);
     }
 

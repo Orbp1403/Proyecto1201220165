@@ -1,4 +1,4 @@
-import { Instruccion } from "../Instruccion";
+    import { Instruccion } from "../Instruccion";
 import { Entorno } from '../Entorno/Entorno';
 import { Expresion } from '../Expresion';
 import { TiposSimbolo } from '../Entorno/Simbolo';

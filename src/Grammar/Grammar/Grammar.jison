@@ -116,6 +116,7 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")|("'" [^"'"]* "'")
     const { SentenciaTernaria } = require('../Instrucciones/SentenciaTernaria');
     const { SentenciaReturn } = require('../Instrucciones/SentenciaReturn');
     const { Break } = require('../Instrucciones/Break');
+    const { GraficarTs } = require('../Instrucciones/GraficarTs');
 %}
 
 /* Asociación de operadores y precedencia */
@@ -391,12 +392,15 @@ InstruccionSentencia
 Asignacion
     : IDENTIFICADOR Listaatributos '=' Expresion PYC
     {
-        console.log($2);
         $$ = new Asignacion($1, $2, $4, @1.first_line, @1.first_column);
+    }
+    | IDENTIFICADOR Listaatributos '=' '{' Lvalorestype '}' PYC
+    {
+        $$ = new AsignacionVarType($1, $2, $5, @1.first_line, @1.first_column);
     }
     | IDENTIFICADOR '=' '{' Lvalorestype '}' PYC
     {
-        $$ = new AsignacionVarType($1, $4, @1.first_line, @1.first_column);
+        $$ = new AsignacionVarType($1, null, $4, @1.first_line, @1.first_column);
     }
     | IDENTIFICADOR '=' Expresion PYC
     {
@@ -470,13 +474,13 @@ Declaracion
     {
         $$ = new DeclaracionVarType($2, $7, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column);
     }
-    | LET IDENTIFICADOR DP IDENTIFICADOR '=' IDENTIFICADOR
+    | LET IDENTIFICADOR DP IDENTIFICADOR '=' Expresion
     {
-        $$ = new Declaracion($2, $6, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+        $$ = new DeclaracionVarType($2, $6, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column);
     }
     | LET IDENTIFICADOR DP IDENTIFICADOR
     {
-        $$ = new Declaracion($2, null, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+        $$ = new DeclaracionVarType($2, null, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column);
     }
     | CONST IDENTIFICADOR DP Tipo '=' Expresion
     {
@@ -602,13 +606,13 @@ Expresion
     }
     | IDENTIFICADOR
     {
-        $$ = new Variable($1, null, @1.first_line, @1.first_column);
+        $$ = new Variable($1, null, 7, @1.first_line, @1.first_column);
     }
     | IDENTIFICADOR Listaatributos
     {
         let a = $1
         a.concat("." + $2);
-        $$ = new Variable($1, $2, @1.first_line, @1.first_column);
+        $$ = new Variable($1, $2, 7, @1.first_line, @1.first_column);
     }
     | Llamada
     {
@@ -706,16 +710,72 @@ InstruccionesFuncion1
     | '}';
 
 Linstrucciones 
-    : Instruccionfuncion Linstrucciones1;
+    : Instruccionfuncion Linstrucciones1
+    {
+        $$ = $2;
+    };
 
 Linstrucciones1
     : Linstrucciones
-    | ;
+    {
+        hermano = eval('$$');
+        hermano[hermano.length - 1].unshift(hermano[hermano.length - 2]);
+        $$ = hermano[hermano.length - 1];
+    }
+    | 
+    {
+        hermano = eval('$$');
+        $$ = [hermano[hermano.length - 1]];
+    };
 
 Instruccionfuncion
     : Expresionesfuncion Instruccionfuncion1 PYC
+    {
+        hermano = eval('$$');
+        if(hermano[hermano.length - 2] == null){
+            $$ = hermano[hermano.length-3];
+        }else{
+            $$ = hermano[hermano.length - 2];
+        }
+    }
     | Llamadas_funcion PYC
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length - 2];
+    }
     | LET IDENTIFICADOR Auxdeclaracion
+    {
+        if($3.estype == false){
+            if($3.valor == null && $3.tipo == null)
+            {
+                $$ = new Declaracion($2, null, null, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+            }
+            else if($3.valor == null && $3.tipo != null)
+            {
+                $$ = new Declaracion($2, null, $3.tipo, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+            }
+            else if($3.valor != null && $3.tipo != null)
+            {
+                $$ = new Declaracion($2, $3.valor, $3.tipo, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+            }
+            else if($3.valor != null && $3.tipo == null)
+            {
+                $$ = new Declaracion($2, $3.valor, null, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+            }
+        }
+        else
+        {
+            if($3.valor == null && $3.tipo != null)
+            {
+                $$ = new DeclaracionVarType($2, null, $3.tipo, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+            }
+            else if($3.valor != null && $3.tipo != null)
+            {
+                $$ = new DeclaracionVarType($2, $3.valor, $3.tipo, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+            }
+        }
+        console.log($3);
+    }
     | CONST IDENTIFICADOR Auxdeclaracion4
     | sentencia_if
     | sentencia_switch
@@ -735,24 +795,92 @@ Auxdeclaracion5
 
 Auxdeclaracion
     : DP Auxdeclaracion1
+    {
+        $$ = $2
+    }
     | PYC
-    | '=' Expresionesfuncion PYC;
+    {
+        hermano = eval('$$');
+        $$ = {
+            estype : false,
+            valor : null,
+            tipo : null
+        };
+    }
+    | '=' Expresionesfuncion PYC
+    {
+        hermano = eval('$$');
+        $$ = {
+            estype : false,
+            valor = hermano[hermano.length - 2],
+            tipo : null
+        }
+    };
 
 Auxdeclaracion1
     : Tipo Auxdeclaracion2
-    | IDENTIFICADOR Auxdeclaracion3;
+    {
+        $$ = $2;
+    }
+    | IDENTIFICADOR Auxdeclaracion3
+    {
+        $$ = $2;
+    };
 
 Auxdeclaracion2
     : PYC
-    | '=' Expresionesfuncion PYC;
+    {
+        hermano = eval('$$');
+        $$ = {
+            estype : false,
+            valor : null,
+            tipo : hermano[hermano.length - 2]
+        }
+    }
+    | '=' Expresionesfuncion PYC
+    {
+        hermano = eval('$$');
+        $$ = {
+            estype : false,
+            valor : hermano[hermano.length - 2],
+            tipo : hermano[hermano.length - 4]
+        };
+    };
 
 Auxdeclaracion3
     : PYC
-    | '=' Auxdeclaracion6;
+    {
+        hermano = eval('$$');
+        $$ = {
+            estype : true,
+            valor : null,
+            tipo : hermano[hermano.length - 2]
+        }
+    }
+    | '=' Auxdeclaracion6
+    {
+        $$ = $2;
+    };
     
 Auxdeclaracion6
     : '{' ValoresType '}' PYC
-    | Expresionesfuncion PYC;
+    {
+        hermano = eval('$$');
+        $$ = {
+            estype : true,
+            valor : hermano[hermano.length - 3],
+            tipo : hermano[hermano.length - 6]
+        }
+    }
+    | Expresionesfuncion PYC
+    {
+        hermano = eval('$$');
+        $$ = {
+            estype : true,
+            valor : hermano[hermano.length - 2],
+            tipo : hermano[hermano.length - 4]
+        }
+    };
 
 Sentencia_return
     : RETURN Sentencia_return1;
@@ -843,118 +971,362 @@ Instruccionfuncion8
 
 Instruccionfuncion1
     : '=' instruccionfuncion12
-    | ;
+    {
+        $$ = $2;
+    }
+    | {
+        $$ = null;
+    };
 
 instruccionfuncion12
     : Expresionesfuncion
-    | '{' ValoresType '}';
+    {
+        hermano = eval('$$');
+        $$ = new Asignacion(hermano[hermano.length - 3].nombre, hermano[hermano.length - 3].atributos, hermano[hermano.length - 1], hermano[hermano.length - 3].linea, hermano[hermano.length - 3].columna);
+    }
+    | '{' ValoresType '}'
+    {
+        hermano = eval('$$');
+        $$ = new AsignacionVarType(hermano[hermano.length - 5].nombre, hermano[hermano.length - 5].atributos, hermano[hermano.length - 2], hermano[hermano.length - 5].linea, hermano[hermano.length - 5].columna);
+    };
 
 AuxInstruccionfuncion1
     : '(' Instruccionfuncion2
     | Atributos
     | ;
 
-Atributos
-    : Atributo Atributos1;
-
-Atributo
-    : '.' IDENTIFICADOR;
-
-Atributos1
-    : Atributos
-    | ;
-
 Expresionesfuncion
-    : Auxexpresionesfuncion Auxexpresionesfuncion1;
+    : Auxexpresionesfuncion Auxexpresionesfuncion1
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Auxexpresionesfuncion1 
-    : '?' Auxexpresionesfuncion DP Auxexpresionesfuncion;
+    : '?' Auxexpresionesfuncion DP Auxexpresionesfuncion
+    | 
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Auxexpresionesfuncion
-    : Expresionesfuncion1 Expresionesfuncion2;
+    : Expresionesfuncion1 Expresionesfuncion2
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Expresionesfuncion2
     : '+=' Expresionesfuncion1 Expresionesfuncion2
+    {
+        hermano = eval('$$');
+        $$ = new Incremento(hermano[hermano.length - 4], OpcionesAritmeticas.MAS, hermano[hermano.length - 1], hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+    }
     | '-=' Expresionesfuncion1 Expresionesfuncion2
+    {
+        hermano = eval('$$');
+        $$ = new Incremento(hermano[hermano.length - 4], OpcionesAritmeticas.MENOS, hermano[hermano.length - 1], hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+    }
     | '*=' Expresionesfuncion1 Expresionesfuncion2
+    {
+        hermano = eval('$$');
+        $$ = new Incremento(hermano[hermano.length - 4], OpcionesAritmeticas.POR, hermano[hermano.length - 1], hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+    }
     | '/=' Expresionesfuncion1 Expresionesfuncion2
+    {
+        hermano = eval('$$')
+        $$ = new Incremento(hermano[hermano.length - 4], Opcionesaritmeticas.DIV, hermano[hermano.length - 1], hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+    }
     | '%=' Expresionesfuncion1 Expresionesfuncion2
+    {
+        hermano = eval('$$');
+        $$ = new Incremento(hermano[hermano.length - 4], OpcionesAritmeticas.MODULO, hermano[hermano.length - 1], hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+    }
     | '**=' Expresionesfuncion1 Expresionesfuncion2
-    | ;
+    {
+        hermano = eval('$$');
+        $$ = new Incremento(hermano[hermano.length - 4], OpcionesAritmeticas.POTENCIA, hermano[hermano.length-1], hermano[hermano.length - 4].linea, hermano[hermano.left - 4].columna);
+    }
+    | 
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Expresionesfuncion1
-    : Expresionesfuncion3 Expresionesfuncion4;
+    : Expresionesfuncion3 Expresionesfuncion4
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Expresionesfuncion4
     : OR Expresionesfuncion3 Expresionesfuncion4
+    {
+        hermano = eval('$$');
+        $$ = new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.OR, hermano[hermano.length - 4].linea, hermano[hermano.left-4].columna);
+    }
     | AND Expresionesfuncion3 Expresionesfuncion4
-    | ;
+    {
+        hermano = eval('$$');
+        $$ = new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.AND, hermano[hermano - 4].linea, hermano[hermano - 4].columna);
+    }
+    | 
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Expresionesfuncion3
-    : Expresionesfuncion5 Expresionesfuncion6;
+    : Expresionesfuncion5 Expresionesfuncion6
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Expresionesfuncion6
     : '==' Expresionesfuncion5 Expresionesfuncion6
+    {
+        hermano = eval('$$');
+        $$ = new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.IGUAL, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+    }
     | '!=' Expresionesfuncion5 Expresionesfuncion6
-    | ;
+    {
+        hermano = eval('$$');
+        $$ = new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.NOIGUAL, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+    }
+    | 
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Expresionesfuncion5
-    : Expresionesfuncion7 Expresionesfuncion8;
+    : Expresionesfuncion7 Expresionesfuncion8
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Expresionesfuncion8
     : '>=' Expresionesfuncion7 Expresionesfuncion8
+    {
+        hermano = eval('$$');
+        $$ = new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.MAYORIGUAL, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna)
+    }
     | '<=' Expresionesfuncion7 Expresionesfuncion8
+    {
+        hermano = eval('$$');
+        $$ = new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.MENORIGUAL, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna)
+    }
     | '<' Expresionesfuncion7 Expresionesfuncion8
+    {
+        hermano = eval('$$');
+        $$ = new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.MENOR, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna)
+    }
     | '>' Expresionesfuncion7 Expresionesfuncion8
-    | ;
+    {
+        hermano = eval('$$');
+        $$ = new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.MAYOR, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna)
+    }
+    | 
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Expresionesfuncion7
-    : Expresionesfuncion9 Expresionesfuncion10;
+    : Expresionesfuncion9 Expresionesfuncion10
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Expresionesfuncion10
     : '-' Expresionesfuncion9 Expresionesfuncion10
+    {
+        hermano = eval('$$');
+        $$ = new Aritmeticas(hermano[hermano.length - 4], hermano[hermano.length - 1], OpcionesAritmeticas.MENOS, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+    }
     | '+' Expresionesfuncion9 Expresionesfuncion10
-    | ;
+    {
+        hermano = eval('$$');
+        $$ = new Aritmeticas(hermano[hermano.length - 4], hermano[hermano.length - 1], OpcionesAritmeticas.MAS, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+    }
+    | 
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Expresionesfuncion9
-    : Expresionesfuncion11 Expresionesfuncion12;
+    : Expresionesfuncion11 Expresionesfuncion12
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Expresionesfuncion12
     : '%' Expresionesfuncion11 Expresionesfuncion12
+    {
+        hermano = eval('$$');
+        $$ = new Aritmeticas(hermano[hermano.length - 4], hermano[hermano.length - 1], OpcionesAritmeticas.MODULO, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+    }
     | '/' Expresionesfuncion11 Expresionesfuncion12
+    {
+        hermano = eval('$$');
+        $$ = new Aritmeticas(hermano[hermano.length - 4], hermano[hermano.length - 1], OpcionesAritmeticas.DIV, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+    }
     | '*' Expresionesfuncion11 Expresionesfuncion12
-    | ;
+    {
+        hermano = eval('$$');
+        $$ = new Aritmeticas(hermano[hermano.length - 4], hermano[hermano.length - 1], OpcionesAritmeticas.POR, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+    }
+    | 
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Expresionesfuncion11
-    : Expresionesfuncion13 Expresionesfuncion14;
+    : Expresionesfuncion13 Expresionesfuncion14
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Expresionesfuncion14
     : '**' Expresionesfuncion13 Expresionesfuncion14
-    | ;
+    {
+        hermano = eval('$$');
+        $$ = new Aritmeticas(hermano[hermano.length - 4], hermano[hermano.length - 1], OpcionesAritmeticas.POTENCIA, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+    }
+    | 
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Expresionesfuncion13
     : NOT Expresionesfuncion13
+    {
+        $$ = new Relacional($2, null, OperacionesLogicas.NEGADO, @1.first_line, @1.first_column);
+    }
     | '-' Expresionesfuncion13
-    | Expresionesfuncion15;
+    {
+        $$ = new Aritmeticas($2, null, OpcionesAritmeticas.NEGATIVO, @1.first_line, @1.first_column);
+    }
+    | Expresionesfuncion15
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Expresionesfuncion15
-    : Expresionesfuncion16 Expresionesfuncion17;
+    : Expresionesfuncion16 Expresionesfuncion17
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Expresionesfuncion17
     : '++'
+    {
+        hermano = eval('$$');
+        if(hermano[hermano.length-2].tipo == 7){
+            $$ = new Incremento(hermano[hermano.length-2].nombre, OpcionesAritmeticas.MAS, new Literal(1, @1.first_line, @1.first_column, 0), hermano[hermano.length-2].linea, hermano[hermano.length-2].columna);
+        }else{
+            //TODO error
+        }
+    }
     | '--'
-    | Atributos
-    | '(' Instruccionfuncion2
-    | ;
+    {
+        hermano = eval('$$');
+        if(hermano[hermano.length-2].tipo == 7){
+            $$ = new Incremento(hermano[hermano.length-2].nombre, OpcionesAritmeticas.MENOS, new Literal(1, @1.first_line, @1.first_column, 0), hermano[hermano.length-2].linea, hermano[hermano.length-2].columna);
+        }else{
+            //TODO error
+        }
+    }
+    | 
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
 
 Expresionesfuncion16
+    : Expresionesfuncion18 Expresionesfuncion19
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
+
+Expresionesfuncion19
+    : Atributos
+    {
+        hermano = eval('$$');
+        if(hermano[hermano.length-2].tipo == 7){
+            $$ = new Variable(hermano[hermano.length-2].nombre, hermano[hermano.length-1], 7, hermano[hermano.length-2].linea, hermano[hermano.length-2].columna);
+        }else{
+            //TODO error
+        }
+    }
+    | '(' Instruccionfuncion2
+    {
+        hermano = eval('$$');
+        if(hermano[hermano.length - 3].tipo == 7){
+            $$ = new Llamada(hermano[hermano.length-3].nombre, hermano[hermano.length-1], hermano[hermano.length-3].linea, hermano[hermano.length-3].columna);
+        }else{
+            //TODO ERROR
+        }
+    }
+    | 
+    {
+        hermano = eval('$$');
+        $$ = hermano[hermano.length-1];
+    };
+
+Expresionesfuncion18
     : NUMERO
+    {
+        $$ = new Literal($1, @1.first_line, @1.first_column, 0);
+    }
     | CADENA
+    {
+        if($1.includes('\"'))
+        {
+            $$ = new Literal($1.replace(/['"]+/g, ''), @1.first_line, @1.first_column, 1);
+        }
+        else if($1.includes("'"))
+        {
+            $$ = new Literal($1.replace(/["'"]+/g, ''), @1.first_line, @1.first_column);
+        }
+        else
+        {
+            $$ = new Literal($1, @1.first_line, @1.first_column);
+        }
+    }
     | IDENTIFICADOR
+    {
+        $$ = new Variable($1, null, 7, @1.first_line, @1.first_column);
+    }
     | TRUE
+    {
+        $$ = new Literal($1, @1.first_line, @1.first_column, 2);
+    }
     | FALSE
+    {
+        $$ = new Literal($1, @1.first_line, @1.first_column, 2);
+    }
     | NULL
-    | '(' Expresionesfuncion ')';
+    {
+        $$ = new Literal($1, @1.first_line, @1.first_column, 3);
+    }
+    | '(' Expresionesfuncion ')'
+    {
+        $$ = $2;
+    };
 
 Ternario
     : Expresionesfuncion '?' Ternario2;
@@ -968,36 +1340,110 @@ Ternario3
 
 Llamadas_funcion
     : CONSOLE '.' LOG '(' Instruccionfuncion2
-    | GRAFICAR_TS '(' ')';
+    {
+        hermano = eval('$$');
+        $$ = new Imprimir(hermano[hermano.length-1], @1.first_line, @1.first_column);
+    }
+    | GRAFICAR_TS '(' ')'
+    {
+        $$ = new GraficarTs(@1.first_line, @1.first_column);
+    };
 
 Instruccionfuncion2
     : ')'
-    | Parametrosllamada ')';
+    {
+        hermano = eval('$$');
+        $$ = [];
+    }
+    | Parametrosllamada ')'
+    {
+        $$ = $1;
+    };
+
+Atributos
+    : Atributo Atributos1
+    {
+        $$ = $2;
+    };
+
+Atributo
+    : '.' IDENTIFICADOR
+    {
+        $$ = $2;
+    };
+
+Atributos1
+    : Atributos
+    {
+        hermano = eval('$$');
+        hermano[hermano.length-1].unshift(hermano[hermano.length - 2]);
+        $$ = hermano[hermano.length-1];
+    }
+    | 
+    {
+        hermano = eval('$$');
+        $$ = [hermano[hermano.length-1]];
+    };
 
 Parametrosllamada
-    : Parametrollamada Parametrosllamada1;
+    : Parametrollamada Parametrosllamada1
+    {
+        $$ = $2;
+    };
 
 Parametrollamada
-    : Expresionesfuncion;
+    : Expresionesfuncion
+    {
+        $$ = $1;
+    };
 
 Parametrosllamada1
     : ',' Parametrosllamada
-    | ;
+    {
+        hermano = eval('$$');
+        hermano[hermano.length-1].unshift(hermano[hermano.length - 3]);
+        $$ = hermano[hermano.length-1];
+    }
+    | 
+    {
+        hermano = eval('$$');
+        $$ = [hermano[hermano.length-1]];
+    };
 
 Instruccionfuncion3
     : '{' ValoresType '}'
     | Expresionesfuncion;
 
 ValoresType
-    : Valortype ValoresType1;
+    : Valortype ValoresType1
+    {
+        $$ = $2;
+    };
 
 Valortype
-    : IDENTIFICADOR DP Expresionesfuncion;
+    : IDENTIFICADOR DP Expresionesfuncion
+    {
+        $$ = new ValoresTipo($1, $3, @1.first_line, @1.first_column);
+    };
 
 ValoresType1
     : ',' ValoresType
+    {
+        hermano = eval('$$');
+        hermano[hermano.length - 1].unshift(hermano[hermano.length -3]);
+        $$ = hermano[hermano.length - 1];
+    }
     | ValoresType
-    | ;
+    {
+        hermano = eval('$$');
+        hermano[hermano.length - 1].unshift(hermano[hermano.length - 3]);
+        $$ = hermano[hermano.length - 1];
+    }
+    | 
+    {
+        hermano = eval('$$');
+        $$ = [hermano[hermano.length - 1]];
+    };
 
 Lparametrosfuncion
     : Parametro Auxparametros;
