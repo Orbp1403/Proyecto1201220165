@@ -1,4 +1,5 @@
-%{ let hermano = null; %}
+%{ let hermano = null; 
+    let instruccion, nodo = null;%}
 /* Definición Léxica */
 %lex
 
@@ -117,6 +118,7 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")|("'" [^"'"]* "'")
     const { SentenciaReturn } = require('../Instrucciones/SentenciaReturn');
     const { Break } = require('../Instrucciones/Break');
     const { GraficarTs } = require('../Instrucciones/GraficarTs');
+    const { Nodo } = require('../Arbol/Nodo');
 %}
 
 /* Asociación de operadores y precedencia */
@@ -144,44 +146,81 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")|("'" [^"'"]* "'")
 ini
 	: Instrucciones EOF
     {
-        return $1;
+
+        $$ = {
+            instrucciones : $1,
+            nodo : new Nodo(null, "INICIO", null, null)
+        }
+        $$.nodo.addHijos(new Nodo(null, "INSTRUCCIONES", $$.nodo, $1.nodo))
+        return $$;
     };
 
 Instrucciones
     : Instrucciones Instruccion
     {
-        $1.push($2);
-        $$ = $1
+        $1.instrucciones.push($2.instrucciones)
+        $1.nodo.push($2.nodo)
+        $$ = {
+            instrucciones : $1.instrucciones,
+            nodo : $1.nodo
+        }
     }
     | Instruccion
     {
-        $$ = [$1];
+        $$ = {
+            instrucciones : [$1.instrucciones],
+            nodo : [$1.nodo]
+        };
     };
 
 Instruccion
     : Declaracion PYC
     {
-        $$ = $1;
+        //$$ = $1;
+        $$ = {
+            instrucciones : $1,
+            nodo : new Nodo(null, "DECLARACION", null, null)
+        }
     }
     | Declaracion_type PYC
     {
-        $$ = $1;
+        //$$ = $1;
+        $$ = {
+            instrucciones : $1,
+            nodo : new Nodo(null, "DECLARACION_TYPE", null, null)
+        }
     }
     | Expresion PYC
     {
-        $$ = $1;
+        //$$ = $1;
+        $$ = {
+            instrucciones : $1,
+            nodo : new Nodo(null, "EXPRESION", null, null)
+        }
     }
     | Asignacion
     {
-        $$ = $1;
+        //$$ = $1;
+        $$ = {
+            instrucciones : $1,
+            nodo : new Nodo(null, "ASIGNACION", null, null)
+        }
     }
     | Sentencias_control
     {
-        $$ = $1
+        //$$ = $1
+        $$ = {
+            instrucciones : $1,
+            nodo : new Nodo(null, "SENTENCIAS_CONTROL", null, null)
+        }
     }
     | Funcion
     {
-        $$ = $1;
+        //$$ = $1;
+        $$ = {
+            instrucciones : $1,
+            nodo : new Nodo(null, "FUNCION", null, null)
+        }
     };
 
 Sentencias_control
@@ -492,11 +531,11 @@ Declaracion
     }
     | CONST IDENTIFICADOR DP IDENTIFICADOR '=' '{' Lvalorestype '}'
     {
-        $$ = new DeclaracionVarType($1, $7, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column);
+        $$ = new DeclaracionVarType($2, $7, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column);
     }
     | CONST IDENTIFICADOR DP IDENTIFICADOR '=' IDENTIFICADOR
     {
-        $$ = new Declaracion($2, $6, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column);
+        $$ = new DeclaracionVarType($2, $6, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column);
     };
 
 Lvalorestype
@@ -692,22 +731,48 @@ Tipo
 // * inicia la gramatica de las funciones:
 
 Funcion 
-    : FUNCTION IDENTIFICADOR '(' Funcion1;
+    : FUNCTION IDENTIFICADOR '(' Funcion1
+    {
+        $$ = new Funcion($3, $4.instrucciones, $4.parametros, $4.tipo, @1.first_line, @1.first_column);
+    };
 
 Funcion1
     : Lparametrosfuncion ')' DP Tipofuncion InstruccionesFuncion
-    | ')' DP Tipofuncion InstruccionesFuncion;
+    {
+        $$ = {
+            parametros : $1,
+            tipo : $4,
+            instrucciones : $5
+        }
+    }
+    | ')' DP Tipofuncion InstruccionesFuncion
+    {
+        $$ = {
+            parametros : null,
+            tipo : $3,
+            instrucciones : $4
+        }
+    };
 
 Tipofuncion
     : Tipo
     | IDENTIFICADOR;
 
 InstruccionesFuncion
-    : '{' InstruccionesFuncion1;
+    : '{' InstruccionesFuncion1
+    {
+        $$ = $2;
+    };
 
 InstruccionesFuncion1
     : Linstrucciones '}'
-    | '}';
+    {
+        $$ = $1;
+    }
+    | '}'
+    {
+        $$ = null;
+    };
 
 Linstrucciones 
     : Instruccionfuncion Linstrucciones1
@@ -774,24 +839,84 @@ Instruccionfuncion
                 $$ = new DeclaracionVarType($2, $3.valor, $3.tipo, TiposSimbolo.VAR, @1.first_line, @1.first_column);
             }
         }
-        console.log($3);
     }
     | CONST IDENTIFICADOR Auxdeclaracion4
+    {
+        if($3.estype == false)
+        {
+            if($3.valor != null && $3.tipo == null)
+            {
+                $$ = new Declaracion($2, $3.valor, null, TiposSimbolo.CONST, @1.first_line, @1.first_column);
+            }
+            else
+            {
+                $$ = new Declaracion($2, $3.valor, $3.tipo, TiposSimbolo.CONST, @1.first_line, @1.first_column);
+            }
+        }
+        else
+        {
+            $$ = new DeclaracionVarType($2, $3.valor, $3.tipo, TiposSimbolo.CONST, @1.first_line, @1.first_column);
+        }
+    }
     | sentencia_if
+    {
+        $$ = $1;
+    }
     | sentencia_switch
+    {
+        $$ = $1;
+    }
     | sentencia_while
+    {
+        $$ = $1;
+    }
     | sentencia_dowhile
+    {
+        $$ = $1;
+    }
     | sentencia_for
+    {
+        $$ = $1;
+    }
     | sentencia_break
-    | Sentencia_return;
+    {
+        $$ = $1;
+    }
+    | Sentencia_return
+    {
+        $$ = $1;
+    };
 
 Auxdeclaracion4
     : DP Auxdeclaracion5
-    | '=' Expresionesfuncion PYC;
+    {
+        $$ = $2;
+    }
+    | '=' Expresionesfuncion PYC
+    {
+        hermano = eval('$$');
+        $$ = {
+            estype : false,
+            valor : hermano[hermano.length - 2],
+            tipo : null
+        }
+    };
 
 Auxdeclaracion5
     : Tipo '=' Expresionesfuncion PYC
-    | IDENTIFICADOR '=' '{' ValoresType '}' PYC;
+    {
+        hermano = eval('$$');
+        $$ = {
+            estype : false,
+            valor : hermano[hermano.length - 2],
+            tipo : hermano[hermano.length - 4]
+        }
+    }
+    | IDENTIFICADOR '=' Auxdeclaracion6
+    {
+        hermano = eval('$$');
+        $$ = $3
+    };
 
 Auxdeclaracion
     : DP Auxdeclaracion1
@@ -812,7 +937,7 @@ Auxdeclaracion
         hermano = eval('$$');
         $$ = {
             estype : false,
-            valor = hermano[hermano.length - 2],
+            valor : hermano[hermano.length - 2],
             tipo : null
         }
     };
@@ -883,91 +1008,176 @@ Auxdeclaracion6
     };
 
 Sentencia_return
-    : RETURN Sentencia_return1;
+    : RETURN Sentencia_return1
+    {
+        $$ = new SentenciaReturn($2.valor, @1.first_line, @1.first_column);
+    };
 
 Sentencia_return1
     : Expresionesfuncion PYC
-    | PYC;
+    {
+        hermano = eval('$$');
+        $$ = {
+            valor : hermano[hermano.length - 2]
+        };
+    }
+    | PYC
+    {
+        $$ = {
+            valor : null
+        }
+    };
 
 sentencia_break
-    : BREAK PYC;
+    : BREAK PYC
+    {
+        $$ = new Break(@1.first_line, @1.first_column);
+    };
 
 sentencia_for
-    : FOR '(' sentencia_for1;
+    : FOR '(' sentencia_for1
+    {
+        $$ = new SentenciaFor($3.id, $3.valor_inicio, $3.condicion, $3.incremento, $3.instrucciones, @1.first_line, @1.first_column);
+    };
 
 sentencia_for1
     : LET IDENTIFICADOR '=' Expresionesfuncion PYC Expresionesfuncion PYC Expresionesfuncion ')' InstruccionesFuncion
-    | IDENTIFICADOR '=' Expresionesfuncion PYC Expresionesfuncion PYC Expresionesfuncion ')' InstruccionesFuncion;
+    {
+        $$ = {
+            id : $2,
+            valor_inicio : $4,
+            condicion : $6,
+            incremento : $8,
+            instrucciones : $10
+        }
+    }
+    | Expresionesfuncion '=' Expresionesfuncion PYC Expresionesfuncion PYC Expresionesfuncion ')' InstruccionesFuncion
+    {
+        $$ = {
+            id : $1,
+            valor_inicio : $3,
+            condicion : $5,
+            incremento : $7,
+            instrucciones : $9
+        }
+    };
 
 sentencia_dowhile
-    : DO InstruccionesFuncion WHILE '(' Expresionesfuncion ')' PYC;
+    : DO InstruccionesFuncion WHILE '(' Expresionesfuncion ')' PYC
+    {
+        $$ = new SentenciaDowhile($5, $2, @1.first_line, @1.first_column)
+    };
 
 sentencia_while
-    : WHILE '(' Expresionesfuncion ')' InstruccionesFuncion;
+    : WHILE '(' Expresionesfuncion ')' InstruccionesFuncion
+    {
+        $$ = new SentenciaWhile($3, $5, @1.first_line, @1.first_column);
+    };
 
 sentencia_switch
-    : SWITCH '(' Expresionesfuncion ')' '{' Lcasosswitch;
+    : SWITCH '(' Expresionesfuncion ')' '{' Lcasosswitch
+    {
+        $$ = new SentenciaSwitch($3, $6, @1.first_line, @1.first_column);
+    };
 
 Lcasosswitch 
     : Lcasos '}'
-    | '}';
+    {
+        $$ = $1;
+    }
+    | '}'
+    {
+        $$ = null;
+    };
 
 Lcasos
     : CASE Expresionesfuncion DP Lcasos1
-    | DEFAULT DP Lcasos1;
+    {
+        hermano = eval('$$');
+        if(hermano[hermano.length - 1].casos == null)
+        {
+            $$ = [new Caso($2, hermano[hermano.length - 1].instrucciones, @1.first_line, @1.first_column)];
+        }
+        else
+        {
+            hermano[hermano.length - 1].casos.unshift(new Caso($2, hermano[hermano.length - 1].instrucciones, @1.first_line, @1.first_column))
+            $$ = hermano[hermano.length - 1].casos;
+        }
+    }
+    | DEFAULT DP Lcasos1
+    {
+        hermano = eval('$$');
+        if(hermano[hermano.length - 1].casos == null)
+        {
+            $$ = [new CasoDef(hermano[hermano.length - 1].instrucciones, @1.first_line, @1.first_column)];
+        }
+        else
+        {
+            hermano[hermano.length - 1].casos.unshift(new CasoDef(hermano[hermano.length - 1].instrucciones, @1.first_line, @1.first_column));
+            $$ = hermano[hermano.length - 1].casos;
+        }
+    };
 
 Lcasos1
     : Linstrucciones Lcasos2
+    {
+        hermano = eval('$$')
+        $$ = {
+            instrucciones: hermano[hermano.length - 2],
+            casos : hermano[hermano.length - 1]
+        }
+    }
     | Lcasos
-    | ;
+    {
+        hermano = eval('$$');
+        $$ = {
+            instrucciones : null,
+            casos : hermano[hermano.length - 1]
+        }
+    }
+    | 
+    {
+        $$ = {
+            instrucciones : null,
+            casos : null
+        }
+    };
 
 Lcasos2
     : Lcasos
-    | ;
+    {
+        $$ = $1;
+    }
+    | 
+    {
+        $$ = null
+    };
 
 sentencia_if
-    : IF '(' Expresionesfuncion ')' InstruccionesFuncion sentencia_else;
+    : IF '(' Expresionesfuncion ')' InstruccionesFuncion sentencia_else
+    {
+        $$ = new SentenciaIf($3, $5, $6, @1.first_line, @1.first_column);
+    };
 
 sentencia_else
     : ELSE sentencia_else1
-    | ;
+    {
+        $$ = $2;
+    }
+    | 
+    {
+        $$ = null;
+    };
 
 sentencia_else1
     : sentencia_if
-    | InstruccionesFuncion;
-
-Instruccionfuncion9
-    : DP Instruccionfuncion10
-    | '=' Expresionesfuncion PYC;
-
-Instruccionfuncion10
-    : Tipo '=' Expresionesfuncion PYC
-    | IDENTIFICADOR '=' Instruccionfuncion11;
-
-Instruccionfuncion11
-    : '{' ValoresType '}' PYC
-    | Expresionesfuncion PYC;
-
-Instruccionfuncion4
-    : DP Instruccionfuncion5
-    | '=' Expresionesfuncion PYC
-    | PYC;
-
-Instruccionfuncion5
-    : Tipo Instruccionfuncion6
-    | IDENTIFICADOR Instruccionfuncion7;
-
-Instruccionfuncion6
-    : '=' Expresionesfuncion PYC
-    | PYC;
-
-Instruccionfuncion7
-    : '=' Instruccionfuncion8
-    | PYC;
-
-Instruccionfuncion8
-    : '{' ValoresType '}' PYC
-    | Expresionesfuncion PYC;
+    {
+        $$ = $1;
+    }
+    | InstruccionesFuncion
+    {
+        $$ = $1;
+    };
 
 Instruccionfuncion1
     : '=' instruccionfuncion12
@@ -1070,7 +1280,7 @@ Expresionesfuncion4
     | AND Expresionesfuncion3 Expresionesfuncion4
     {
         hermano = eval('$$');
-        $$ = new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.AND, hermano[hermano - 4].linea, hermano[hermano - 4].columna);
+        $$ = new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.AND, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
     }
     | 
     {
@@ -1446,12 +1656,30 @@ ValoresType1
     };
 
 Lparametrosfuncion
-    : Parametro Auxparametros;
+    : Parametro Auxparametros
+    {
+        $$ = $2
+    };
 
 Parametro
     : IDENTIFICADOR DP Tipo
-    | IDENTIFICADOR DP IDENTIFICADOR;
+    {
+        $$ = new VariablesTipo($1, $3, @1.first_line, @1.first_column);
+    }
+    | IDENTIFICADOR DP IDENTIFICADOR
+    {
+        $$ = new VariablesTipo($1, $3, @1.first_line, @1.first_column);
+    };
 
 Auxparametros 
     : ',' Lparametrosfuncion
-    | ;
+    {
+        hermano = eval('$$');
+        hermano[hermano.length - 1].unshift(hermano[hermano.length - 3]);
+        $$ = hermano[hermano.length - 1];
+    }
+    | 
+    {
+        hermano = eval('$$');
+        $$ = [hermano[hermano.length - 1]];
+    };

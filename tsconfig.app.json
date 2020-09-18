@@ -8,6 +8,10 @@
   "files": [
     "src/main.ts",
     "src/polyfills.ts",
+    //* INICIO DEL ARBOL
+    "src/Grammar/Arbol/Arbol.ts",
+    "src/Grammar/Arbol/Nodo.ts",
+    // * FIN DEL ARBOL
     // * INICIO DE ENTORNO
     "src/Grammar/Entorno/Entorno.ts",
     "src/Grammar/Entorno/Simbolo.ts",
