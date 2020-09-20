@@ -9,13 +9,15 @@ import { InicioComponent } from './components/inicio/inicio.component';
 import { CuerpoComponent } from './components/cuerpo/cuerpo.component';
 import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 import { FormsModule } from '@angular/forms';
+import { ArbolComponent } from './components/arbol/arbol.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     EncabezadoComponent,
     InicioComponent,
-    CuerpoComponent
+    CuerpoComponent,
+    ArbolComponent,
   ],
   imports: [
     BrowserModule,

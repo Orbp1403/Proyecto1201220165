@@ -12,7 +12,9 @@
       <br>
       <button type="button" class="btn btn-success" (click)="traducir()">Traducir Entrada</button>
       &nbsp; &nbsp;
-      <button type="button" class="btn btn-info" (click)="ejecutar()">Ejecutar Entrada</button>      
+      <button type="button" class="btn btn-info" (click)="ejecutar()">Ejecutar Entrada</button>    
+      &nbsp; &nbsp;
+      <button type="button" class="btn btn-light" (click)="dibujar()" *ngIf="hayarbol==true">AST</button>  
       <br>
       <br>
     </div>
@@ -42,6 +44,16 @@
         class="form-control"
         style="font-family: Arial, Helvetica, sans-serif; font-size: 10px;"
       ></textarea>
+    </div>
+  </div>
+</div>
+<div id="contenedor">
+  <br>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12" id="arboldiv" style="width: auto; height: 600px; border: 1px solid black;">
+  
+      </div>
     </div>
   </div>
 </div>

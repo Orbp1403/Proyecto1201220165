@@ -146,12 +146,13 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")|("'" [^"'"]* "'")
 ini
 	: Instrucciones EOF
     {
-
+        
         $$ = {
             instrucciones : $1,
-            nodo : new Nodo(null, "INICIO", null, null)
+            nodo : new Nodo(null, "INICIO", null)
         }
-        $$.nodo.addHijos(new Nodo(null, "INSTRUCCIONES", $$.nodo, $1.nodo))
+        $$.nodo.agregarHijos($1.nodo);
+        //$1.nodo.addPadre($$.nodo)
         return $$;
     };
 
@@ -159,18 +160,20 @@ Instrucciones
     : Instrucciones Instruccion
     {
         $1.instrucciones.push($2.instrucciones)
-        $1.nodo.push($2.nodo)
         $$ = {
             instrucciones : $1.instrucciones,
-            nodo : $1.nodo
+            nodo : new Nodo(null, "INST", null)
         }
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos($2.nodo);
     }
     | Instruccion
     {
         $$ = {
             instrucciones : [$1.instrucciones],
-            nodo : [$1.nodo]
+            nodo : new Nodo(null, "INST", null)
         };
+        $$.nodo.agregarHijos($1.nodo);
     };
 
 Instruccion
@@ -178,16 +181,16 @@ Instruccion
     {
         //$$ = $1;
         $$ = {
-            instrucciones : $1,
-            nodo : new Nodo(null, "DECLARACION", null, null)
+            instrucciones : $1.instrucciones,
+            nodo : $1.nodo
         }
     }
     | Declaracion_type PYC
     {
         //$$ = $1;
         $$ = {
-            instrucciones : $1,
-            nodo : new Nodo(null, "DECLARACION_TYPE", null, null)
+            instrucciones : $1.instrucciones,
+            nodo : $1.nodo
         }
     }
     | Expresion PYC
@@ -195,7 +198,7 @@ Instruccion
         //$$ = $1;
         $$ = {
             instrucciones : $1,
-            nodo : new Nodo(null, "EXPRESION", null, null)
+            nodo : new Nodo(null, "EXPRESION", null)
         }
     }
     | Asignacion
@@ -203,7 +206,7 @@ Instruccion
         //$$ = $1;
         $$ = {
             instrucciones : $1,
-            nodo : new Nodo(null, "ASIGNACION", null, null)
+            nodo : new Nodo(null, "ASIGNACION", null)
         }
     }
     | Sentencias_control
@@ -211,7 +214,7 @@ Instruccion
         //$$ = $1
         $$ = {
             instrucciones : $1,
-            nodo : new Nodo(null, "SENTENCIAS_CONTROL", null, null)
+            nodo : new Nodo(null, "SENTENCIAS_CONTROL", null)
         }
     }
     | Funcion
@@ -219,7 +222,7 @@ Instruccion
         //$$ = $1;
         $$ = {
             instrucciones : $1,
-            nodo : new Nodo(null, "FUNCION", null, null)
+            nodo : new Nodo(null, "FUNCION", null)
         }
     };
 
@@ -449,179 +452,392 @@ Asignacion
 Declaracion_type
     : TYPE IDENTIFICADOR '=' '{' Latributostype '}'
     {
-        $$ = new DeclaracionTipos($2, $5, @1.first_line, @1.first_column)
+        $$ = {
+            instrucciones : new DeclaracionTipos($2, $5.instrucciones, @1.first_line, @1.first_column), 
+            nodo : new Nodo(null, "DECLARACION_TYPE", null)
+        }
+        $$.nodo.agregarHijos(new Nodo($2, null, null));
+        $$.nodo.agregarHijos(new Nodo('=', null, null));
+        $$.nodo.agregarHijos($5.nodo)
     };
 
 Latributostype
     : Latributostype IDENTIFICADOR DP TipoatributosType ','
     {
-        $1.push(new VariablesTipo($2, $4, @1.first_line, @1.first_column))
-        $$ = $1;
+        $1.instrucciones.push(new VariablesTipo($2, $4.instrucciones, @1.first_line, @1.first_column))
+        $$ = {
+            instrucciones : $1.instrucciones,
+            nodo : new Nodo(null, "Valor", null)
+        };
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos(new Nodo($2, null, null))
+        $$.nodo.agregarHijos($4.nodo)
     }
     | Latributostype IDENTIFICADOR DP TipoatributosType PYC
     {
-        $1.push(new VariablesTipo($2, $4, @1.first_line, @1.first_column))
-        $$ = $1;
+        $1.instrucciones.push(new VariablesTipo($2, $4.instrucciones, @1.first_line, @1.first_column))
+        $$ = {
+            instrucciones : $1.instrucciones,
+            nodo : new Nodo(null, "Valor", null)
+        }
+        $$.nodo.agregarHijos($1.nodo)
+        $$.nodo.agregarHijos(new Nodo($2, null, null))
+        $$.nodo.agregarHijos($4.nodo)
     }
     | Latributostype IDENTIFICADOR DP TipoatributosType
     {
-        $1.push(new VariablesTipo($2, $4, @1.first_line, @1.first_column));
-        $$ = $1;
+        $1.instrucciones.push(new VariablesTipo($2, $4.instrucciones, @1.first_line, @1.first_column));
+        $$ = {
+            instrucciones : $1.instrucciones,
+            nodo : new Nodo(null, "Valor", null)
+        };
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos(new Nodo($2, null, null));
+        $$.nodo.agregarHijos($4.nodo)
     }
     | IDENTIFICADOR DP TipoatributosType ','
     {
-        $$ = [new VariablesTipo($1, $3, @1.first_line, @1.first_column)];
+        $$ = {
+            instrucciones : [new VariablesTipo($1, $3.instrucciones, @1.first_line, @1.first_column)],
+            nodo : new Nodo(null, "Valor", null) 
+        };
+        $$.nodo.agregarHijos(new Nodo($1, null, null));
+        $$.nodo.agregarHijos($3.nodo);
     }
     | IDENTIFICADOR DP TipoatributosType PYC
     {
-        $$ = [new VariablesTipo($1, $3, @1.first_line, @1.first_column)];
+        $$ = {
+            instrucciones : [new VariablesTipo($1, $3.instrucciones, @1.first_line, @1.first_column)],
+            nodo : new Nodo(null, "Valor", null)
+        }
+        $$.nodo.agregarHijos(new Nodo($1, null, null));
+        $$.nodo.agregarHijos($3.nodo);
     }
     | IDENTIFICADOR DP TipoatributosType
     {
-        $$ = [new VariablesTipo($1, $3, @1.first_line, @1.first_column)];
+        $$ = {
+            instrucciones : [new VariablesTipo($1, $3.instrucciones, @1.first_line, @1.first_column)],
+            nodo : new Nodo(null, "Valor", null)
+        }
+        $$.nodo.agregarHijos(new Nodo($1, null, null))
+        $$.nodo.agregarHijos($3.nodo)
     };
 
 TipoatributosType
     : Tipo
     {
-        $$ = $1;
+        $$ = {
+            instrucciones : $1,
+            nodo : new Nodo(Type[$1], null, null)
+        }
     }
     | IDENTIFICADOR
     {
-        $$ = $1
+        $$ = {
+            instrucciones : $1,
+            nodo : new Nodo($1, null, null)
+        }
     };
 
 
 Declaracion
     : LET IDENTIFICADOR DP Tipo '=' Expresion
     {
-        $$ = new Declaracion($2, $6, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones :  new Declaracion($2, $6.instrucciones, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+            nodo : new Nodo("DECLARACION", null, null)
+        }
+        $$.nodo.agregarHijos(new Nodo($2, null, null));
+        $$.nodo.agregarHijos(new Nodo(Type[$4], null, null));
+        $$.nodo.agregarHijos(new Nodo('=', null, null))
+        $$.nodo.agregarHijos($6.nodo)
     }
     | LET IDENTIFICADOR '=' Expresion
     {
-        $$ = new Declaracion($2, $4, null, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Declaracion($2, $4.instrucciones, null, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+            nodo : new Nodo("DECLARACION", null, null)
+        }
+        $$.nodo.agregarHijos(new Nodo($2, null, null));
+        $$.nodo.agregarHijos(new Nodo('=', null, null));
+        $$.nodo.agregarHijos($4.nodo)
     }
     | LET IDENTIFICADOR DP Tipo
     {
-        $$ = new Declaracion($2, null, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Declaracion($2, null, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+            nodo : new Nodo("Declaracion", null, null)
+        }
+        $$.nodo.agregarHijos(new Nodo($2, null, null));
+        $$.nodo.agregarHijos(new Nodo(Type[$4], null, null));
     }
     | LET IDENTIFICADOR
     {
-        $$ = new Declaracion($2, null, null, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Declaracion($2, null, null, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+            nodo : new Nodo("Declaracion", null, null)
+        }
+        $$.nodo.agregarHijos(new Nodo($2, null, null));
     }
     | LET IDENTIFICADOR DP IDENTIFICADOR '=' '{' Lvalorestype '}'
     {
-        $$ = new DeclaracionVarType($2, $7, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new DeclaracionVarType($2, $7.instrucciones, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+            nodo : new Nodo(null, "Declaracion", null)
+        }
+        $$.nodo.agregarHijos(new Nodo($2, null, null));
+        $$.nodo.agregarHijos(new Nodo($4, null, null));
+        $$.nodo.agregarHijos(new Nodo('=', null, null));
+        $$.nodo.agregarHijos($7.nodo)
     }
     | LET IDENTIFICADOR DP IDENTIFICADOR '=' Expresion
     {
-        $$ = new DeclaracionVarType($2, $6, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new DeclaracionVarType($2, $6.instrucciones, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+            nodo : new Nodo(null, "Declaracion", null)
+        }
+        $$.nodo.agregarHijos(new Nodo($2, null, null));
+        $$.nodo.agregarHijos(new Nodo($4, null, null));
+        $$.nodo.agregarHijos(new Nodo('=', null, null));
+        $$.nodo.agregarHijos($6.nodo)
     }
     | LET IDENTIFICADOR DP IDENTIFICADOR
     {
-        $$ = new DeclaracionVarType($2, null, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new DeclaracionVarType($2, null, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+            nodo : new Nodo(null, "Declaracion", null)
+        }
+        $$.nodo.agregarHijos(new Nodo($1, null, null));
+        $$.nodo.agregarHijos(new Nodo($3, null, null));
     }
     | CONST IDENTIFICADOR DP Tipo '=' Expresion
     {
-        $$ = new Declaracion($2, $6, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Declaracion($2, $6.instrucciones, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column),
+            nodo : new Nodo(null, "Declaracion", null)
+        }
+        $$.nodo.agregarHijos(new Nodo($2, null, null));
+        $$.nodo.agregarHijos(new Nodo(Type[$4], null, null))
+        $$.nodo.agregarHijos(new Nodo('=', null, null));
+        $$.nodo.agregarHijos($6.nodo);
     }
     | CONST IDENTIFICADOR '=' Expresion
     {
-        $$ = new Declaracion($2, $4, null, TiposSimbolo.CONST, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Declaracion($2, $4.instrucciones, null, TiposSimbolo.CONST, @1.first_line, @1.first_column),
+            nodo : new Nodo(null, "Declaracion", null)
+        };
+        $$.nodo.agregarHijos(new Nodo($2, null, null));
+        $$.nodo.agregarHijos(new Nodo('=', null, null));
+        $$.nodo.agregarHijos($4.nodo);
     }
     | CONST IDENTIFICADOR DP IDENTIFICADOR '=' '{' Lvalorestype '}'
     {
-        $$ = new DeclaracionVarType($2, $7, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new DeclaracionVarType($2, $7.instrucciones, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column),
+            nodo : new Nodo(null, "Declaracion", null)
+        }
+        $$.nodo.agregarHijos(new Nodo($2, null, null)) ;
+        $$.nodo.agregarHijos(new Nodo($4, null, null));
+        $$.nodo.agregarHijos(new Nodo('=', null, null));
+        $$.nodo.agregarHijos($7.nodo);
     }
     | CONST IDENTIFICADOR DP IDENTIFICADOR '=' IDENTIFICADOR
     {
-        $$ = new DeclaracionVarType($2, $6, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new DeclaracionVarType($2, $6, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column),
+            nodo : new Nodo(null, "Declaracion", null)
+        }
+        $$.nodo.agregarHijos(new Nodo($2, null, null));
+        $$.nodo.agregarHijos(new Nodo($4, null, null));
+        $$.nodo.agregarHijos(new Nodo('=', null, null));
+        $$.nodo.agregarHijos(new Nodo($6, null, null));
     };
 
 Lvalorestype
     : Lvalorestype IDENTIFICADOR DP Expresion ',' 
     {
-        $1.push(new ValoresTipo($2, $4, @1.first_line, @1.first_column));
-        $$ = $1;
+        $1.instrucciones.push(new ValoresTipo($2, $4.instrucciones, @1.first_line, @1.first_column));
+        $$ = {
+            instrucciones : $1.instrucciones,
+            nodo : new Nodo("Valores", null, null)
+        }
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos(new Nodo($2, null, null))
+        $$.nodo.agregarHijos($4.nodo)
     }
     | Lvalorestype IDENTIFICADOR DP Expresion
     {
-        $1.push(new ValoresTipo($2, $4, @1.first_line, @1.first_column));
-        $$ = $1;
+        $1.instrucciones.push(new ValoresTipo($2, $4.instrucciones, @1.first_line, @1.first_column));
+        $$ = { 
+            instrucciones : $1.instrucciones,
+            nodo : new Nodo("Valores", null, null)
+        };
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos(new Nodo($1, null, null));
+        $$.nodo.agregarHijos($4.nodo)
     } 
     | IDENTIFICADOR DP Expresion ','
     {
-        $$ = [new ValoresTipo($1, $3, @1.first_line, @1.first_column)];
+        $$ = {
+            instrucciones : [new ValoresTipo($1, $3.instrucciones, @1.first_line, @1.first_column)],
+            nodo : new Nodo("Valores", null, null)
+        }
+        $$.nodo.agregarHijos(new Nodo($1, null, null));
+        $$.nodo.agregarHijos($3.nodo);
     }
     | IDENTIFICADOR DP Expresion
     {
-        $$ = [new ValoresTipo($1, $3, @1.first_line, @1.first_column)];
+        $$ = {
+            instrucciones : [new ValoresTipo($1, $3.instrucciones, @1.first_line, @1.first_column)],
+            nodo : new Nodo("Valores", null, null)
+        }
+        $$.nodo.agregarHijos(new Nodo($1, null, null));
+        $$.nodo.agregarHijos($3.nodo);
     };
 
 Expresion
     : 'NOT' Expresion
     {
-        $$ = new Relacional($2, null, OperacionesLogicas.NEGADO, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Relacional($2, null, OperacionesLogicas.NEGADO, @1.first_line, @1.first_column),
+            nodo : new Nodo('!', null, null)
+        }
+        $$.nodo.agregarHijos($2.nodo);
     }
     | Expresion 'AND' Expresion
     {
-        $$ = new Relacional($1, $3, OperacionesLogicas.AND, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Relacional($1, $3, OperacionesLogicas.AND, @1.first_line, @1.first_column),
+            nodo : new Nodo('&&', null, null)
+        }
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos($3.nodo);
     }
     | Expresion 'OR' Expresion
     {
-        $$ = new Relacional($1, $3, OperacionesLogicas.OR, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Relacional($1, $3, OperacionesLogicas.OR, @1.first_line, @1.first_column),
+            nodo : new Nodo('||', null, null) 
+        }
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos($3.nodo);
     }
     | Expresion '==' Expresion
     {
-        $$ = new Relacional($1, $3, OperacionesLogicas.IGUAL, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Relacional($1, $3, OperacionesLogicas.IGUAL, @1.first_line, @1.first_column),
+            nodo : new Nodo ('==', null, null)
+        }
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos($3.nodo);
     }
     | Expresion '!=' Expresion
     {
-        $$ = new Relacional($1, $3, OperacionesLogicas.NOIGUAL, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Relacional($1, $3, OperacionesLogicas.NOIGUAL, @1.first_line, @1.first_column),
+            nodo : new Nodo('!=', null, null)
+        }
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos($3.nodo);
     }
     | Expresion '<' Expresion
     {
-        $$ = new Relacional($1, $3, OperacionesLogicas.MENOR, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Relacional($1, $3, OperacionesLogicas.MENOR, @1.first_line, @1.first_column),
+            nodo : new Nodo('<', null, null)
+        }
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos($3.nodo);
     }
     | Expresion '>' Expresion
     {
-        $$ = new Relacional($1, $3, OperacionesLogicas.MAYOR, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Relacional($1, $3, OperacionesLogicas.MAYOR, @1.first_line, @1.first_column),
+            nodo : new Nodo('>', null, null)
+        }
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos($3.nodo);
     }
     | Expresion '<=' Expresion
     {
-        $$ = new Relacional($1, $3, OperacionesLogicas.MENORIGUAL, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Relacional($1, $3, OperacionesLogicas.MENORIGUAL, @1.first_line, @1.first_column),
+            nodo : new Nodo('<=', null, null)
+        }
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos($3.nodo);
     }
     | Expresion '>=' Expresion
     {
-        $$ = new Relacional($1, $3, OperacionesLogicas.MAYORIGUAL, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Relacional($1, $3, OperacionesLogicas.MAYORIGUAL, @1.first_line, @1.first_column),
+            nodo : new Nodo('>=', null, null)
+        }
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos($3.nodo);
     }
     |'-' Expresion %prec NEGATIVO
     {
-        $$ = new Aritmeticas($2, null, OpcionesAritmeticas.NEGATIVO, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Aritmeticas($2, null, OpcionesAritmeticas.NEGATIVO, @1.first_line, @1.first_column),
+            nodo : new Nodo('-', null, null)
+        }
+        $$.nodo.agregarHijos($2.nodo);
     }
     | Expresion '+' Expresion
     {
-        $$ = new Aritmeticas($1, $3, OpcionesAritmeticas.MAS, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Aritmeticas($1, $3, OpcionesAritmeticas.MAS, @1.first_line, @1.first_column),
+            nodo : new Nodo('+', null, null)
+        }
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos($3.nodo);
     }
     | Expresion '-' Expresion
     {
-        $$ = new Aritmeticas($1, $3, OpcionesAritmeticas.MENOS, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Aritmeticas($1, $3, OpcionesAritmeticas.MENOS, @1.first_line, @1.first_column),
+            nodo : new Nodo('-', null, null)
+        }
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos($3.nodo)
     }
     | Expresion '*' Expresion
     {
-        $$ = new Aritmeticas($1, $3, OpcionesAritmeticas.POR, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Aritmeticas($1, $3, OpcionesAritmeticas.POR, @1.first_line, @1.first_column),
+            nodo : new Nodo('*', null, null)
+        }
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos($3.nodo);
     }
     | Expresion '/' Expresion
     {
-        $$ = new Aritmeticas($1, $3, OpcionesAritmeticas.DIV, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Aritmeticas($1, $3, OpcionesAritmeticas.DIV, @1.first_line, @1.first_column),
+            nodo : new Nodo('/', null, null)
+        }
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos($3.nodo);
     }
     | Expresion '%' Expresion
     {
-        $$ = new Aritmeticas($1, $3, OpcionesAritmeticas.MODULO, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Aritmeticas($1, $3, OpcionesAritmeticas.MODULO, @1.first_line, @1.first_column),
+            nodo : new Nodo('%', null, null)
+        }
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos($3.nodo);
     }
     | Expresion '**' Expresion
     {
-        $$ = new Aritmeticas($1, $3, OpcionesAritmeticas.POTENCIA, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Aritmeticas($1, $3, OpcionesAritmeticas.POTENCIA, @1.first_line, @1.first_column),
+            nodo : new Nodo('**', null, null, null)
+        }
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos($3.nodo);
     }
     | '(' Expresion ')'
     {
@@ -629,29 +845,64 @@ Expresion
     }
     | NUMERO
     {
-        $$ = new Literal($1, @1.first_line, @1.first_column, 0);
+        $$ = {
+            instrucciones : new Literal($1, @1.first_line, @1.first_column, 0),
+            nodo : new Nodo($1, null, null)
+        }
     }
     | CADENA
     {
-        $$ = new Literal($1, @1.first_line, @1.first_column, 1);
+        if($1.includes('\"'))
+        {
+            $$ = {
+                instrucciones : new Literal($1.replace(/['"]+/g, ''), @1.first_line, @1.first_column, 1),
+                nodo : new Nodo($1.replace(/['"]+/g, ''), null, null)
+            }
+        }
+        else if($1.includes("'"))
+        {
+            $$ = {
+                instrucciones : new Literal($1.replace(/["'"]+/g, ''), @1.first_line, @1.first_column),
+                nodo : new Nodo($1.replace(/["'"]+/g, ''), null, null)
+            }
+        }
+        else
+        {
+            $$ = {
+                instrucciones : new Literal($1, @1.first_line, @1.first_column),
+                nodo : new Nodo($1, null, null)
+            }
+        }
     }
     | TRUE
     {
-        $$ = new Literal($1, @1.first_line, @1.first_column, 2);
+        $$ = {
+            instrucciones : new Literal($1, @1.first_line, @1.first_column, 2),
+            nodo : new Nodo($1, null, null)
+        }
     }
     | FALSE
     {
-        $$ = new Literal($1, @1.first_line, @1.first_column, 2);
+        $$ = {
+            instrucciones : new Literal($1, @1.first_line, @1.first_column, 2),
+            nodo : new Nodo($1, null, null)
+        }
     }
     | IDENTIFICADOR
     {
-        $$ = new Variable($1, null, 7, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Variable($1, null, 7, @1.first_line, @1.first_column),
+            nodo : new Nodo($1, null, null)
+        }
     }
     | IDENTIFICADOR Listaatributos
     {
-        let a = $1
-        a.concat("." + $2);
-        $$ = new Variable($1, $2, 7, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Variable($1, $2.instrucciones, 7, @1.first_line, @1.first_column),
+            nodo : new Nodo(null, 'EXP', null)
+        }
+        $$.nodo.agregarHijos(new Nodo($1, null, null));
+        $$.nodo.agregarHijos($2.nodo);
     }
     | Llamada
     {
@@ -659,7 +910,10 @@ Expresion
     }
     | NULL
     {
-        $$ = new Literal($1, @1.first_line, @1.first_column, 3)
+        $$ = {
+            instrucciones : new Literal($1, @1.first_line, @1.first_column, 3),
+            nodo : new Nodo($1, null, null)
+        }
     }
     | Aumento
     {
@@ -673,46 +927,89 @@ Expresion
 Listaatributos
     : Listaatributos '.' IDENTIFICADOR 
     {
-        $1.push($3);
+        $1.instrucciones.push($3);
+        $$ = {
+            instrucciones : $1.instrucciones,
+            nodo : new Nodo(null, 'ATRIB', null)
+        }
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos(new Nodo($3, null, null))
         $$ = $1;
     }
     | '.' IDENTIFICADOR
     {
-        $$ = [$2];
+        $$ = {
+            instrucciones : [$2],
+            nodo : new Nodo(null, 'ATRIB', null)
+        }
+        $$.nodo.agregarHijos(new Nodo($1, null, null));
     };
 
 Llamada
     : IDENTIFICADOR '(' ')'
     {
-        $$ = new Llamada($1, [], @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Llamada($1, [], @1.first_line, @1.first_column),
+            nodo : new Nodo(null, 'Llamada', null)
+        };
+        $$.nodo.agregarHijos(new Nodo($1, null, null));
     }
     | IDENTIFICADOR '(' Listaparam ')'
     {
-        $$ = new Llamada($1, $3, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Llamada($1, $3.instrucciones, @1.first_line, @1.first_column),
+            nodo : new Nodo(null, "Llamada", null)
+        }
+        $$.nodo.agregarHijos(new Nodo($1, null, null));
+        $$.nodo.agregarHijos($3.nodo);
     }
     | 'CONSOLE' '.' 'LOG' '(' ')'
     {
-        $$ = new Imprimir([], @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Imprimir([], @1.first_line, @1.first_column),
+            nodo : new Nodo(null, "Imprimir", null)
+        }
     }
     | 'CONSOLE' '.' 'LOG' '(' Listaparam ')'
     {
-        $$ = new Imprimir($5, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Imprimir($5.instrucciones, @1.first_line, @1.first_column) ,
+            nodo : new Nodo(null, "Imprimir", null)
+
+        }
+        $$.nodo.agregarHijos($5.nodo);
     }
-    | 'GRAFICAR_TS' '(' ')';
+    | 'GRAFICAR_TS' '(' ')'
+    {
+        $$ = {
+            instrucciones : new GraficarTs(@1.first_line, @1.first_column),
+            nodo : new Nodo(null, "GraficarTs", null)
+        }
+    };
 
 Listaparam
     : Listaparam ',' Expresion 
     {
-        $1.push($3)
-        $$ = $1;
+        $1.instrucciones.push($3.instrucciones)
+        $$ = {
+            instrucciones : $1.instrucciones,
+            nodo : new Nodo(null, "Parametro", null)
+        };
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos($3.nodo);
     }
     | Expresion{
-        $$ = [$1];
+        $$ = {
+            instrucciones : [$1.instrucciones],
+            nodo : new Nodo(null, "Parametro", null)
+        }
+        $$.nodo.agregarHijos($1.nodo);
     };
 
 Tipo
     : STRING
     {
+        console.log()
         $$ = Type.CADENA;
     }
     | NUMBER

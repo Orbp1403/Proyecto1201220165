@@ -85,48 +85,42 @@ var $0 = $$.length - 1;
 switch (yystate) {
 case 1:
 
-
+        
         this.$ = {
             instrucciones : $$[$0-1],
-            nodo : new Nodo(null, "INICIO", null, null)
+            nodo : new Nodo(null, "INICIO", null)
         }
-        this.$.nodo.addHijos(new Nodo(null, "INSTRUCCIONES", this.$.nodo, $$[$0-1].nodo))
+        this.$.nodo.agregarHijos($$[$0-1].nodo);
+        //$$[$0-1].nodo.addPadre(this.$.nodo)
         return this.$;
     
 break;
 case 2:
 
         $$[$0-1].instrucciones.push($$[$0].instrucciones)
-        $$[$0-1].nodo.push($$[$0].nodo)
         this.$ = {
             instrucciones : $$[$0-1].instrucciones,
-            nodo : $$[$0-1].nodo
+            nodo : new Nodo(null, "INST", null)
         }
+        this.$.nodo.agregarHijos($$[$0-1].nodo);
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 3:
 
         this.$ = {
             instrucciones : [$$[$0].instrucciones],
-            nodo : [$$[$0].nodo]
+            nodo : new Nodo(null, "INST", null)
         };
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
-case 4:
+case 4: case 5:
 
         //this.$ = $$[$0-1];
         this.$ = {
-            instrucciones : $$[$0-1],
-            nodo : new Nodo(null, "DECLARACION", null, null)
-        }
-    
-break;
-case 5:
-
-        //this.$ = $$[$0-1];
-        this.$ = {
-            instrucciones : $$[$0-1],
-            nodo : new Nodo(null, "DECLARACION_TYPE", null, null)
+            instrucciones : $$[$0-1].instrucciones,
+            nodo : $$[$0-1].nodo
         }
     
 break;
@@ -135,7 +129,7 @@ case 6:
         //this.$ = $$[$0-1];
         this.$ = {
             instrucciones : $$[$0-1],
-            nodo : new Nodo(null, "EXPRESION", null, null)
+            nodo : new Nodo(null, "EXPRESION", null)
         }
     
 break;
@@ -144,7 +138,7 @@ case 7:
         //this.$ = $$[$0];
         this.$ = {
             instrucciones : $$[$0],
-            nodo : new Nodo(null, "ASIGNACION", null, null)
+            nodo : new Nodo(null, "ASIGNACION", null)
         }
     
 break;
@@ -153,7 +147,7 @@ case 8:
         //this.$ = $$[$0]
         this.$ = {
             instrucciones : $$[$0],
-            nodo : new Nodo(null, "SENTENCIAS_CONTROL", null, null)
+            nodo : new Nodo(null, "SENTENCIAS_CONTROL", null)
         }
     
 break;
@@ -162,11 +156,11 @@ case 9:
         //this.$ = $$[$0];
         this.$ = {
             instrucciones : $$[$0],
-            nodo : new Nodo(null, "FUNCION", null, null)
+            nodo : new Nodo(null, "FUNCION", null)
         }
     
 break;
-case 10: case 11: case 12: case 13: case 14: case 42: case 43: case 65: case 105: case 127: case 130: case 137: case 138: case 139: case 140: case 141: case 142: case 143: case 144: case 151: case 152: case 156: case 176: case 179: case 181: case 182: case 183: case 253: case 254: case 257: case 258: case 263:
+case 10: case 11: case 12: case 13: case 14: case 42: case 43: case 105: case 127: case 130: case 137: case 138: case 139: case 140: case 141: case 142: case 143: case 144: case 151: case 152: case 156: case 176: case 179: case 181: case 182: case 183: case 253: case 254: case 257: case 258: case 263:
 
         this.$ = $$[$0];
     
@@ -381,191 +375,420 @@ case 57:
 break;
 case 58:
 
-        this.$ = new DeclaracionTipos($$[$0-4], $$[$0-1], _$[$0-5].first_line, _$[$0-5].first_column)
+        this.$ = {
+            instrucciones : new DeclaracionTipos($$[$0-4], $$[$0-1].instrucciones, _$[$0-5].first_line, _$[$0-5].first_column), 
+            nodo : new Nodo(null, "DECLARACION_TYPE", null)
+        }
+        this.$.nodo.agregarHijos(new Nodo($$[$0-4], null, null));
+        this.$.nodo.agregarHijos(new Nodo('=', null, null));
+        this.$.nodo.agregarHijos($$[$0-1].nodo)
     
 break;
-case 59: case 60:
+case 59:
 
-        $$[$0-4].push(new VariablesTipo($$[$0-3], $$[$0-1], _$[$0-4].first_line, _$[$0-4].first_column))
-        this.$ = $$[$0-4];
+        $$[$0-4].instrucciones.push(new VariablesTipo($$[$0-3], $$[$0-1].instrucciones, _$[$0-4].first_line, _$[$0-4].first_column))
+        this.$ = {
+            instrucciones : $$[$0-4].instrucciones,
+            nodo : new Nodo(null, "Valor", null)
+        };
+        this.$.nodo.agregarHijos($$[$0-4].nodo);
+        this.$.nodo.agregarHijos(new Nodo($$[$0-3], null, null))
+        this.$.nodo.agregarHijos($$[$0-1].nodo)
+    
+break;
+case 60:
+
+        $$[$0-4].instrucciones.push(new VariablesTipo($$[$0-3], $$[$0-1].instrucciones, _$[$0-4].first_line, _$[$0-4].first_column))
+        this.$ = {
+            instrucciones : $$[$0-4].instrucciones,
+            nodo : new Nodo(null, "Valor", null)
+        }
+        this.$.nodo.agregarHijos($$[$0-4].nodo)
+        this.$.nodo.agregarHijos(new Nodo($$[$0-3], null, null))
+        this.$.nodo.agregarHijos($$[$0-1].nodo)
     
 break;
 case 61:
 
-        $$[$0-3].push(new VariablesTipo($$[$0-2], $$[$0], _$[$0-3].first_line, _$[$0-3].first_column));
-        this.$ = $$[$0-3];
+        $$[$0-3].instrucciones.push(new VariablesTipo($$[$0-2], $$[$0].instrucciones, _$[$0-3].first_line, _$[$0-3].first_column));
+        this.$ = {
+            instrucciones : $$[$0-3].instrucciones,
+            nodo : new Nodo(null, "Valor", null)
+        };
+        this.$.nodo.agregarHijos($$[$0-3].nodo);
+        this.$.nodo.agregarHijos(new Nodo($$[$0-2], null, null));
+        this.$.nodo.agregarHijos($$[$0].nodo)
     
 break;
-case 62: case 63:
+case 62:
 
-        this.$ = [new VariablesTipo($$[$0-3], $$[$0-1], _$[$0-3].first_line, _$[$0-3].first_column)];
+        this.$ = {
+            instrucciones : [new VariablesTipo($$[$0-3], $$[$0-1].instrucciones, _$[$0-3].first_line, _$[$0-3].first_column)],
+            nodo : new Nodo(null, "Valor", null) 
+        };
+        this.$.nodo.agregarHijos(new Nodo($$[$0-3], null, null));
+        this.$.nodo.agregarHijos($$[$0-1].nodo);
+    
+break;
+case 63:
+
+        this.$ = {
+            instrucciones : [new VariablesTipo($$[$0-3], $$[$0-1].instrucciones, _$[$0-3].first_line, _$[$0-3].first_column)],
+            nodo : new Nodo(null, "Valor", null)
+        }
+        this.$.nodo.agregarHijos(new Nodo($$[$0-3], null, null));
+        this.$.nodo.agregarHijos($$[$0-1].nodo);
     
 break;
 case 64:
 
-        this.$ = [new VariablesTipo($$[$0-2], $$[$0], _$[$0-2].first_line, _$[$0-2].first_column)];
+        this.$ = {
+            instrucciones : [new VariablesTipo($$[$0-2], $$[$0].instrucciones, _$[$0-2].first_line, _$[$0-2].first_column)],
+            nodo : new Nodo(null, "Valor", null)
+        }
+        this.$.nodo.agregarHijos(new Nodo($$[$0-2], null, null))
+        this.$.nodo.agregarHijos($$[$0].nodo)
     
 break;
-case 66: case 107: case 108: case 148: case 268:
+case 65:
 
-        this.$ = $$[$0]
+        this.$ = {
+            instrucciones : $$[$0],
+            nodo : new Nodo(Type[$$[$0]], null, null)
+        }
+    
+break;
+case 66:
+
+        this.$ = {
+            instrucciones : $$[$0],
+            nodo : new Nodo($$[$0], null, null)
+        }
     
 break;
 case 67:
 
-        this.$ = new Declaracion($$[$0-4], $$[$0], $$[$0-2], TiposSimbolo.VAR, _$[$0-5].first_line, _$[$0-5].first_column);
+        this.$ = {
+            instrucciones :  new Declaracion($$[$0-4], $$[$0].instrucciones, $$[$0-2], TiposSimbolo.VAR, _$[$0-5].first_line, _$[$0-5].first_column),
+            nodo : new Nodo("DECLARACION", null, null)
+        }
+        this.$.nodo.agregarHijos(new Nodo($$[$0-4], null, null));
+        this.$.nodo.agregarHijos(new Nodo(Type[$$[$0-2]], null, null));
+        this.$.nodo.agregarHijos(new Nodo('=', null, null))
+        this.$.nodo.agregarHijos($$[$0].nodo)
     
 break;
 case 68:
 
-        this.$ = new Declaracion($$[$0-2], $$[$0], null, TiposSimbolo.VAR, _$[$0-3].first_line, _$[$0-3].first_column);
+        this.$ = {
+            instrucciones : new Declaracion($$[$0-2], $$[$0].instrucciones, null, TiposSimbolo.VAR, _$[$0-3].first_line, _$[$0-3].first_column),
+            nodo : new Nodo("DECLARACION", null, null)
+        }
+        this.$.nodo.agregarHijos(new Nodo($$[$0-2], null, null));
+        this.$.nodo.agregarHijos(new Nodo('=', null, null));
+        this.$.nodo.agregarHijos($$[$0].nodo)
     
 break;
 case 69:
 
-        this.$ = new Declaracion($$[$0-2], null, $$[$0], TiposSimbolo.VAR, _$[$0-3].first_line, _$[$0-3].first_column);
+        this.$ = {
+            instrucciones : new Declaracion($$[$0-2], null, $$[$0], TiposSimbolo.VAR, _$[$0-3].first_line, _$[$0-3].first_column),
+            nodo : new Nodo("Declaracion", null, null)
+        }
+        this.$.nodo.agregarHijos(new Nodo($$[$0-2], null, null));
+        this.$.nodo.agregarHijos(new Nodo(Type[$$[$0]], null, null));
     
 break;
 case 70:
 
-        this.$ = new Declaracion($$[$0], null, null, TiposSimbolo.VAR, _$[$0-1].first_line, _$[$0-1].first_column);
+        this.$ = {
+            instrucciones : new Declaracion($$[$0], null, null, TiposSimbolo.VAR, _$[$0-1].first_line, _$[$0-1].first_column),
+            nodo : new Nodo("Declaracion", null, null)
+        }
+        this.$.nodo.agregarHijos(new Nodo($$[$0], null, null));
     
 break;
 case 71:
 
-        this.$ = new DeclaracionVarType($$[$0-6], $$[$0-1], $$[$0-4], TiposSimbolo.VAR, _$[$0-7].first_line, _$[$0-7].first_column);
+        this.$ = {
+            instrucciones : new DeclaracionVarType($$[$0-6], $$[$0-1].instrucciones, $$[$0-4], TiposSimbolo.VAR, _$[$0-7].first_line, _$[$0-7].first_column),
+            nodo : new Nodo(null, "Declaracion", null)
+        }
+        this.$.nodo.agregarHijos(new Nodo($$[$0-6], null, null));
+        this.$.nodo.agregarHijos(new Nodo($$[$0-4], null, null));
+        this.$.nodo.agregarHijos(new Nodo('=', null, null));
+        this.$.nodo.agregarHijos($$[$0-1].nodo)
     
 break;
 case 72:
 
-        this.$ = new DeclaracionVarType($$[$0-4], $$[$0], $$[$0-2], TiposSimbolo.VAR, _$[$0-5].first_line, _$[$0-5].first_column);
+        this.$ = {
+            instrucciones : new DeclaracionVarType($$[$0-4], $$[$0].instrucciones, $$[$0-2], TiposSimbolo.VAR, _$[$0-5].first_line, _$[$0-5].first_column),
+            nodo : new Nodo(null, "Declaracion", null)
+        }
+        this.$.nodo.agregarHijos(new Nodo($$[$0-4], null, null));
+        this.$.nodo.agregarHijos(new Nodo($$[$0-2], null, null));
+        this.$.nodo.agregarHijos(new Nodo('=', null, null));
+        this.$.nodo.agregarHijos($$[$0].nodo)
     
 break;
 case 73:
 
-        this.$ = new DeclaracionVarType($$[$0-2], null, $$[$0], TiposSimbolo.VAR, _$[$0-3].first_line, _$[$0-3].first_column);
+        this.$ = {
+            instrucciones : new DeclaracionVarType($$[$0-2], null, $$[$0], TiposSimbolo.VAR, _$[$0-3].first_line, _$[$0-3].first_column),
+            nodo : new Nodo(null, "Declaracion", null)
+        }
+        this.$.nodo.agregarHijos(new Nodo($$[$0-3], null, null));
+        this.$.nodo.agregarHijos(new Nodo($$[$0-1], null, null));
     
 break;
 case 74:
 
-        this.$ = new Declaracion($$[$0-4], $$[$0], $$[$0-2], TiposSimbolo.CONST, _$[$0-5].first_line, _$[$0-5].first_column);
+        this.$ = {
+            instrucciones : new Declaracion($$[$0-4], $$[$0].instrucciones, $$[$0-2], TiposSimbolo.CONST, _$[$0-5].first_line, _$[$0-5].first_column),
+            nodo : new Nodo(null, "Declaracion", null)
+        }
+        this.$.nodo.agregarHijos(new Nodo($$[$0-4], null, null));
+        this.$.nodo.agregarHijos(new Nodo(Type[$$[$0-2]], null, null))
+        this.$.nodo.agregarHijos(new Nodo('=', null, null));
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 75:
 
-        this.$ = new Declaracion($$[$0-2], $$[$0], null, TiposSimbolo.CONST, _$[$0-3].first_line, _$[$0-3].first_column);
+        this.$ = {
+            instrucciones : new Declaracion($$[$0-2], $$[$0].instrucciones, null, TiposSimbolo.CONST, _$[$0-3].first_line, _$[$0-3].first_column),
+            nodo : new Nodo(null, "Declaracion", null)
+        };
+        this.$.nodo.agregarHijos(new Nodo($$[$0-2], null, null));
+        this.$.nodo.agregarHijos(new Nodo('=', null, null));
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 76:
 
-        this.$ = new DeclaracionVarType($$[$0-6], $$[$0-1], $$[$0-4], TiposSimbolo.CONST, _$[$0-7].first_line, _$[$0-7].first_column);
+        this.$ = {
+            instrucciones : new DeclaracionVarType($$[$0-6], $$[$0-1].instrucciones, $$[$0-4], TiposSimbolo.CONST, _$[$0-7].first_line, _$[$0-7].first_column),
+            nodo : new Nodo(null, "Declaracion", null)
+        }
+        this.$.nodo.agregarHijos(new Nodo($$[$0-6], null, null)) ;
+        this.$.nodo.agregarHijos(new Nodo($$[$0-4], null, null));
+        this.$.nodo.agregarHijos(new Nodo('=', null, null));
+        this.$.nodo.agregarHijos($$[$0-1].nodo);
     
 break;
 case 77:
 
-        this.$ = new DeclaracionVarType($$[$0-4], $$[$0], $$[$0-2], TiposSimbolo.CONST, _$[$0-5].first_line, _$[$0-5].first_column);
+        this.$ = {
+            instrucciones : new DeclaracionVarType($$[$0-4], $$[$0], $$[$0-2], TiposSimbolo.CONST, _$[$0-5].first_line, _$[$0-5].first_column),
+            nodo : new Nodo(null, "Declaracion", null)
+        }
+        this.$.nodo.agregarHijos(new Nodo($$[$0-4], null, null));
+        this.$.nodo.agregarHijos(new Nodo($$[$0-2], null, null));
+        this.$.nodo.agregarHijos(new Nodo('=', null, null));
+        this.$.nodo.agregarHijos(new Nodo($$[$0], null, null));
     
 break;
 case 78:
 
-        $$[$0-4].push(new ValoresTipo($$[$0-3], $$[$0-1], _$[$0-4].first_line, _$[$0-4].first_column));
-        this.$ = $$[$0-4];
+        $$[$0-4].instrucciones.push(new ValoresTipo($$[$0-3], $$[$0-1].instrucciones, _$[$0-4].first_line, _$[$0-4].first_column));
+        this.$ = {
+            instrucciones : $$[$0-4].instrucciones,
+            nodo : new Nodo("Valores", null, null)
+        }
+        this.$.nodo.agregarHijos($$[$0-4].nodo);
+        this.$.nodo.agregarHijos(new Nodo($$[$0-3], null, null))
+        this.$.nodo.agregarHijos($$[$0-1].nodo)
     
 break;
 case 79:
 
-        $$[$0-3].push(new ValoresTipo($$[$0-2], $$[$0], _$[$0-3].first_line, _$[$0-3].first_column));
-        this.$ = $$[$0-3];
+        $$[$0-3].instrucciones.push(new ValoresTipo($$[$0-2], $$[$0].instrucciones, _$[$0-3].first_line, _$[$0-3].first_column));
+        this.$ = { 
+            instrucciones : $$[$0-3].instrucciones,
+            nodo : new Nodo("Valores", null, null)
+        };
+        this.$.nodo.agregarHijos($$[$0-3].nodo);
+        this.$.nodo.agregarHijos(new Nodo($$[$0-3], null, null));
+        this.$.nodo.agregarHijos($$[$0].nodo)
     
 break;
 case 80:
 
-        this.$ = [new ValoresTipo($$[$0-3], $$[$0-1], _$[$0-3].first_line, _$[$0-3].first_column)];
+        this.$ = {
+            instrucciones : [new ValoresTipo($$[$0-3], $$[$0-1].instrucciones, _$[$0-3].first_line, _$[$0-3].first_column)],
+            nodo : new Nodo("Valores", null, null)
+        }
+        this.$.nodo.agregarHijos(new Nodo($$[$0-3], null, null));
+        this.$.nodo.agregarHijos($$[$0-1].nodo);
     
 break;
 case 81:
 
-        this.$ = [new ValoresTipo($$[$0-2], $$[$0], _$[$0-2].first_line, _$[$0-2].first_column)];
+        this.$ = {
+            instrucciones : [new ValoresTipo($$[$0-2], $$[$0].instrucciones, _$[$0-2].first_line, _$[$0-2].first_column)],
+            nodo : new Nodo("Valores", null, null)
+        }
+        this.$.nodo.agregarHijos(new Nodo($$[$0-2], null, null));
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
-case 82: case 227:
+case 82:
 
-        this.$ = new Relacional($$[$0], null, OperacionesLogicas.NEGADO, _$[$0-1].first_line, _$[$0-1].first_column);
+        this.$ = {
+            instrucciones : new Relacional($$[$0], null, OperacionesLogicas.NEGADO, _$[$0-1].first_line, _$[$0-1].first_column),
+            nodo : new Nodo('!', null, null)
+        }
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 83:
 
-        this.$ = new Relacional($$[$0-2], $$[$0], OperacionesLogicas.AND, _$[$0-2].first_line, _$[$0-2].first_column);
+        this.$ = {
+            instrucciones : new Relacional($$[$0-2], $$[$0], OperacionesLogicas.AND, _$[$0-2].first_line, _$[$0-2].first_column),
+            nodo : new Nodo('&&', null, null)
+        }
+        this.$.nodo.agregarHijos($$[$0-2].nodo);
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 84:
 
-        this.$ = new Relacional($$[$0-2], $$[$0], OperacionesLogicas.OR, _$[$0-2].first_line, _$[$0-2].first_column);
+        this.$ = {
+            instrucciones : new Relacional($$[$0-2], $$[$0], OperacionesLogicas.OR, _$[$0-2].first_line, _$[$0-2].first_column),
+            nodo : new Nodo('||', null, null) 
+        }
+        this.$.nodo.agregarHijos($$[$0-2].nodo);
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 85:
 
-        this.$ = new Relacional($$[$0-2], $$[$0], OperacionesLogicas.IGUAL, _$[$0-2].first_line, _$[$0-2].first_column);
+        this.$ = {
+            instrucciones : new Relacional($$[$0-2], $$[$0], OperacionesLogicas.IGUAL, _$[$0-2].first_line, _$[$0-2].first_column),
+            nodo : new Nodo ('==', null, null)
+        }
+        this.$.nodo.agregarHijos($$[$0-2].nodo);
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 86:
 
-        this.$ = new Relacional($$[$0-2], $$[$0], OperacionesLogicas.NOIGUAL, _$[$0-2].first_line, _$[$0-2].first_column);
+        this.$ = {
+            instrucciones : new Relacional($$[$0-2], $$[$0], OperacionesLogicas.NOIGUAL, _$[$0-2].first_line, _$[$0-2].first_column),
+            nodo : new Nodo('!=', null, null)
+        }
+        this.$.nodo.agregarHijos($$[$0-2].nodo);
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 87:
 
-        this.$ = new Relacional($$[$0-2], $$[$0], OperacionesLogicas.MENOR, _$[$0-2].first_line, _$[$0-2].first_column);
+        this.$ = {
+            instrucciones : new Relacional($$[$0-2], $$[$0], OperacionesLogicas.MENOR, _$[$0-2].first_line, _$[$0-2].first_column),
+            nodo : new Nodo('<', null, null)
+        }
+        this.$.nodo.agregarHijos($$[$0-2].nodo);
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 88:
 
-        this.$ = new Relacional($$[$0-2], $$[$0], OperacionesLogicas.MAYOR, _$[$0-2].first_line, _$[$0-2].first_column);
+        this.$ = {
+            instrucciones : new Relacional($$[$0-2], $$[$0], OperacionesLogicas.MAYOR, _$[$0-2].first_line, _$[$0-2].first_column),
+            nodo : new Nodo('>', null, null)
+        }
+        this.$.nodo.agregarHijos($$[$0-2].nodo);
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 89:
 
-        this.$ = new Relacional($$[$0-2], $$[$0], OperacionesLogicas.MENORIGUAL, _$[$0-2].first_line, _$[$0-2].first_column);
+        this.$ = {
+            instrucciones : new Relacional($$[$0-2], $$[$0], OperacionesLogicas.MENORIGUAL, _$[$0-2].first_line, _$[$0-2].first_column),
+            nodo : new Nodo('<=', null, null)
+        }
+        this.$.nodo.agregarHijos($$[$0-2].nodo);
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 90:
 
-        this.$ = new Relacional($$[$0-2], $$[$0], OperacionesLogicas.MAYORIGUAL, _$[$0-2].first_line, _$[$0-2].first_column);
+        this.$ = {
+            instrucciones : new Relacional($$[$0-2], $$[$0], OperacionesLogicas.MAYORIGUAL, _$[$0-2].first_line, _$[$0-2].first_column),
+            nodo : new Nodo('>=', null, null)
+        }
+        this.$.nodo.agregarHijos($$[$0-2].nodo);
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
-case 91: case 228:
+case 91:
 
-        this.$ = new Aritmeticas($$[$0], null, OpcionesAritmeticas.NEGATIVO, _$[$0-1].first_line, _$[$0-1].first_column);
+        this.$ = {
+            instrucciones : new Aritmeticas($$[$0], null, OpcionesAritmeticas.NEGATIVO, _$[$0-1].first_line, _$[$0-1].first_column),
+            nodo : new Nodo('-', null, null)
+        }
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 92:
 
-        this.$ = new Aritmeticas($$[$0-2], $$[$0], OpcionesAritmeticas.MAS, _$[$0-2].first_line, _$[$0-2].first_column);
+        this.$ = {
+            instrucciones : new Aritmeticas($$[$0-2], $$[$0], OpcionesAritmeticas.MAS, _$[$0-2].first_line, _$[$0-2].first_column),
+            nodo : new Nodo('+', null, null)
+        }
+        this.$.nodo.agregarHijos($$[$0-2].nodo);
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 93:
 
-        this.$ = new Aritmeticas($$[$0-2], $$[$0], OpcionesAritmeticas.MENOS, _$[$0-2].first_line, _$[$0-2].first_column);
+        this.$ = {
+            instrucciones : new Aritmeticas($$[$0-2], $$[$0], OpcionesAritmeticas.MENOS, _$[$0-2].first_line, _$[$0-2].first_column),
+            nodo : new Nodo('-', null, null)
+        }
+        this.$.nodo.agregarHijos($$[$0-2].nodo);
+        this.$.nodo.agregarHijos($$[$0].nodo)
     
 break;
 case 94:
 
-        this.$ = new Aritmeticas($$[$0-2], $$[$0], OpcionesAritmeticas.POR, _$[$0-2].first_line, _$[$0-2].first_column);
+        this.$ = {
+            instrucciones : new Aritmeticas($$[$0-2], $$[$0], OpcionesAritmeticas.POR, _$[$0-2].first_line, _$[$0-2].first_column),
+            nodo : new Nodo('*', null, null)
+        }
+        this.$.nodo.agregarHijos($$[$0-2].nodo);
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 95:
 
-        this.$ = new Aritmeticas($$[$0-2], $$[$0], OpcionesAritmeticas.DIV, _$[$0-2].first_line, _$[$0-2].first_column);
+        this.$ = {
+            instrucciones : new Aritmeticas($$[$0-2], $$[$0], OpcionesAritmeticas.DIV, _$[$0-2].first_line, _$[$0-2].first_column),
+            nodo : new Nodo('/', null, null)
+        }
+        this.$.nodo.agregarHijos($$[$0-2].nodo);
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 96:
 
-        this.$ = new Aritmeticas($$[$0-2], $$[$0], OpcionesAritmeticas.MODULO, _$[$0-2].first_line, _$[$0-2].first_column);
+        this.$ = {
+            instrucciones : new Aritmeticas($$[$0-2], $$[$0], OpcionesAritmeticas.MODULO, _$[$0-2].first_line, _$[$0-2].first_column),
+            nodo : new Nodo('%', null, null)
+        }
+        this.$.nodo.agregarHijos($$[$0-2].nodo);
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 97:
 
-        this.$ = new Aritmeticas($$[$0-2], $$[$0], OpcionesAritmeticas.POTENCIA, _$[$0-2].first_line, _$[$0-2].first_column);
+        this.$ = {
+            instrucciones : new Aritmeticas($$[$0-2], $$[$0], OpcionesAritmeticas.POTENCIA, _$[$0-2].first_line, _$[$0-2].first_column),
+            nodo : new Nodo('**', null, null, null)
+        }
+        this.$.nodo.agregarHijos($$[$0-2].nodo);
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 98: case 128: case 169: case 244: case 252:
@@ -573,77 +796,167 @@ case 98: case 128: case 169: case 244: case 252:
         this.$ = $$[$0-1];
     
 break;
-case 99: case 238:
+case 99:
 
-        this.$ = new Literal($$[$0], _$[$0].first_line, _$[$0].first_column, 0);
+        this.$ = {
+            instrucciones : new Literal($$[$0], _$[$0].first_line, _$[$0].first_column, 0),
+            nodo : new Nodo($$[$0], null, null)
+        }
     
 break;
 case 100:
 
-        this.$ = new Literal($$[$0], _$[$0].first_line, _$[$0].first_column, 1);
+        if($$[$0].includes('\"'))
+        {
+            this.$ = {
+                instrucciones : new Literal($$[$0].replace(/['"]+/g, ''), _$[$0].first_line, _$[$0].first_column, 1),
+                nodo : new Nodo($$[$0].replace(/['"]+/g, ''), null, null)
+            }
+        }
+        else if($$[$0].includes("'"))
+        {
+            this.$ = {
+                instrucciones : new Literal($$[$0].replace(/["'"]+/g, ''), _$[$0].first_line, _$[$0].first_column),
+                nodo : new Nodo($$[$0].replace(/["'"]+/g, ''), null, null)
+            }
+        }
+        else
+        {
+            this.$ = {
+                instrucciones : new Literal($$[$0], _$[$0].first_line, _$[$0].first_column),
+                nodo : new Nodo($$[$0], null, null)
+            }
+        }
     
 break;
-case 101: case 102: case 241: case 242:
+case 101: case 102:
 
-        this.$ = new Literal($$[$0], _$[$0].first_line, _$[$0].first_column, 2);
+        this.$ = {
+            instrucciones : new Literal($$[$0], _$[$0].first_line, _$[$0].first_column, 2),
+            nodo : new Nodo($$[$0], null, null)
+        }
     
 break;
-case 103: case 240:
+case 103:
 
-        this.$ = new Variable($$[$0], null, 7, _$[$0].first_line, _$[$0].first_column);
+        this.$ = {
+            instrucciones : new Variable($$[$0], null, 7, _$[$0].first_line, _$[$0].first_column),
+            nodo : new Nodo($$[$0], null, null)
+        }
     
 break;
 case 104:
 
-        let a = $$[$0-1]
-        a.concat("." + $$[$0]);
-        this.$ = new Variable($$[$0-1], $$[$0], 7, _$[$0-1].first_line, _$[$0-1].first_column);
+        this.$ = {
+            instrucciones : new Variable($$[$0-1], $$[$0].instrucciones, 7, _$[$0-1].first_line, _$[$0-1].first_column),
+            nodo : new Nodo(null, 'EXP', null)
+        }
+        this.$.nodo.agregarHijos(new Nodo($$[$0-1], null, null));
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 106:
 
-        this.$ = new Literal($$[$0], _$[$0].first_line, _$[$0].first_column, 3)
+        this.$ = {
+            instrucciones : new Literal($$[$0], _$[$0].first_line, _$[$0].first_column, 3),
+            nodo : new Nodo($$[$0], null, null)
+        }
+    
+break;
+case 107: case 108: case 148: case 268:
+
+        this.$ = $$[$0]
     
 break;
 case 109:
 
-        $$[$0-2].push($$[$0]);
+        $$[$0-2].instrucciones.push($$[$0]);
+        this.$ = {
+            instrucciones : $$[$0-2].instrucciones,
+            nodo : new Nodo(null, 'ATRIB', null)
+        }
+        this.$.nodo.agregarHijos($$[$0-2].nodo);
+        this.$.nodo.agregarHijos(new Nodo($$[$0], null, null))
         this.$ = $$[$0-2];
     
 break;
-case 110: case 117:
+case 110:
 
-        this.$ = [$$[$0]];
+        this.$ = {
+            instrucciones : [$$[$0]],
+            nodo : new Nodo(null, 'ATRIB', null)
+        }
+        this.$.nodo.agregarHijos(new Nodo($$[$0-1], null, null));
     
 break;
 case 111:
 
-        this.$ = new Llamada($$[$0-2], [], _$[$0-2].first_line, _$[$0-2].first_column);
+        this.$ = {
+            instrucciones : new Llamada($$[$0-2], [], _$[$0-2].first_line, _$[$0-2].first_column),
+            nodo : new Nodo(null, 'Llamada', null)
+        };
+        this.$.nodo.agregarHijos(new Nodo($$[$0-2], null, null));
     
 break;
 case 112:
 
-        this.$ = new Llamada($$[$0-3], $$[$0-1], _$[$0-3].first_line, _$[$0-3].first_column);
+        this.$ = {
+            instrucciones : new Llamada($$[$0-3], $$[$0-1].instrucciones, _$[$0-3].first_line, _$[$0-3].first_column),
+            nodo : new Nodo(null, "Llamada", null)
+        }
+        this.$.nodo.agregarHijos(new Nodo($$[$0-3], null, null));
+        this.$.nodo.agregarHijos($$[$0-1].nodo);
     
 break;
 case 113:
 
-        this.$ = new Imprimir([], _$[$0-4].first_line, _$[$0-4].first_column);
+        this.$ = {
+            instrucciones : new Imprimir([], _$[$0-4].first_line, _$[$0-4].first_column),
+            nodo : new Nodo(null, "Imprimir", null)
+        }
     
 break;
 case 114:
 
-        this.$ = new Imprimir($$[$0-1], _$[$0-5].first_line, _$[$0-5].first_column);
+        this.$ = {
+            instrucciones : new Imprimir($$[$0-1].instrucciones, _$[$0-5].first_line, _$[$0-5].first_column) ,
+            nodo : new Nodo(null, "Imprimir", null)
+
+        }
+        this.$.nodo.agregarHijos($$[$0-1].nodo);
+    
+break;
+case 115:
+
+        this.$ = {
+            instrucciones : new GraficarTs(_$[$0-2].first_line, _$[$0-2].first_column),
+            nodo : new Nodo(null, "GraficarTs", null)
+        }
     
 break;
 case 116:
 
-        $$[$0-2].push($$[$0])
-        this.$ = $$[$0-2];
+        $$[$0-2].instrucciones.push($$[$0].instrucciones)
+        this.$ = {
+            instrucciones : $$[$0-2].instrucciones,
+            nodo : new Nodo(null, "Parametro", null)
+        };
+        this.$.nodo.agregarHijos($$[$0-2].nodo);
+        this.$.nodo.agregarHijos($$[$0].nodo);
+    
+break;
+case 117:
+
+        this.$ = {
+            instrucciones : [$$[$0].instrucciones],
+            nodo : new Nodo(null, "Parametro", null)
+        }
+        this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
 case 118:
 
+        console.log()
         this.$ = Type.CADENA;
     
 break;
@@ -1100,6 +1413,16 @@ case 225:
         this.$ = new Aritmeticas(hermano[hermano.length - 4], hermano[hermano.length - 1], OpcionesAritmeticas.POTENCIA, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
     
 break;
+case 227:
+
+        this.$ = new Relacional($$[$0], null, OperacionesLogicas.NEGADO, _$[$0-1].first_line, _$[$0-1].first_column);
+    
+break;
+case 228:
+
+        this.$ = new Aritmeticas($$[$0], null, OpcionesAritmeticas.NEGATIVO, _$[$0-1].first_line, _$[$0-1].first_column);
+    
+break;
 case 231:
 
         hermano = eval('$$');
@@ -1140,6 +1463,11 @@ case 236:
         }
     
 break;
+case 238:
+
+        this.$ = new Literal($$[$0], _$[$0].first_line, _$[$0].first_column, 0);
+    
+break;
 case 239:
 
         if($$[$0].includes('\"'))
@@ -1154,6 +1482,16 @@ case 239:
         {
             this.$ = new Literal($$[$0], _$[$0].first_line, _$[$0].first_column);
         }
+    
+break;
+case 240:
+
+        this.$ = new Variable($$[$0], null, 7, _$[$0].first_line, _$[$0].first_column);
+    
+break;
+case 241: case 242:
+
+        this.$ = new Literal($$[$0], _$[$0].first_line, _$[$0].first_column, 2);
     
 break;
 case 243:
