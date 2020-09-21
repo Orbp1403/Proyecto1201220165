@@ -85,7 +85,7 @@ export class CuerpoComponent implements OnInit {
     {
       this.diagrama.div = null;
     }
-    console.log(ast);
+    console.log(ast.instrucciones);
     this.mostrararbol = false;
     this.raiz = ast.nodo;
   }

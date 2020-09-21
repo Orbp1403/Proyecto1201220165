@@ -257,14 +257,14 @@ Sentencias_control
     | 'RETURN' PYC
     {
         $$ = {
-            instrucciones : new Return(null, @1.first_line, @1.first_column),
+            instrucciones : new SentenciaReturn(null, @1.first_line, @1.first_column),
             nodo : new Nodo("Return", null, null)
         }
     }
     | 'RETURN' Expresion PYC
     {
         $$ = {
-            instrucciones : new Return($2.instrucciones, @1.first_line, @1.first_column),
+            instrucciones : new SentenciaReturn($2.instrucciones, @1.first_line, @1.first_column),
             nodo : new Nodo("Return", null, null)
         }
         $$.nodo.agregarHijos($2.nodo)
@@ -327,14 +327,13 @@ Sentenciafor
 Aumento
     : IDENTIFICADOR '++'
     {
-        console.log("aumento")
         $$ = {
             instrucciones : new Incremento($1, OpcionesAritmeticas.MAS, new Literal(1, @1.first_line, @1.first_column, 0), @1.first_line, @1.first_column),
             nodo : new Nodo(null, "Incremento", null)
         }
         $$.nodo.agregarHijos(new Nodo($1, null, null));
         $$.nodo.agregarHijos(new Nodo('++', null, null));
-        console.log($$)
+        
     }
     | IDENTIFICADOR '--'
     {
@@ -569,7 +568,6 @@ SentenciaElse
         }
         if($2.nodo != null)
         {
-            console.log("$2 no es null")
             $$.nodo.agregarHijos($2.nodo);
         }
     };
@@ -862,7 +860,7 @@ Declaracion
             instrucciones : new DeclaracionVarType($2, null, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column),
             nodo : new Nodo(null, "Declaracion", null)
         }
-        $$.nodo.agregarHijos(new Nodo($1, null, null));
+        $$.nodo.agregarHijos(new Nodo($2, null, null));
         $$.nodo.agregarHijos(new Nodo($3, null, null));
     }
     | CONST IDENTIFICADOR DP Tipo '=' Expresion
@@ -929,7 +927,7 @@ Lvalorestype
             nodo : new Nodo("Valores", null, null)
         };
         $$.nodo.agregarHijos($1.nodo);
-        $$.nodo.agregarHijos(new Nodo($1, null, null));
+        $$.nodo.agregarHijos(new Nodo($2, null, null));
         $$.nodo.agregarHijos($4.nodo)
     } 
     | IDENTIFICADOR DP Expresion ','
@@ -1172,7 +1170,6 @@ Expresion
     }
     | Aumento
     {
-        console.log($1)
         $$ = $1
     }
     | SentenciaTernaria
@@ -1265,7 +1262,6 @@ Listaparam
 Tipo
     : STRING
     {
-        console.log()
         $$ = Type.CADENA;
     }
     | NUMBER
@@ -1286,7 +1282,7 @@ Tipo
 Funcion 
     : FUNCTION IDENTIFICADOR '(' Funcion1
     {
-        /*if($4.parametros != null)
+        if($4.parametros != null)
         {
             $$ = {
                 instrucciones : new Funcion($2, $4.instrucciones_f.instrucciones, $4.parametros.instrucciones, $4.tipo, @1.first_line, @1.first_column),
@@ -1294,7 +1290,14 @@ Funcion
             }
             $$.nodo.agregarHijos(new Nodo($2, null, null));
             $$.nodo.agregarHijos($4.parametros.nodo);
-            $$.nodo.agregarHijos(new Nodo(Type[$4.tipo], null, null))
+            if(isNaN($4.tipo) == false)
+            {
+                $$.nodo.agregarHijos(new Nodo(Type[$4.tipo], null, null))
+            }
+            else
+            {
+                $$.nodo.agregarHijos(new Nodo($4.tipo, null, null))
+            }
             if($4.instrucciones_f.nodo != null)
             {
                 $$.nodo.agregarHijos($4.instrucciones_f.nodo)
@@ -1303,7 +1306,7 @@ Funcion
         else
         {
             $$ = {
-                instrucciones : new Funcion($2, $4.instrucciones_f.instrucciones, $4.parametros.instrucciones, $4.tipo, @1.first_line, @1.first_column),
+                instrucciones : new Funcion($2, $4.instrucciones_f.instrucciones, $4.parametros, $4.tipo, @1.first_line, @1.first_column),
                 nodo : new Nodo(null, "Funcion", null)
             }
             $$.nodo.agregarHijos(new Nodo($2, null, null));
@@ -1312,8 +1315,7 @@ Funcion
             {
                 $$.nodo.agregarHijos($4.instrucciones_f.nodo)
             }
-        }*/
-        $$ = $4.parametros
+        }
     };
 
 Funcion1
@@ -1357,7 +1359,10 @@ InstruccionesFuncion1
     }
     | '}'
     {
-        $$ = null;
+        $$ = {
+            instrucciones : null,
+            nodo : null
+        };
     };
 
 Linstrucciones 
@@ -1370,23 +1375,51 @@ Linstrucciones1
     : Linstrucciones
     {
         hermano = eval('$$');
-        hermano[hermano.length - 1].unshift(hermano[hermano.length - 2]);
-        $$ = hermano[hermano.length - 1];
+        hermano[hermano.length - 1].instrucciones.unshift(hermano[hermano.length - 2].instrucciones);
+        $$ = {
+            instrucciones : hermano[hermano.length - 1].instrucciones,
+            nodo : new Nodo(null, "INST", null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 2].nodo)
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo);
     }
     | 
     {
         hermano = eval('$$');
-        $$ = [hermano[hermano.length - 1]];
+        $$ = {
+            instrucciones : [hermano[hermano.length - 1].instrucciones],
+            nodo : new Nodo(null, "INST", null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
     };
 
 Instruccionfuncion
     : Expresionesfuncion Instruccionfuncion1 PYC
     {
-        hermano = eval('$$');
-        if(hermano[hermano.length - 2] == null){
-            $$ = hermano[hermano.length-3];
-        }else{
-            $$ = hermano[hermano.length - 2];
+        if($2.contenido.instrucciones != null)
+        {
+            if($2.estype == false)
+            {
+                $$ = {
+                    instrucciones : new Asignacion($1.instrucciones.nombre, $1.instrucciones.atributos, $2.contenido.instrucciones, $1.instrucciones.linea, $1.instrucciones.columna),
+                    nodo : new Nodo("Asignacion", null, null)
+                }
+                $$.nodo.agregarHijos($1.nodo);
+                $$.nodo.agregarHijos($2.contenido.nodo)
+            }
+            else
+            {
+                $$ = {
+                    instrucciones : new AsignacionVarType($1.instrucciones.nombre, $1.instrucciones.atributos, $2.contenido.instrucciones, $1.instrucciones.linea, $1.instrucciones.columna),
+                    nodo : new Nodo("Asignacion", null, null)
+                }
+                $$.nodo.agregarHijos($1.nodo)
+                $$.nodo.agregarHijos($2.contenido.nodo)
+            }
+        }
+        else
+        {
+            $$ = $1;
         }
     }
     | Llamadas_funcion PYC
@@ -1399,30 +1432,78 @@ Instruccionfuncion
         if($3.estype == false){
             if($3.valor == null && $3.tipo == null)
             {
-                $$ = new Declaracion($2, null, null, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+                $$ = {
+                    instrucciones : new Declaracion($2, null, null, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+                    nodo : new Nodo("Declaracion", null, null)
+                }
+                $$.nodo.agregarHijos(new Nodo($2, null, null))
             }
             else if($3.valor == null && $3.tipo != null)
             {
-                $$ = new Declaracion($2, null, $3.tipo, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+                $$ = {
+                    instrucciones : new Declaracion($2, null, $3.tipo, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+                    nodo : new Nodo("Declaracion", null, null)
+                }
+                $$.nodo.agregarHijos(new Nodo($2, null, null));
+                if(isNaN($3.tipo) == false)
+                {
+                    $$.nodo.agregarHijos(new Nodo(Type[$3.tipo], null, null))
+                }
+                else
+                {
+                    $$.nodo.agregarHijos(new Nodo($3, null, null))
+                }
             }
             else if($3.valor != null && $3.tipo != null)
             {
-                $$ = new Declaracion($2, $3.valor, $3.tipo, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+                $$ = {
+                    instrucciones : new Declaracion($2, $3.valor, $3.tipo, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+                    nodo : new Nodo("Declaracion", null, null)
+                }
+                $$.nodo.agregarHijos(new Nodo($2, null, null))
+                if(isNaN($3.tipo) == false)
+                {
+                    $$.nodo.agregarHijos(new Nodo(Type[$3.tipo], null, null))
+                }
+                else
+                {
+                    $$.nodo.agregarHijos(new Nodo($3, null, null))
+                }
+                $$.nodo.agregarHijos(new Nodo('=', null, null))
+                $$.nodo.agregarHijos($3.nodo)
             }
             else if($3.valor != null && $3.tipo == null)
             {
-                $$ = new Declaracion($2, $3.valor, null, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+                $$ = {
+                    instrucciones : new Declaracion($2, $3.valor, null, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+                    nodo : new Nodo("Declaracion", null, null)
+                }
+                $$.nodo.agregarHijos(new Nodo($2, null, null));
+                $$.nodo.agregarHijos(new Nodo('=', null, null));
+                $$.nodo.agregarHijos($3.nodo)
             }
         }
         else
         {
             if($3.valor == null && $3.tipo != null)
             {
-                $$ = new DeclaracionVarType($2, null, $3.tipo, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+                $$ = {
+                    instrucciones : new DeclaracionVarType($2, null, $3.tipo, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+                    nodo : new Nodo(null, "Declaracion", null)
+                }
+                $$.nodo.agregarHijos(new Nodo($2, null, null))
+                $$.nodo.agregarHijos(new Nodo($3.tipo, null, null))
             }
             else if($3.valor != null && $3.tipo != null)
             {
-                $$ = new DeclaracionVarType($2, $3.valor, $3.tipo, TiposSimbolo.VAR, @1.first_line, @1.first_column);
+                $$ = {
+                    instrucciones : new DeclaracionVarType($2, $3.valor, $3.tipo, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+                    nodo : new Nodo(null, "Declaracion", null)
+                }
+                $$.nodo.agregarHijos(new Nodo($2, null, null))
+                $$.nodo.agregarHijos(new Nodo($3.tipo, null, null))
+                $$.nodo.agregarHijos(new Nodo('=', null, null))
+                $$.nodo.agregarHijos($3.nodo)
             }
         }
     }
@@ -1432,16 +1513,36 @@ Instruccionfuncion
         {
             if($3.valor != null && $3.tipo == null)
             {
-                $$ = new Declaracion($2, $3.valor, null, TiposSimbolo.CONST, @1.first_line, @1.first_column);
+                $$ = {
+                    instrucciones : new Declaracion($2, $3.valor, null, TiposSimbolo.CONST, @1.first_line, @1.first_column),
+                    nodo : new Nodo(null, "Declaracion", null)
+                }
+                $$.nodo.agregarHijos(new Nodo($2, null, null));
+                $$.nodo.agregarHijos(new Nodo('=', null, null))
+                $$.nodo.agregarHijos($3.nodo)
             }
             else
             {
-                $$ = new Declaracion($2, $3.valor, $3.tipo, TiposSimbolo.CONST, @1.first_line, @1.first_column);
+                $$ = {
+                    instrucciones : new Declaracion($2, $3.valor, $3.tipo, TiposSimbolo.CONST, @1.first_line, @1.first_column),
+                    nodo : new Nodo(null, "Declaracion", null)
+                }
+                $$.nodo.agregarHijos(new Nodo($2, null, null));
+                $$.nodo.agregarHijos(new Nodo(Type[$3.tipo], null, null))
+                $$.nodo.agregarHijos(new Nodo('=', null, null));
+                $$.nodo.agregarHijos($3.nodo)
             }
         }
         else
         {
-            $$ = new DeclaracionVarType($2, $3.valor, $3.tipo, TiposSimbolo.CONST, @1.first_line, @1.first_column);
+            $$ = {
+                instrucciones : new DeclaracionVarType($2, $3.valor, $3.tipo, TiposSimbolo.CONST, @1.first_line, @1.first_column),
+                nodo : new Nodo(null, "Declaracion", null)
+            }
+            $$.nodo.agregarHijos(new Nodo($2, null, null))
+            $$.nodo.agregarHijos(new Nodo($3.tipo, null, null))
+            $$.nodo.agregarHijos(new Nodo('=', null, null))
+            $$.nodo.agregarHijos($3.nodo)
         }
     }
     | sentencia_if
@@ -1483,8 +1584,9 @@ Auxdeclaracion4
         hermano = eval('$$');
         $$ = {
             estype : false,
-            valor : hermano[hermano.length - 2],
-            tipo : null
+            valor : hermano[hermano.length - 2].instrucciones,
+            tipo : null,
+            nodo : hermano[hermano.length - 2].nodo
         }
     };
 
@@ -1494,8 +1596,9 @@ Auxdeclaracion5
         hermano = eval('$$');
         $$ = {
             estype : false,
-            valor : hermano[hermano.length - 2],
-            tipo : hermano[hermano.length - 4]
+            valor : hermano[hermano.length - 2].instrucciones,
+            tipo : hermano[hermano.length - 4],
+            nodo : hermano[hermano.length - 2].nodo
         }
     }
     | IDENTIFICADOR '=' Auxdeclaracion6
@@ -1523,8 +1626,9 @@ Auxdeclaracion
         hermano = eval('$$');
         $$ = {
             estype : false,
-            valor : hermano[hermano.length - 2],
-            tipo : null
+            valor : hermano[hermano.length - 2].instrucciones,
+            tipo : null,
+            nodo : hermano[hermano.length - 2].nodo
         }
     };
 
@@ -1553,8 +1657,9 @@ Auxdeclaracion2
         hermano = eval('$$');
         $$ = {
             estype : false,
-            valor : hermano[hermano.length - 2],
-            tipo : hermano[hermano.length - 4]
+            valor : hermano[hermano.length - 2].instrucciones,
+            tipo : hermano[hermano.length - 4],
+            nodo : hermano[hermano.length - 2].nodo
         };
     };
 
@@ -1579,8 +1684,9 @@ Auxdeclaracion6
         hermano = eval('$$');
         $$ = {
             estype : true,
-            valor : hermano[hermano.length - 3],
-            tipo : hermano[hermano.length - 6]
+            valor : hermano[hermano.length - 3].instrucciones,
+            tipo : hermano[hermano.length - 6],
+            nodo : hermano[hermano.length - 3].nodo
         }
     }
     | Expresionesfuncion PYC
@@ -1588,15 +1694,23 @@ Auxdeclaracion6
         hermano = eval('$$');
         $$ = {
             estype : true,
-            valor : hermano[hermano.length - 2],
-            tipo : hermano[hermano.length - 4]
+            valor : hermano[hermano.length - 2].instrucciones,
+            tipo : hermano[hermano.length - 4],
+            nodo : hermano[hermano.length - 2].nodo
         }
     };
 
 Sentencia_return
     : RETURN Sentencia_return1
     {
-        $$ = new SentenciaReturn($2.valor, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new SentenciaReturn($2.instrucciones, @1.first_line, @1.first_column),
+            nodo : new Nodo("Return", null, null)
+        }
+        if($2.nodo != null)
+        {
+            $$.nodo.agregarHijos($2.nodo)
+        }
     };
 
 Sentencia_return1
@@ -1604,26 +1718,46 @@ Sentencia_return1
     {
         hermano = eval('$$');
         $$ = {
-            valor : hermano[hermano.length - 2]
+            instrucciones : hermano[hermano.length - 2].instrucciones,
+            nodo : hermano[hermano.length - 2].nodo
         };
     }
     | PYC
     {
         $$ = {
-            valor : null
+            instrucciones : null,
+            nodo : null
         }
     };
 
 sentencia_break
     : BREAK PYC
     {
-        $$ = new Break(@1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Break(@1.first_line, @1.first_column),
+            nodo : new Nodo("Break", null, null)
+        }
     };
 
 sentencia_for
     : FOR '(' sentencia_for1
     {
-        $$ = new SentenciaFor($3.id, $3.valor_inicio, $3.condicion, $3.incremento, $3.instrucciones, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new SentenciaFor($3.id, $3.valor_inicio.instrucciones, $3.condicion.instrucciones, $3.incremento.instrucciones, $3.instrucciones.instrucciones, @1.first_line, @1.first_column),
+            nodo : new Nodo(null, "For", null)
+        }
+        instruccion = new Nodo("=", null, null)
+        instruccion.agregarHijos(new Nodo($3.id, null, null))
+        instruccion.agregarHijos($3.valor_inicio.nodo)
+        $$.nodo.agregarHijos(instruccion);
+        instruccion = new Nodo(null, "Condicion", null)
+        instruccion.agregarHijos($3.condicion.nodo)
+        $$.nodo.agregarHijos(instruccion)
+        $$.nodo.agregarHijos($3.incremento.nodo)
+        if($3.instrucciones.nodo != null)
+        {
+            $$.nodo.agregarHijos($3.instrucciones.nodo)
+        }
     };
 
 sentencia_for1
@@ -1651,19 +1785,48 @@ sentencia_for1
 sentencia_dowhile
     : DO InstruccionesFuncion WHILE '(' Expresionesfuncion ')' PYC
     {
-        $$ = new SentenciaDowhile($5, $2, @1.first_line, @1.first_column)
+        $$ = {
+            instrucciones : new SentenciaDowhile($5, $2, @1.first_line, @1.first_column),
+            nodo : new Nodo(null, "Do_while", null)
+        }
+        instruccion = new Nodo(null, "Condicion", null)
+        instruccion.agregarHijos($5.nodo)
+        if($2.nodo != null)
+        {
+            $$.nodo.agregarHijos($2.nodo)
+        }
+        $$.nodo.agregarHijos(instruccion)
     };
 
 sentencia_while
     : WHILE '(' Expresionesfuncion ')' InstruccionesFuncion
     {
-        $$ = new SentenciaWhile($3, $5, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new SentenciaWhile($3.instrucciones, $5.instrucciones, @1.first_line, @1.first_column),
+            nodo : new Nodo(null, "While", null)
+        }
+        instruccion = new Nodo(null, "Condicion", null);
+        instruccion.agregarHijos($3.nodo)
+        $$.nodo.agregarHijos(instruccion)
+        if($5.nodo != null){
+            $$.nodo.agregarHijos($5.nodo)
+        }
     };
 
 sentencia_switch
     : SWITCH '(' Expresionesfuncion ')' '{' Lcasosswitch
     {
-        $$ = new SentenciaSwitch($3, $6, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new SentenciaSwitch($3.instrucciones, $6.casos, @1.first_line, @1.first_column),
+            nodo : new Nodo(null, "Switch", null)
+        };
+        instruccion = new Nodo(null, "Condicion", null)
+        instruccion.agregarHijos($3.nodo)
+        $$.nodo.agregarHijos(instruccion)
+        if($6.casos != null)
+        {
+            $$.nodo.agregarHijos($6.nodo_casos)
+        }
     };
 
 Lcasosswitch 
@@ -1673,7 +1836,10 @@ Lcasosswitch
     }
     | '}'
     {
-        $$ = null;
+        $$ = {
+            casos : null,
+            nodo_casos : null
+        };
     };
 
 Lcasos
@@ -1682,12 +1848,29 @@ Lcasos
         hermano = eval('$$');
         if(hermano[hermano.length - 1].casos == null)
         {
-            $$ = [new Caso($2, hermano[hermano.length - 1].instrucciones, @1.first_line, @1.first_column)];
+            $$ = {
+                casos : [new Caso($2.instrucciones, hermano[hermano.length - 1].instrucciones, @1.first_line, @1.first_column)],
+                nodo_casos : new Nodo(null, "Caso", null)
+            }
+            $$.nodo_casos.agregarHijos($2.nodo)
+            if(hermano[hermano.length - 1].instrucciones != null)
+            {
+                $$.nodo_casos.agregarHijos(hermano[hermano.length - 1].nodo)
+            }
         }
         else
         {
             hermano[hermano.length - 1].casos.unshift(new Caso($2, hermano[hermano.length - 1].instrucciones, @1.first_line, @1.first_column))
-            $$ = hermano[hermano.length - 1].casos;
+            $$ = {
+                casos : hermano[hermano.length - 1].casos,
+                nodo_casos : new Nodo(null, "Caso", null)
+            }
+            $$.nodo_casos.agregarHijos($2.nodo);
+            if(hermano[hermano.length - 1].nodo != null)
+            {
+                $$.nodo_casos.agregarHijos(hermano[hermano.length - 1].nodo)
+            }            
+            $$.nodo_casos.agregarHijos(hermano[hermano.length - 1].nodo_casos)
         }
     }
     | DEFAULT DP Lcasos1
@@ -1695,12 +1878,29 @@ Lcasos
         hermano = eval('$$');
         if(hermano[hermano.length - 1].casos == null)
         {
-            $$ = [new CasoDef(hermano[hermano.length - 1].instrucciones, @1.first_line, @1.first_column)];
+            $$ = {
+                casos : [new CasoDef(hermano[hermano.length - 1].instrucciones, @1.first_line, @1.first_column)],
+                nodo_casos : new Nodo(null, "Caso", null)
+            }
+            $$.nodo_casos.agregarHijos(new Nodo("Default", null, null));
+            if(hermano[hermano.length - 1].instrucciones != null)
+            {
+                $$.nodo_casos.agregarHijos(hermano[hermano.length - 1].nodo)
+            }
         }
         else
         {
             hermano[hermano.length - 1].casos.unshift(new CasoDef(hermano[hermano.length - 1].instrucciones, @1.first_line, @1.first_column));
-            $$ = hermano[hermano.length - 1].casos;
+            $$ = {
+                casos : hermano[hermano.length - 1].casos,
+                nodo_casos : new Nodo(null, "Caso", null)
+            }
+            $$.nodo_casos.agregarHijos(new Nodo("Default", null, null))
+            if(hermano[hermano.length - 1].nodo != null)
+            {
+                $$.nodo_casos.agregarHijos(hermano[hermano.length - 1].nodo)
+            }
+            $$.nodo_casos.agregarHijos(hermano[hermano.length - 1].nodo_casos)
         }
     };
 
@@ -1708,24 +1908,43 @@ Lcasos1
     : Linstrucciones Lcasos2
     {
         hermano = eval('$$')
-        $$ = {
-            instrucciones: hermano[hermano.length - 2],
-            casos : hermano[hermano.length - 1]
+        if(hermano[hermano.length - 1] == null)
+        {
+            $$ = {
+                instrucciones : hermano[hermano.length - 2].instrucciones,
+                casos : null,
+                nodo : hermano[hermano.length - 2].nodo,
+                nodo_casos : null
+            }
         }
+        else
+        {
+            $$ = {
+                instrucciones : hermano[hermano.length - 2].instrucciones,
+                casos : hermano[hermano.length - 1].casos,
+                nodo : hermano[hermano.length - 2].nodo,
+                nodo_casos : hermano[hermano.length - 1].nodo_casos
+            }
+        }
+        
     }
     | Lcasos
     {
         hermano = eval('$$');
         $$ = {
             instrucciones : null,
-            casos : hermano[hermano.length - 1]
+            casos : hermano[hermano.length - 1].casos,
+            nodo : null,
+            nodo_casos : hermano[hermano.length - 1].nodo_casos
         }
     }
     | 
     {
         $$ = {
             instrucciones : null,
-            casos : null
+            casos : null,
+            nodo : null,
+            nodo_casos : null
         }
     };
 
@@ -1742,17 +1961,39 @@ Lcasos2
 sentencia_if
     : IF '(' Expresionesfuncion ')' InstruccionesFuncion sentencia_else
     {
-        $$ = new SentenciaIf($3, $5, $6, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new SentenciaIf($3.instrucciones, $5.instrucciones, $6.instrucciones, @1.first_line, @1.first_column),
+            nodo : new Nodo(null, "IF", null)
+        };
+        instruccion = new Nodo(null, "Condicion", null)
+        instruccion.agregarHijos($3.nodo);
+        $$.nodo.agregarHijos(instruccion)
+        if($5.nodo != null)
+        {
+            $$.nodo.agregarHijos($5.nodo)
+        }
+
+        if($6.nodo != null)
+        {
+            $$.nodo.agregarHijos($6.nodo)
+        }
     };
 
 sentencia_else
     : ELSE sentencia_else1
     {
-        $$ = $2;
+        $$ = {
+            instrucciones : $2.instrucciones,
+            nodo : new Nodo(null, "ELSE", null)
+        }
+        $$.nodo.agregarHijos($2.nodo)
     }
     | 
     {
-        $$ = null;
+        $$ = {
+            instrucciones : null,
+            nodo : null
+        }
     };
 
 sentencia_else1
@@ -1771,25 +2012,30 @@ Instruccionfuncion1
         $$ = $2;
     }
     | {
-        $$ = null;
+        $$ = {
+            contenido : {
+                instrucciones : null
+            }
+            ,
+            nodo : null
+        };
     };
 
 instruccionfuncion12
     : Expresionesfuncion
     {
-        hermano = eval('$$');
-        $$ = new Asignacion(hermano[hermano.length - 3].nombre, hermano[hermano.length - 3].atributos, hermano[hermano.length - 1], hermano[hermano.length - 3].linea, hermano[hermano.length - 3].columna);
+        $$ = {
+            contenido : $1,
+            estype : false
+        }
     }
     | '{' ValoresType '}'
     {
-        hermano = eval('$$');
-        $$ = new AsignacionVarType(hermano[hermano.length - 5].nombre, hermano[hermano.length - 5].atributos, hermano[hermano.length - 2], hermano[hermano.length - 5].linea, hermano[hermano.length - 5].columna);
+        $$ = {
+            contenido : $2,
+            estype : true
+        }
     };
-
-AuxInstruccionfuncion1
-    : '(' Instruccionfuncion2
-    | Atributos
-    | ;
 
 Expresionesfuncion
     : Auxexpresionesfuncion Auxexpresionesfuncion1
@@ -1800,6 +2046,18 @@ Expresionesfuncion
 
 Auxexpresionesfuncion1 
     : '?' Auxexpresionesfuncion DP Auxexpresionesfuncion
+    {
+        hermano = eval('$$');
+        $$ = {
+            instrucciones : new SentenciaTernaria(hermano[hermano.length - 5].instrucciones, hermano[hermano.length-3].instrucciones, hermano[hermano.length - 1].instrucciones, hermano[hermano.length - 5].instrucciones.linea, hermano[hermano.length - 5].instrucciones.columna),
+            nodo : new Nodo(null, "Ternaria", null)
+        }
+        instruccion = new Nodo(null, "Condicion", null)
+        instruccion.agregarHijos(hermano[hermano.length - 5].nodo)
+        $$.nodo.agregarHijos(instruccion);
+        $$.nodo.agregarHijos(hermano[hermano.length - 3].nodo) 
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
+    }
     | 
     {
         hermano = eval('$$');
@@ -1817,32 +2075,62 @@ Expresionesfuncion2
     : '+=' Expresionesfuncion1 Expresionesfuncion2
     {
         hermano = eval('$$');
-        $$ = new Incremento(hermano[hermano.length - 4], OpcionesAritmeticas.MAS, hermano[hermano.length - 1], hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+        $$ = {
+            instrucciones : new Incremento(hermano[hermano.length - 4].instrucciones, OpcionesAritmeticas.MAS, hermano[hermano.length - 1].instrucciones, hermano[hermano.length - 4].instrucciones.linea, hermano[hermano.length - 4].instrucciones.columna),
+            nodo : new Nodo("+=", null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo)
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
     }
     | '-=' Expresionesfuncion1 Expresionesfuncion2
     {
         hermano = eval('$$');
-        $$ = new Incremento(hermano[hermano.length - 4], OpcionesAritmeticas.MENOS, hermano[hermano.length - 1], hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+        $$ = {
+            instrucciones : new Incremento(hermano[hermano.length - 4].instrucciones, OpcionesAritmeticas.MAS, hermano[hermano.length - 1].instrucciones, hermano[hermano.length - 4].instrucciones.linea, hermano[hermano.length - 4].instrucciones.columna),
+            nodo : new Nodo("-=", null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo)
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
     }
     | '*=' Expresionesfuncion1 Expresionesfuncion2
     {
         hermano = eval('$$');
-        $$ = new Incremento(hermano[hermano.length - 4], OpcionesAritmeticas.POR, hermano[hermano.length - 1], hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+        $$ = {
+            instrucciones : new Incremento(hermano[hermano.length - 4].instrucciones, OpcionesAritmeticas.MAS, hermano[hermano.length - 1].instrucciones, hermano[hermano.length - 4].instrucciones.linea, hermano[hermano.length - 4].instrucciones.columna),
+            nodo : new Nodo("*=", null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo)
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
     }
     | '/=' Expresionesfuncion1 Expresionesfuncion2
     {
-        hermano = eval('$$')
-        $$ = new Incremento(hermano[hermano.length - 4], Opcionesaritmeticas.DIV, hermano[hermano.length - 1], hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+        hermano = eval('$$');
+        $$ = {
+            instrucciones : new Incremento(hermano[hermano.length - 4].instrucciones, OpcionesAritmeticas.MAS, hermano[hermano.length - 1].instrucciones, hermano[hermano.length - 4].instrucciones.linea, hermano[hermano.length - 4].instrucciones.columna),
+            nodo : new Nodo("/=", null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo)
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
     }
     | '%=' Expresionesfuncion1 Expresionesfuncion2
     {
         hermano = eval('$$');
-        $$ = new Incremento(hermano[hermano.length - 4], OpcionesAritmeticas.MODULO, hermano[hermano.length - 1], hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+        $$ = {
+            instrucciones : new Incremento(hermano[hermano.length - 4].instrucciones, OpcionesAritmeticas.MAS, hermano[hermano.length - 1].instrucciones, hermano[hermano.length - 4].instrucciones.linea, hermano[hermano.length - 4].instrucciones.columna),
+            nodo : new Nodo("%=", null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo)
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
     }
     | '**=' Expresionesfuncion1 Expresionesfuncion2
     {
         hermano = eval('$$');
-        $$ = new Incremento(hermano[hermano.length - 4], OpcionesAritmeticas.POTENCIA, hermano[hermano.length-1], hermano[hermano.length - 4].linea, hermano[hermano.left - 4].columna);
+        $$ = {
+            instrucciones : new Incremento(hermano[hermano.length - 4].instrucciones, OpcionesAritmeticas.MAS, hermano[hermano.length - 1].instrucciones, hermano[hermano.length - 4].instrucciones.linea, hermano[hermano.length - 4].instrucciones.columna),
+            nodo : new Nodo("**=", null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo)
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
     }
     | 
     {
@@ -1861,12 +2149,22 @@ Expresionesfuncion4
     : OR Expresionesfuncion3 Expresionesfuncion4
     {
         hermano = eval('$$');
-        $$ = new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.OR, hermano[hermano.length - 4].linea, hermano[hermano.left-4].columna);
+        $$ = {
+            instrucciones : new Relacional(hermano[hermano.length - 4].instrucciones, hermano[hermano.length - 1].instrucciones, OperacionesLogicas.OR, hermano[hermano.length - 4].instrucciones.linea, hermano[hermano.length-4].instrucciones.columna),
+            nodo : new Nodo('||', null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo)
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
     }
     | AND Expresionesfuncion3 Expresionesfuncion4
     {
         hermano = eval('$$');
-        $$ = new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.AND, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+        $$ = {
+            instrucciones : new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.AND, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna),
+            nodo : new Nodo('&&', null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo)
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
     }
     | 
     {
@@ -1885,12 +2183,22 @@ Expresionesfuncion6
     : '==' Expresionesfuncion5 Expresionesfuncion6
     {
         hermano = eval('$$');
-        $$ = new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.IGUAL, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+        $$ = {
+            instrucciones : new Relacional(hermano[hermano.length - 4].instrucciones, hermano[hermano.length - 1].instrucciones, OperacionesLogicas.IGUAL, hermano[hermano.length - 4].instrucciones.linea, hermano[hermano.length - 4].instrucciones.columna),
+            nodo : new Nodo('==', null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo);
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
     }
     | '!=' Expresionesfuncion5 Expresionesfuncion6
     {
         hermano = eval('$$');
-        $$ = new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.NOIGUAL, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+        $$ = {
+            instrucciones : new Relacional(hermano[hermano.length - 4].instrucciones, hermano[hermano.length - 1].instrucciones, OperacionesLogicas.NOIGUAL, hermano[hermano.length - 4].instrucciones.linea, hermano[hermano.length - 4].instrucciones.columna), 
+            nodo : new Nodo('!=', null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo);
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo);
     }
     | 
     {
@@ -1909,22 +2217,42 @@ Expresionesfuncion8
     : '>=' Expresionesfuncion7 Expresionesfuncion8
     {
         hermano = eval('$$');
-        $$ = new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.MAYORIGUAL, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna)
+        $$ = {
+            instrucciones : new Relacional(hermano[hermano.length - 4].instrucciones, hermano[hermano.length - 1].instrucciones, OperacionesLogicas.MAYORIGUAL, hermano[hermano.length - 4].instrucciones.linea, hermano[hermano.length - 4].instrucciones.columna),
+            nodo : new Nodo('>=', null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo)
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
     }
     | '<=' Expresionesfuncion7 Expresionesfuncion8
     {
         hermano = eval('$$');
-        $$ = new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.MENORIGUAL, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna)
+        $$ = {
+            instrucciones : new Relacional(hermano[hermano.length - 4].instrucciones, hermano[hermano.length - 1].instrucciones, OperacionesLogicas.MENORIGUAL, hermano[hermano.length - 4].instrucciones.linea, hermano[hermano.length - 4].instrucciones.columna),
+            nodo : new Nodo('<=', null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo)
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
     }
     | '<' Expresionesfuncion7 Expresionesfuncion8
     {
         hermano = eval('$$');
-        $$ = new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.MENOR, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna)
+        $$ = {
+            instrucciones : new Relacional(hermano[hermano.length - 4].instrucciones, hermano[hermano.length - 1].instrucciones, OperacionesLogicas.MENOR, hermano[hermano.length - 4].instrucciones.linea, hermano[hermano.length - 4].instrucciones.columna),
+            nodo : new Nodo('<', null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo)
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
     }
     | '>' Expresionesfuncion7 Expresionesfuncion8
     {
         hermano = eval('$$');
-        $$ = new Relacional(hermano[hermano.length - 4], hermano[hermano.length - 1], OperacionesLogicas.MAYOR, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna)
+        $$ ={
+            instrucciones : new Relacional(hermano[hermano.length - 4].instrucciones, hermano[hermano.length - 1].instrucciones, OperacionesLogicas.MAYOR, hermano[hermano.length - 4].instrucciones.linea, hermano[hermano.length - 4].instrucciones.columna),
+            nodo : new Nodo('>', null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo)
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
     }
     | 
     {
@@ -1943,12 +2271,22 @@ Expresionesfuncion10
     : '-' Expresionesfuncion9 Expresionesfuncion10
     {
         hermano = eval('$$');
-        $$ = new Aritmeticas(hermano[hermano.length - 4], hermano[hermano.length - 1], OpcionesAritmeticas.MENOS, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+        $$ = {
+            instrucciones : new Aritmeticas(hermano[hermano.length - 4].instrucciones, hermano[hermano.length - 1].instrucciones, OpcionesAritmeticas.MENOS, hermano[hermano.length - 4].instrucciones.linea, hermano[hermano.length - 4].instrucciones.columna),
+            nodo : new Nodo('-', null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo);
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
     }
     | '+' Expresionesfuncion9 Expresionesfuncion10
     {
         hermano = eval('$$');
-        $$ = new Aritmeticas(hermano[hermano.length - 4], hermano[hermano.length - 1], OpcionesAritmeticas.MAS, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+        $$ = {
+            instrucciones : new Aritmeticas(hermano[hermano.length - 4].instrucciones, hermano[hermano.length - 1].instrucciones, OpcionesAritmeticas.MAS, hermano[hermano.length - 4].instrucciones.linea, hermano[hermano.length - 4].instrucciones.columna),
+            nodo : new Nodo('+', null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo);
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo);
     }
     | 
     {
@@ -1967,17 +2305,32 @@ Expresionesfuncion12
     : '%' Expresionesfuncion11 Expresionesfuncion12
     {
         hermano = eval('$$');
-        $$ = new Aritmeticas(hermano[hermano.length - 4], hermano[hermano.length - 1], OpcionesAritmeticas.MODULO, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+        $$ = {
+            instrucciones : new Aritmeticas(hermano[hermano.length - 4], hermano[hermano.length - 1], OpcionesAritmeticas.MODULO, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna),
+            nodo : new Nodo('%', null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo);
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo);
     }
     | '/' Expresionesfuncion11 Expresionesfuncion12
     {
         hermano = eval('$$');
-        $$ = new Aritmeticas(hermano[hermano.length - 4], hermano[hermano.length - 1], OpcionesAritmeticas.DIV, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+        $$ = {
+            instrucciones : new Aritmeticas(hermano[hermano.length - 4].instrucciones, hermano[hermano.length - 1].instrucciones, OpcionesAritmeticas.DIV, hermano[hermano.length - 4].instrucciones.linea, hermano[hermano.length - 4].instrucciones.columna) ,
+            nodo : new Nodo('/', null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo);
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo);
     }
     | '*' Expresionesfuncion11 Expresionesfuncion12
     {
         hermano = eval('$$');
-        $$ = new Aritmeticas(hermano[hermano.length - 4], hermano[hermano.length - 1], OpcionesAritmeticas.POR, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+        $$ = {
+            instrucciones : new Aritmeticas(hermano[hermano.length - 4].instrucciones, hermano[hermano.length - 1].instrucciones, OpcionesAritmeticas.POR, hermano[hermano.length - 4].instrucciones.linea, hermano[hermano.length - 4].instrucciones.columna),
+            nodo : new Nodo('*', null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo);
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo);
     }
     | 
     {
@@ -1996,7 +2349,12 @@ Expresionesfuncion14
     : '**' Expresionesfuncion13 Expresionesfuncion14
     {
         hermano = eval('$$');
-        $$ = new Aritmeticas(hermano[hermano.length - 4], hermano[hermano.length - 1], OpcionesAritmeticas.POTENCIA, hermano[hermano.length - 4].linea, hermano[hermano.length - 4].columna);
+        $$ = {
+            instrucciones : new Aritmeticas(hermano[hermano.length - 4].instrucciones, hermano[hermano.length - 1].instrucciones, OpcionesAritmeticas.POTENCIA, hermano[hermano.length - 4].instrucciones.linea, hermano[hermano.length - 4].instrucciones.columna),
+            nodo : new Nodo('**', null, null)
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 4].nodo);
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo);
     }
     | 
     {
@@ -2007,11 +2365,19 @@ Expresionesfuncion14
 Expresionesfuncion13
     : NOT Expresionesfuncion13
     {
-        $$ = new Relacional($2, null, OperacionesLogicas.NEGADO, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Relacional($2.instrucciones, null, OperacionesLogicas.NEGADO, @1.first_line, @1.first_column),
+            nodo : new Nodo('!', null, null)
+        }
+        $$.nodo.agregarHijos($2.nodo);
     }
     | '-' Expresionesfuncion13
     {
-        $$ = new Aritmeticas($2, null, OpcionesAritmeticas.NEGATIVO, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Aritmeticas($2.instrucciones, null, OpcionesAritmeticas.NEGATIVO, @1.first_line, @1.first_column),
+            nodo : new Nodo('-', null, null)
+        }
+        $$.nodo.agregarHijos($2.nodo);
     }
     | Expresionesfuncion15
     {
@@ -2031,7 +2397,12 @@ Expresionesfuncion17
     {
         hermano = eval('$$');
         if(hermano[hermano.length-2].tipo == 7){
-            $$ = new Incremento(hermano[hermano.length-2].nombre, OpcionesAritmeticas.MAS, new Literal(1, @1.first_line, @1.first_column, 0), hermano[hermano.length-2].linea, hermano[hermano.length-2].columna);
+            $$ = {
+                instrucciones : new Incremento(hermano[hermano.length-2].instrucciones.nombre, OpcionesAritmeticas.MAS, new Literal(1, @1.first_line, @1.first_column, 0), hermano[hermano.length-2].instrucciones.linea, hermano[hermano.length-2].instrucciones.columna), 
+                nodo : new Nodo(null, "Incremento", null)
+            }
+            $$.nodo.agregarHijos(new Nodo(hermano[hermano.length-2].instrucciones.nombre, null, null));
+            $$.nodo.agregarHijos(new Nodo('--', null, null))
         }else{
             //TODO error
         }
@@ -2040,7 +2411,12 @@ Expresionesfuncion17
     {
         hermano = eval('$$');
         if(hermano[hermano.length-2].tipo == 7){
-            $$ = new Incremento(hermano[hermano.length-2].nombre, OpcionesAritmeticas.MENOS, new Literal(1, @1.first_line, @1.first_column, 0), hermano[hermano.length-2].linea, hermano[hermano.length-2].columna);
+            $$ = {
+                instrucciones : new Incremento(hermano[hermano.length-2].instrucciones.nombre, OpcionesAritmeticas.MENOS, new Literal(1, @1.first_line, @1.first_column, 0), hermano[hermano.length-2].instrucciones.linea, hermano[hermano.length-2].instrucciones.columna),
+                nodo : new Nodo(null, "Incremento", null)
+            }
+            $$.nodo.agregarHijos(new Nodo(hermano[hermano.length-2].instrucciones.nombre, null, null));
+            $$.nodo.agregarHijos(new Nodo('--', null, null))
         }else{
             //TODO error
         }
@@ -2062,19 +2438,25 @@ Expresionesfuncion19
     : Atributos
     {
         hermano = eval('$$');
-        if(hermano[hermano.length-2].tipo == 7){
-            $$ = new Variable(hermano[hermano.length-2].nombre, hermano[hermano.length-1], 7, hermano[hermano.length-2].linea, hermano[hermano.length-2].columna);
-        }else{
-            //TODO error
+        $$ = {
+            instrucciones : new Variable(hermano[hermano.length-2].instrucciones.nombre, hermano[hermano.length-1].instrucciones, 7, hermano[hermano.length-2].instrucciones.linea, hermano[hermano.length-2].instrucciones.columna),
+            nodo : new Nodo(null, 'EXP', null)
         }
+        $$.nodo.agregarHijos(new Nodo(hermano[hermano.length - 2].instrucciones.nombre, null, null))
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
+        
     }
     | '(' Instruccionfuncion2
     {
         hermano = eval('$$');
-        if(hermano[hermano.length - 3].tipo == 7){
-            $$ = new Llamada(hermano[hermano.length-3].nombre, hermano[hermano.length-1], hermano[hermano.length-3].linea, hermano[hermano.length-3].columna);
-        }else{
-            //TODO ERROR
+        $$ = {
+            instrucciones : new Llamada(hermano[hermano.length-3].instrucciones.nombre, hermano[hermano.length-1].instrucciones, hermano[hermano.length-3].instrucciones.linea, hermano[hermano.length-3].instrucciones.columna),
+            nodo : new Nodo(null, "Llamada", null)
+        }
+        $$.nodo.agregarHijos(new Nodo(hermano[hermano.length - 3].instrucciones.nombre, null, null));
+        if(hermano[hermano.length - 1].nodo != null)
+        {
+            $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
         }
     }
     | 
@@ -2086,70 +2468,98 @@ Expresionesfuncion19
 Expresionesfuncion18
     : NUMERO
     {
-        $$ = new Literal($1, @1.first_line, @1.first_column, 0);
+        $$ = {
+            instrucciones : new Literal($1, @1.first_line, @1.first_column, 0),
+            nodo : new Nodo($1, null, null)
+        }
     }
     | CADENA
     {
-        if($1.includes('\"'))
+         if($1.includes('\"'))
         {
-            $$ = new Literal($1.replace(/['"]+/g, ''), @1.first_line, @1.first_column, 1);
+            $$ = {
+                instrucciones : new Literal($1.replace(/['"]+/g, ''), @1.first_line, @1.first_column, 1),
+                nodo : new Nodo($1.replace(/['"]+/g, ''), null, null)
+            }
         }
         else if($1.includes("'"))
         {
-            $$ = new Literal($1.replace(/["'"]+/g, ''), @1.first_line, @1.first_column);
+            $$ = {
+                instrucciones : new Literal($1.replace(/["'"]+/g, ''), @1.first_line, @1.first_column),
+                nodo : new Nodo($1.replace(/["'"]+/g, ''), null, null)
+            }
         }
         else
         {
-            $$ = new Literal($1, @1.first_line, @1.first_column);
+            $$ = {
+                instrucciones : new Literal($1, @1.first_line, @1.first_column),
+                nodo : new Nodo($1, null, null)
+            }
         }
     }
     | IDENTIFICADOR
     {
-        $$ = new Variable($1, null, 7, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Variable($1, null, 7, @1.first_line, @1.first_column),
+            nodo : new Nodo($1, null, null)
+        }
     }
     | TRUE
     {
-        $$ = new Literal($1, @1.first_line, @1.first_column, 2);
+        $$ = {
+            instrucciones : new Literal($1, @1.first_line, @1.first_column, 2),
+            nodo : new Nodo($1, null, null)
+        }
     }
     | FALSE
     {
-        $$ = new Literal($1, @1.first_line, @1.first_column, 2);
+        $$ = {
+            instrucciones : new Literal($1, @1.first_line, @1.first_column, 2),
+            nodo : new Nodo($1, null, null)
+        }
     }
     | NULL
     {
-        $$ = new Literal($1, @1.first_line, @1.first_column, 3);
+        $$ = {
+            instrucciones : new Literal($1, @1.first_line, @1.first_column, 3),
+            nodo : new Nodo($1, null, null)
+        }
     }
     | '(' Expresionesfuncion ')'
     {
         $$ = $2;
     };
 
-Ternario
-    : Expresionesfuncion '?' Ternario2;
-
-Ternario2
-    : Ternario3 DP Ternario3;
-
-Ternario3
-    : Llamadas_funcion
-    | Expresionesfuncion;
 
 Llamadas_funcion
     : CONSOLE '.' LOG '(' Instruccionfuncion2
     {
         hermano = eval('$$');
-        $$ = new Imprimir(hermano[hermano.length-1], @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new Imprimir(hermano[hermano.length-1].instrucciones, @1.first_line, @1.first_column),
+            nodo : new Nodo(null, "Imprimir", null)
+        }
+        if(hermano[hermano.length - 1].nodo != null)
+        {
+            $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
+        }
     }
     | GRAFICAR_TS '(' ')'
     {
-        $$ = new GraficarTs(@1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new GraficarTs(@1.first_line, @1.first_column),
+            nodo : new Nodo(NULL, "GraficarTs", null)
+        }
     };
 
 Instruccionfuncion2
     : ')'
     {
         hermano = eval('$$');
-        $$ = [];
+        $$ = {
+            instrucciones : [],
+            nodo : null
+        };
     }
     | Parametrosllamada ')'
     {
@@ -2165,20 +2575,31 @@ Atributos
 Atributo
     : '.' IDENTIFICADOR
     {
-        $$ = $2;
+        $$ = {
+            instrucciones : $2,
+            nodo : new Nodo(null, "ATRIB", null)
+        }
+        $$.nodo.agregarHijos(new Nodo($2, null, null));
     };
 
 Atributos1
     : Atributos
     {
         hermano = eval('$$');
-        hermano[hermano.length-1].unshift(hermano[hermano.length - 2]);
-        $$ = hermano[hermano.length-1];
+        hermano[hermano.length-1].instrucciones.unshift(hermano[hermano.length - 2].instrucciones);
+        $$ = {
+            instrucciones : hermano[hermano.length-1].instrucciones,
+            nodo : hermano[hermano.length - 2].nodo
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
     }
     | 
     {
         hermano = eval('$$');
-        $$ = [hermano[hermano.length-1]];
+        $$ = {
+            instrucciones : [hermano[hermano.length-1].instrucciones],
+            nodo : hermano[hermano.length - 1].nodo
+        }
     };
 
 Parametrosllamada
@@ -2190,25 +2611,32 @@ Parametrosllamada
 Parametrollamada
     : Expresionesfuncion
     {
-        $$ = $1;
+        $$ = {
+            instrucciones : $1.instrucciones,
+            nodo : new Nodo(null, "Parametro", null)
+        }
+        $$.nodo.agregarHijos($1.nodo)
     };
 
 Parametrosllamada1
     : ',' Parametrosllamada
     {
         hermano = eval('$$');
-        hermano[hermano.length-1].unshift(hermano[hermano.length - 3]);
-        $$ = hermano[hermano.length-1];
+        hermano[hermano.length-1].instrucciones.unshift(hermano[hermano.length - 3].instrucciones);
+        $$ = {
+            instrucciones : hermano[hermano.length-1].instrucciones,
+            nodo : hermano[hermano.length - 3].nodo
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo);
     }
     | 
     {
         hermano = eval('$$');
-        $$ = [hermano[hermano.length-1]];
+        $$ = {
+            instrucciones : [hermano[hermano.length-1].instrucciones],
+            nodo : hermano[hermano.length - 1].nodo
+        }
     };
-
-Instruccionfuncion3
-    : '{' ValoresType '}'
-    | Expresionesfuncion;
 
 ValoresType
     : Valortype ValoresType1
@@ -2219,26 +2647,42 @@ ValoresType
 Valortype
     : IDENTIFICADOR DP Expresionesfuncion
     {
-        $$ = new ValoresTipo($1, $3, @1.first_line, @1.first_column);
+        $$ = {
+            instrucciones : new ValoresTipo($1, $3.instrucciones, @1.first_line, @1.first_column),
+            nodo : new Nodo("Valores", null, null)
+        }
+        $$.nodo.agregarHijos(new Nodo($1, null, null));
+        $$.nodo.agregarHijos($3.nodo)
     };
 
 ValoresType1
     : ',' ValoresType
     {
         hermano = eval('$$');
-        hermano[hermano.length - 1].unshift(hermano[hermano.length -3]);
-        $$ = hermano[hermano.length - 1];
+        hermano[hermano.length - 1].instrucciones.unshift(hermano[hermano.length -3].instrucciones);
+        $$ = {
+            instrucciones : hermano[hermano.length - 1].instrucciones,
+            nodo : hermano[hermano.length-3].nodo
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo);
     }
     | ValoresType
     {
         hermano = eval('$$');
-        hermano[hermano.length - 1].unshift(hermano[hermano.length - 3]);
-        $$ = hermano[hermano.length - 1];
+        hermano[hermano.length - 1].instrucciones.unshift(hermano[hermano.length - 2].instrucciones);
+        $$ = {
+            instrucciones : hermano[hermano.length - 1].instrucciones,
+            nodo : hermano[hermano.length -2].nodo
+        }
+        $$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
     }
     | 
     {
         hermano = eval('$$');
-        $$ = [hermano[hermano.length - 1]];
+        $$ = {
+            instrucciones : [hermano[hermano.length - 1].instrucciones],
+            nodo : hermano[hermano.length - 1].nodo
+        }
     };
 
 Lparametrosfuncion
