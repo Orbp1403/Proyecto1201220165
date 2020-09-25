@@ -8,7 +8,8 @@ import { CompileSummaryKind } from '@angular/compiler';
 import * as go from 'gojs';
 import { Nodo } from 'src/Grammar/Arbol/Nodo';
 import { ValoresRetorno } from 'src/Grammar/Arbol/ValoresRetorno';
-//declare const jquery-linedtextarea.js
+import *  as grammar from 'src/Grammar/Grammar/Grammar.js';
+//declare const jquery-linedEtextarea.js
 
 const $ = go.GraphObject.make;
 
@@ -65,6 +66,7 @@ export class CuerpoComponent implements OnInit {
   raiz : Nodo;
   clave : number;
   clavepadre : number;
+  hayerrores : boolean = false;
 
   constructor() {}
 
@@ -78,16 +80,55 @@ export class CuerpoComponent implements OnInit {
   
   async ejecutar(){
     document.getElementById('contenedor').style.display = 'none';
+    this.hayerrores = false;
     const parser = require('../../../Grammar/Grammar/Grammar')
+    grammar.inicioerrores();
     const ast = parser.parse(this.code);
-    this.hayarbol = true;
-    if(this.diagrama != null)
+    let errores = grammar.geterrores();
+    console.log(errores);
+    if(errores.length != 0)
     {
-      this.diagrama.div = null;
+      this.hayerrores = true;
     }
-    console.log(ast.instrucciones);
-    this.mostrararbol = false;
-    this.raiz = ast.nodo;
+    if(this.hayerrores == false)
+    {
+      this.hayarbol = true;
+      if(this.diagrama != null)
+      {
+        this.diagrama.div = null;
+      }
+      console.log(ast.instrucciones);
+      this.mostrararbol = false;
+      this.raiz = ast.nodo;
+    }
+    else
+    {
+      
+    }
+  }
+
+  async dibujar(){
+    document.getElementById('contenedor').style.display = 'block';
+    this.volverarbol(this.raiz);
+    console.log(this.arbol);
+    console.log(this.relaciones)
+    this.mostrararbol = true;
+    this.diagrama = $(go.Diagram, "arboldiv",
+                    {
+                      layout : $(go.TreeLayout,
+                        {angle : 90})
+                    });
+    this.diagrama.nodeTemplate = 
+    $(go.Node, "Auto",
+      $(go.Shape, "RoundedRectangle",
+        new go.Binding("fill", "color")),
+      $(go.TextBlock,
+        { margin: 5 },
+        new go.Binding("text", "name"))
+    );
+    this.diagrama.model = new go.GraphLinksModel(
+      this.arbol,
+      this.relaciones);
   }
 
   async ejecutarsalida(){
@@ -143,29 +184,5 @@ export class CuerpoComponent implements OnInit {
         this.relacionarnodos(hijo, this.clave);
       }
     }
-  }
-
-  async dibujar(){
-    document.getElementById('contenedor').style.display = 'block';
-    this.volverarbol(this.raiz);
-    console.log(this.arbol);
-    console.log(this.relaciones)
-    this.mostrararbol = true;
-    this.diagrama = $(go.Diagram, "arboldiv",
-                    {
-                      layout : $(go.TreeLayout,
-                        {angle : 90})
-                    });
-    this.diagrama.nodeTemplate = 
-    $(go.Node, "Auto",
-      $(go.Shape, "RoundedRectangle",
-        new go.Binding("fill", "color")),
-      $(go.TextBlock,
-        { margin: 5 },
-        new go.Binding("text", "name"))
-    );
-    this.diagrama.model = new go.GraphLinksModel(
-      this.arbol,
-      this.relaciones);
   }
 }

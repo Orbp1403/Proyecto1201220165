@@ -49,6 +49,7 @@
     "src/Grammar/Instrucciones/SentenciaWhile.ts",
     // * FIN DE INSTRUCCIONES
     // * CLASES AFUERA DE LAS CARPETAS ANTERIORES
+    "src/Grammar/Error.ts",
     "src/Grammar/Expresion.ts",
     "src/Grammar/Instruccion.ts",
     "src/Grammar/Retorno.ts"

@@ -1,5 +1,15 @@
 %{ let hermano = null; 
-    let instruccion, nodo = null;%}
+    let instruccion, nodo = null;
+    let errores = null;
+
+    exports.inicioerrores = function(){
+        errores = new Array();
+    }
+
+    exports.geterrores = function () { 
+        return errores 
+    };
+%}
 /* Definición Léxica */
 %lex
 
@@ -85,7 +95,10 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")|("'" [^"'"]* "'")
 ["_" | a-z | A-Z]["_" | a-z | A-Z|0-9]* return 'IDENTIFICADOR';
 <<EOF>>                                 return 'EOF';
 
-.                       { console.error('Este es un error léxico: ' + yytext + ', en la linea: ' + yylloc.first_line + ', en la columna: ' + yylloc.first_column); }
+.                       { 
+                            console.error('Este es un error léxico: ' + yytext + ', en la linea: ' + yylloc.first_line + ', en la columna: ' + yylloc.first_column); 
+                            errores.push(new _Error(yylloc.first_line, yylloc.first_column, "Lexico", "El simbolo: " + yytext + " no pertenece al lenguaje"))
+                        }
 /lex
 
 %{
@@ -119,6 +132,7 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")|("'" [^"'"]* "'")
     const { Break } = require('../Instrucciones/Break');
     const { GraficarTs } = require('../Instrucciones/GraficarTs');
     const { Nodo } = require('../Arbol/Nodo');
+    const { _Error } = require('../Error');
 %}
 
 /* Asociación de operadores y precedencia */
@@ -224,7 +238,8 @@ Instruccion
             instrucciones : $1.instrucciones,
             nodo : $1.nodo
         }
-    };
+    }
+    | error PYC;
 
 Sentencias_control
     : Sentenciaif
@@ -247,6 +262,7 @@ Sentencias_control
     {
         $$ = $1;
     }
+    | error InstruccionesSentencias
     | 'BREAK' PYC
     {
         $$ = {
@@ -629,6 +645,7 @@ InstruccionSentencia
         $$.nodo.agregarHijos($1.nodo)
         $$.nodo.agregarHijos($2.nodo)
     }
+    | InstruccionSentencia error PYC
     | Declaracion PYC
     {
         $$ = {
@@ -660,7 +677,8 @@ InstruccionSentencia
             nodo : new Nodo(null, "Inst", null)
         }
         $$.nodo.agregarHijos($1.nodo)
-    };
+    }
+    | error PYC;
 
 Asignacion
     : IDENTIFICADOR Listaatributos '=' Expresion PYC
@@ -1157,9 +1175,22 @@ Expresion
         $$.nodo.agregarHijos(new Nodo($1, null, null));
         $$.nodo.agregarHijos($2.nodo);
     }
-    | Llamada
+    | IDENTIFICADOR '(' ')'
     {
-        $$ = $1;
+        $$ = {
+            instrucciones : new Llamada($1, [], @1.first_line, @1.first_column),
+            nodo : new Nodo(null, 'Llamada', null)
+        };
+        $$.nodo.agregarHijos(new Nodo($1, null, null));
+    }
+    | IDENTIFICADOR '(' Listaparam ')'
+    {
+        $$ = {
+            instrucciones : new Llamada($1, $3.instrucciones, @1.first_line, @1.first_column),
+            nodo : new Nodo(null, "Llamada", null)
+        }
+        $$.nodo.agregarHijos(new Nodo($1, null, null));
+        $$.nodo.agregarHijos($3.nodo);
     }
     | NULL
     {
@@ -1572,7 +1603,8 @@ Instruccionfuncion
     | Sentencia_return
     {
         $$ = $1;
-    };
+    }
+    | error PYC;
 
 Auxdeclaracion4
     : DP Auxdeclaracion5
@@ -2730,3 +2762,5 @@ Auxparametros
             nodo : hermano[hermano.length - 1].nodo
         }
     };
+
+%%
