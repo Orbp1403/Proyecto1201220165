@@ -15,6 +15,7 @@
       <button type="button" class="btn btn-info" (click)="ejecutar()">Ejecutar Entrada</button>    
       &nbsp; &nbsp;
       <button type="button" class="btn btn-light" (click)="dibujar()" *ngIf="hayarbol==true">AST</button>  
+      <button type="button" class="btn btn-danger" (click)="mostrar_errores()" *ngIf="hayerrores==true">Ver Errores</button>
       <br>
       <br>
     </div>
@@ -47,6 +48,36 @@
     </div>
   </div>
 </div>
+<br>
+<div class="container" *ngIf="mostrarerrores==true">
+  <div class="row">
+    <div class="col-md-12">
+      <h4>Errores: </h4>
+      &nbsp;
+      <table class="table table-dark">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Tipo</th>
+            <th scope="col">Mensaje</th>
+            <th scope="col">Linea</th>
+            <th scope="col">Columna</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let auxerrores of errores">
+            <th scope="row"> {{ auxerrores.numero }} </th>
+            <td> {{ auxerrores.tipo }} </td>
+            <td> {{ auxerrores.mensaje }} </td>
+            <td> {{ auxerrores.linea }} </td>
+            <td> {{ auxerrores.columna }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <div id="contenedor">
   <br>
   <div class="container">

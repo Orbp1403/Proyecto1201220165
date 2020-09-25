@@ -67,6 +67,8 @@ export class CuerpoComponent implements OnInit {
   clave : number;
   clavepadre : number;
   hayerrores : boolean = false;
+  mostrarerrores : boolean = false;
+  errores : any;
 
   constructor() {}
 
@@ -81,14 +83,25 @@ export class CuerpoComponent implements OnInit {
   async ejecutar(){
     document.getElementById('contenedor').style.display = 'none';
     this.hayerrores = false;
+    this.hayarbol = false;
     const parser = require('../../../Grammar/Grammar/Grammar')
     grammar.inicioerrores();
     const ast = parser.parse(this.code);
-    let errores = grammar.geterrores();
-    console.log(errores);
-    if(errores.length != 0)
+    this.errores = grammar.geterrores();
+    if(this.errores.length != 0)
     {
       this.hayerrores = true;
+      let contador = 1;
+      for(let i = 0; i < this.errores.length; i++)
+      {
+        this.errores[i].setNumero(contador);
+        contador++;
+      }
+
+      for(let auxerror of this.errores)
+      {
+        console.log(auxerror);
+      }
     }
     if(this.hayerrores == false)
     {
@@ -100,10 +113,6 @@ export class CuerpoComponent implements OnInit {
       console.log(ast.instrucciones);
       this.mostrararbol = false;
       this.raiz = ast.nodo;
-    }
-    else
-    {
-      
     }
   }
 
@@ -129,6 +138,10 @@ export class CuerpoComponent implements OnInit {
     this.diagrama.model = new go.GraphLinksModel(
       this.arbol,
       this.relaciones);
+  }
+
+  async mostrar_errores(){
+    this.mostrarerrores = true;
   }
 
   async ejecutarsalida(){
