@@ -48,6 +48,24 @@ export class Entorno{
         return null;
     }
 
+    //guardar las funciones 
+    public guardarFuncion(nombre : string, funcion : Funcion)
+    {
+        let entorno : Entorno | null = this;
+        if(entorno != null)
+        {
+            if(!entorno.funciones.has(nombre))
+            {
+                entorno.funciones.set(nombre, funcion);
+                return;
+            }
+            else
+            {
+                throw new _Error(funcion.getLinea(), funcion.getColumna(), "Semantico", "Ya existe una funcion con el nombre: " + nombre);
+            }
+        }
+    }
+
     //guarda los types declarados en los archivos
     public guardarType(nombre : string, valores : VariablesTipo[], linea : number, columna : number)
     {

@@ -13,6 +13,7 @@ import { Entorno } from 'src/Grammar/Entorno/Entorno';
 import { DeclaracionVarType } from 'src/Grammar/Instrucciones/DeclaracionVarType';
 import { DeclaracionTipos } from 'src/Grammar/Instrucciones/DeclaracionTipos';
 import { Declaracion } from 'src/Grammar/Instrucciones/Declaracion';
+import { Funcion } from 'src/Grammar/Instrucciones/Funcion';
 //declare const jquery-linedEtextarea.js
 
 const $ = go.GraphObject.make;
@@ -114,6 +115,7 @@ export class CuerpoComponent implements OnInit {
       this.raiz = ast.nodo;
       console.log(ast.instrucciones)
       this.sacar_types(ast.instrucciones, entorno);
+      this.sacar_funciones(ast.instrucciones, entorno);
       this.sacar_variables(ast.instrucciones, entorno);
       console.log(entorno);
       console.log(this.errores)
@@ -135,7 +137,6 @@ export class CuerpoComponent implements OnInit {
   {
     for(let i = 0; i < instrucciones.length; i++)
     {
-      console.log('entro')
       let instruccion = instrucciones[i];
       console.log(instruccion)
       try
@@ -168,6 +169,23 @@ export class CuerpoComponent implements OnInit {
         }
       }
       catch(error)
+      {
+        this.errores.push(error);
+      }
+    }
+  }
+
+  async sacar_funciones(instrucciones : any, entorno : Entorno) {
+    for(let i = 0; i < instrucciones.length; i++)
+    {
+      let instruccion = instrucciones[i];
+      try
+      {
+        if(instruccion instanceof Funcion)
+        {
+          instruccion.ejecutar(entorno);
+        }
+      }catch(error)
       {
         this.errores.push(error);
       }

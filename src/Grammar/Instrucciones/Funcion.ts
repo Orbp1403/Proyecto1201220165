@@ -7,7 +7,17 @@ export class Funcion extends Instruccion{
     constructor(private nombre : string, private cuerpo : Instruccion, private parametros : Array<VariablesTipo>, private tipo : Type, linea : number, columna : number){
         super(linea, columna);
     }
+
+    public getLinea(){
+        return this.linea;
+    }
+
+    public getColumna()
+    {
+        return this.columna;
+    }
+
     public ejecutar(entorno: Entorno) {
-        throw new Error("Method not implemented.");
+        entorno.guardarFuncion(this.nombre, this);
     }
 }
