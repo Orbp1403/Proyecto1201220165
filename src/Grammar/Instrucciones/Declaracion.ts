@@ -22,6 +22,7 @@ export class Declaracion extends Instruccion{
     public ejecutar(entorno: Entorno) {
         if(this.valor != null)
         {   
+            console.log(this.valor);
             const valor = this.valor.ejecutar(entorno);
             entorno.guardarVariable(this.nombre, valor.type, valor.value, this.tiposim, this.linea, this.columna);
         }
