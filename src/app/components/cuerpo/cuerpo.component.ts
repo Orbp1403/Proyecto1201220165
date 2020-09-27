@@ -9,6 +9,10 @@ import * as go from 'gojs';
 import { Nodo } from 'src/Grammar/Arbol/Nodo';
 import { ValoresRetorno } from 'src/Grammar/Arbol/ValoresRetorno';
 import *  as grammar from 'src/Grammar/Grammar/Grammar.js';
+import { Entorno } from 'src/Grammar/Entorno/Entorno';
+import { DeclaracionVarType } from 'src/Grammar/Instrucciones/DeclaracionVarType';
+import { DeclaracionTipos } from 'src/Grammar/Instrucciones/DeclaracionTipos';
+import { Declaracion } from 'src/Grammar/Instrucciones/Declaracion';
 //declare const jquery-linedEtextarea.js
 
 const $ = go.GraphObject.make;
@@ -88,6 +92,7 @@ export class CuerpoComponent implements OnInit {
     grammar.inicioerrores();
     const ast = parser.parse(this.code);
     this.errores = grammar.geterrores();
+    const entorno = new Entorno(null, this.errores);
     if(this.errores.length != 0)
     {
       this.hayerrores = true;
@@ -96,12 +101,7 @@ export class CuerpoComponent implements OnInit {
       {
         this.errores[i].setNumero(contador);
         contador++;
-      }
-
-      for(let auxerror of this.errores)
-      {
-        console.log(auxerror);
-      }
+      } 
     }
     if(this.hayerrores == false)
     {
@@ -110,9 +110,67 @@ export class CuerpoComponent implements OnInit {
       {
         this.diagrama.div = null;
       }
-      console.log(ast.instrucciones);
       this.mostrararbol = false;
       this.raiz = ast.nodo;
+      console.log(ast.instrucciones)
+      this.sacar_types(ast.instrucciones, entorno);
+      this.sacar_variables(ast.instrucciones, entorno);
+      console.log(entorno);
+      console.log(this.errores)
+      if(this.errores.length != 0)
+      {
+        this.hayarbol = false;
+        this.hayerrores = true;
+        let contador = 1;
+        for(let i = 0; i < this.errores.length; i++)
+        {
+          this.errores[i].setNumero(contador);
+          contador++;
+        }
+      }
+    }
+  }
+
+  async sacar_types(instrucciones : any, entorno : Entorno)
+  {
+    for(let i = 0; i < instrucciones.length; i++)
+    {
+      console.log('entro')
+      let instruccion = instrucciones[i];
+      console.log(instruccion)
+      try
+      {
+        if(instruccion instanceof DeclaracionTipos)
+        {
+          console.log("entro")
+          instruccion.ejecutar(entorno);
+        }
+      }
+      catch(error)
+      {
+        console.log(error);
+        this.errores.push(error);
+      }
+    }
+  }
+
+  async sacar_variables(instrucciones : any, entorno : Entorno)
+  {
+    for(let i = 0; i < instrucciones.length; i++)
+    {
+      let instruccion = instrucciones[i];
+      try
+      {
+        if(instruccion instanceof Declaracion)
+        {
+          console.log(instruccion);
+          instruccion.ejecutar(entorno);
+        }
+      }
+      catch(error)
+      {
+        this.errores.push(error);
+      }
     }
   }
 

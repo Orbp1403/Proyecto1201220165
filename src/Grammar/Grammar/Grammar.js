@@ -87,7 +87,7 @@ case 1:
 
         
         this.$ = {
-            instrucciones : $$[$0-1],
+            instrucciones : $$[$0-1].instrucciones,
             nodo : new Nodo(null, "INICIO", null)
         }
         this.$.nodo.agregarHijos($$[$0-1].nodo);
@@ -865,10 +865,10 @@ case 85:
         this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
-case 86:
+case 86: case 230:
 
         this.$ = {
-            instrucciones : new Relacional($$[$0], null, OperacionesLogicas.NEGADO, _$[$0-1].first_line, _$[$0-1].first_column),
+            instrucciones : new Relacional($$[$0].instrucciones, null, OperacionesLogicas.NEGADO, _$[$0-1].first_line, _$[$0-1].first_column),
             nodo : new Nodo('!', null, null)
         }
         this.$.nodo.agregarHijos($$[$0].nodo);
@@ -877,7 +877,7 @@ break;
 case 87:
 
         this.$ = {
-            instrucciones : new Relacional($$[$0-2], $$[$0], OperacionesLogicas.AND, _$[$0-2].first_line, _$[$0-2].first_column),
+            instrucciones : new Relacional($$[$0-2].instrucciones, $$[$0].instrucciones, OperacionesLogicas.AND, _$[$0-2].first_line, _$[$0-2].first_column),
             nodo : new Nodo('&&', null, null)
         }
         this.$.nodo.agregarHijos($$[$0-2].nodo);
@@ -887,7 +887,7 @@ break;
 case 88:
 
         this.$ = {
-            instrucciones : new Relacional($$[$0-2], $$[$0], OperacionesLogicas.OR, _$[$0-2].first_line, _$[$0-2].first_column),
+            instrucciones : new Relacional($$[$0-2].instrucciones, $$[$0].instrucciones, OperacionesLogicas.OR, _$[$0-2].first_line, _$[$0-2].first_column),
             nodo : new Nodo('||', null, null) 
         }
         this.$.nodo.agregarHijos($$[$0-2].nodo);
@@ -897,7 +897,7 @@ break;
 case 89:
 
         this.$ = {
-            instrucciones : new Relacional($$[$0-2], $$[$0], OperacionesLogicas.IGUAL, _$[$0-2].first_line, _$[$0-2].first_column),
+            instrucciones : new Relacional($$[$0-2].instrucciones, $$[$0].instrucciones, OperacionesLogicas.IGUAL, _$[$0-2].first_line, _$[$0-2].first_column),
             nodo : new Nodo ('==', null, null)
         }
         this.$.nodo.agregarHijos($$[$0-2].nodo);
@@ -907,7 +907,7 @@ break;
 case 90:
 
         this.$ = {
-            instrucciones : new Relacional($$[$0-2], $$[$0], OperacionesLogicas.NOIGUAL, _$[$0-2].first_line, _$[$0-2].first_column),
+            instrucciones : new Relacional($$[$0-2].instrucciones, $$[$0].instrucciones, OperacionesLogicas.NOIGUAL, _$[$0-2].first_line, _$[$0-2].first_column),
             nodo : new Nodo('!=', null, null)
         }
         this.$.nodo.agregarHijos($$[$0-2].nodo);
@@ -917,7 +917,7 @@ break;
 case 91:
 
         this.$ = {
-            instrucciones : new Relacional($$[$0-2], $$[$0], OperacionesLogicas.MENOR, _$[$0-2].first_line, _$[$0-2].first_column),
+            instrucciones : new Relacional($$[$0-2].instrucciones, $$[$0].instrucciones, OperacionesLogicas.MENOR, _$[$0-2].first_line, _$[$0-2].first_column),
             nodo : new Nodo('<', null, null)
         }
         this.$.nodo.agregarHijos($$[$0-2].nodo);
@@ -927,7 +927,7 @@ break;
 case 92:
 
         this.$ = {
-            instrucciones : new Relacional($$[$0-2], $$[$0], OperacionesLogicas.MAYOR, _$[$0-2].first_line, _$[$0-2].first_column),
+            instrucciones : new Relacional($$[$0-2].instrucciones, $$[$0].instrucciones, OperacionesLogicas.MAYOR, _$[$0-2].first_line, _$[$0-2].first_column),
             nodo : new Nodo('>', null, null)
         }
         this.$.nodo.agregarHijos($$[$0-2].nodo);
@@ -937,7 +937,7 @@ break;
 case 93:
 
         this.$ = {
-            instrucciones : new Relacional($$[$0-2], $$[$0], OperacionesLogicas.MENORIGUAL, _$[$0-2].first_line, _$[$0-2].first_column),
+            instrucciones : new Relacional($$[$0-2].instrucciones, $$[$0].instrucciones, OperacionesLogicas.MENORIGUAL, _$[$0-2].first_line, _$[$0-2].first_column),
             nodo : new Nodo('<=', null, null)
         }
         this.$.nodo.agregarHijos($$[$0-2].nodo);
@@ -947,17 +947,17 @@ break;
 case 94:
 
         this.$ = {
-            instrucciones : new Relacional($$[$0-2], $$[$0], OperacionesLogicas.MAYORIGUAL, _$[$0-2].first_line, _$[$0-2].first_column),
+            instrucciones : new Relacional($$[$0-2].instrucciones, $$[$0].instrucciones, OperacionesLogicas.MAYORIGUAL, _$[$0-2].first_line, _$[$0-2].first_column),
             nodo : new Nodo('>=', null, null)
         }
         this.$.nodo.agregarHijos($$[$0-2].nodo);
         this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
-case 95:
+case 95: case 231:
 
         this.$ = {
-            instrucciones : new Aritmeticas($$[$0], null, OpcionesAritmeticas.NEGATIVO, _$[$0-1].first_line, _$[$0-1].first_column),
+            instrucciones : new Aritmeticas($$[$0].instrucciones, null, OpcionesAritmeticas.NEGATIVO, _$[$0-1].first_line, _$[$0-1].first_column),
             nodo : new Nodo('-', null, null)
         }
         this.$.nodo.agregarHijos($$[$0].nodo);
@@ -966,7 +966,7 @@ break;
 case 96:
 
         this.$ = {
-            instrucciones : new Aritmeticas($$[$0-2], $$[$0], OpcionesAritmeticas.MAS, _$[$0-2].first_line, _$[$0-2].first_column),
+            instrucciones : new Aritmeticas($$[$0-2].instrucciones, $$[$0].instrucciones, OpcionesAritmeticas.MAS, _$[$0-2].first_line, _$[$0-2].first_column),
             nodo : new Nodo('+', null, null)
         }
         this.$.nodo.agregarHijos($$[$0-2].nodo);
@@ -976,7 +976,7 @@ break;
 case 97:
 
         this.$ = {
-            instrucciones : new Aritmeticas($$[$0-2], $$[$0], OpcionesAritmeticas.MENOS, _$[$0-2].first_line, _$[$0-2].first_column),
+            instrucciones : new Aritmeticas($$[$0-2].instrucciones, $$[$0].instrucciones, OpcionesAritmeticas.MENOS, _$[$0-2].first_line, _$[$0-2].first_column),
             nodo : new Nodo('-', null, null)
         }
         this.$.nodo.agregarHijos($$[$0-2].nodo);
@@ -986,7 +986,7 @@ break;
 case 98:
 
         this.$ = {
-            instrucciones : new Aritmeticas($$[$0-2], $$[$0], OpcionesAritmeticas.POR, _$[$0-2].first_line, _$[$0-2].first_column),
+            instrucciones : new Aritmeticas($$[$0-2].instrucciones, $$[$0].instrucciones, OpcionesAritmeticas.POR, _$[$0-2].first_line, _$[$0-2].first_column),
             nodo : new Nodo('*', null, null)
         }
         this.$.nodo.agregarHijos($$[$0-2].nodo);
@@ -996,7 +996,7 @@ break;
 case 99:
 
         this.$ = {
-            instrucciones : new Aritmeticas($$[$0-2], $$[$0], OpcionesAritmeticas.DIV, _$[$0-2].first_line, _$[$0-2].first_column),
+            instrucciones : new Aritmeticas($$[$0-2].instrucciones, $$[$0].instrucciones, OpcionesAritmeticas.DIV, _$[$0-2].first_line, _$[$0-2].first_column),
             nodo : new Nodo('/', null, null)
         }
         this.$.nodo.agregarHijos($$[$0-2].nodo);
@@ -1006,7 +1006,7 @@ break;
 case 100:
 
         this.$ = {
-            instrucciones : new Aritmeticas($$[$0-2], $$[$0], OpcionesAritmeticas.MODULO, _$[$0-2].first_line, _$[$0-2].first_column),
+            instrucciones : new Aritmeticas($$[$0-2].instrucciones, $$[$0].instrucciones, OpcionesAritmeticas.MODULO, _$[$0-2].first_line, _$[$0-2].first_column),
             nodo : new Nodo('%', null, null)
         }
         this.$.nodo.agregarHijos($$[$0-2].nodo);
@@ -1016,7 +1016,7 @@ break;
 case 101:
 
         this.$ = {
-            instrucciones : new Aritmeticas($$[$0-2], $$[$0], OpcionesAritmeticas.POTENCIA, _$[$0-2].first_line, _$[$0-2].first_column),
+            instrucciones : new Aritmeticas($$[$0-2].instrucciones, $$[$0].instrucciones, OpcionesAritmeticas.POTENCIA, _$[$0-2].first_line, _$[$0-2].first_column),
             nodo : new Nodo('**', null, null, null)
         }
         this.$.nodo.agregarHijos($$[$0-2].nodo);
@@ -2058,24 +2058,6 @@ case 228:
         this.$.nodo.agregarHijos(hermano[hermano.length - 1].nodo);
     
 break;
-case 230:
-
-        this.$ = {
-            instrucciones : new Relacional($$[$0].instrucciones, null, OperacionesLogicas.NEGADO, _$[$0-1].first_line, _$[$0-1].first_column),
-            nodo : new Nodo('!', null, null)
-        }
-        this.$.nodo.agregarHijos($$[$0].nodo);
-    
-break;
-case 231:
-
-        this.$ = {
-            instrucciones : new Aritmeticas($$[$0].instrucciones, null, OpcionesAritmeticas.NEGATIVO, _$[$0-1].first_line, _$[$0-1].first_column),
-            nodo : new Nodo('-', null, null)
-        }
-        this.$.nodo.agregarHijos($$[$0].nodo);
-    
-break;
 case 234:
 
         hermano = eval('$$');
@@ -3092,7 +3074,7 @@ case 70:
 break;
 }
 },
-rules: [/^(?:[ \r\t]+)/,/^(?:\n)/,/^(?:\/\/.*)/,/^(?:[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/])/,/^(?:([0-9]+(\.[0-9]+)?))/,/^(?:(("[^\"]*")|(`[^"`"]*`)|('[^"'"]*')))/,/^(?:let\b)/,/^(?:const\b)/,/^(?:string\b)/,/^(?:number\b)/,/^(?:boolean\b)/,/^(?:void\b)/,/^(?:type\b)/,/^(?:null\b)/,/^(?:true\b)/,/^(?:false\b)/,/^(?:if\b)/,/^(?:else\b)/,/^(?:switch\b)/,/^(?:case\b)/,/^(?:while\b)/,/^(?:do\b)/,/^(?:for\b)/,/^(?:in\b)/,/^(?:of\b)/,/^(?:break\b)/,/^(?:continue\b)/,/^(?:return\b)/,/^(?:function\b)/,/^(?:console\b)/,/^(?:log\b)/,/^(?:graficar_ts\b)/,/^(?:default\b)/,/^(?:\+\+)/,/^(?:--)/,/^(?:\+=)/,/^(?:-=)/,/^(?:\*=)/,/^(?:\/=)/,/^(?:%=)/,/^(?:\*\*=)/,/^(?::)/,/^(?:;)/,/^(?:&&)/,/^(?:\|\|)/,/^(?:==)/,/^(?:!=)/,/^(?:!)/,/^(?:%)/,/^(?:\*\*)/,/^(?:<=)/,/^(?:>=)/,/^(?:<)/,/^(?:>)/,/^(?:=)/,/^(?:\+)/,/^(?:-)/,/^(?:\*)/,/^(?:\/)/,/^(?:\.)/,/^(?:\()/,/^(?:\))/,/^(?:,)/,/^(?:\{)/,/^(?:\})/,/^(?:\?)/,/^(?:\[)/,/^(?:\])/,/^(?:["_" | a-z | A-Z]["_" | a-z | A-Z|0-9]*)/,/^(?:$)/,/^(?:.)/],
+rules: [/^(?:[ \r\t]+)/,/^(?:\n)/,/^(?:\/\/.*)/,/^(?:[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/])/,/^(?:([0-9]+(\.[0-9]+)?))/,/^(?:(("[^\"]*")|(`[^"`"]*`)|('[^"'"]*')))/,/^(?:let\b)/,/^(?:const\b)/,/^(?:string\b)/,/^(?:number\b)/,/^(?:boolean\b)/,/^(?:void\b)/,/^(?:type\b)/,/^(?:null\b)/,/^(?:true\b)/,/^(?:false\b)/,/^(?:if\b)/,/^(?:else\b)/,/^(?:switch\b)/,/^(?:case\b)/,/^(?:while\b)/,/^(?:do\b)/,/^(?:for\b)/,/^(?:in\b)/,/^(?:of\b)/,/^(?:break\b)/,/^(?:continue\b)/,/^(?:return\b)/,/^(?:function\b)/,/^(?:console\b)/,/^(?:log\b)/,/^(?:graficar_ts\b)/,/^(?:default\b)/,/^(?:\+\+)/,/^(?:--)/,/^(?:\+=)/,/^(?:-=)/,/^(?:\*=)/,/^(?:\/=)/,/^(?:%=)/,/^(?:\*\*=)/,/^(?::)/,/^(?:;)/,/^(?:&&)/,/^(?:\|\|)/,/^(?:==)/,/^(?:!=)/,/^(?:!)/,/^(?:%)/,/^(?:\*\*)/,/^(?:<=)/,/^(?:>=)/,/^(?:<)/,/^(?:>)/,/^(?:=)/,/^(?:\+)/,/^(?:-)/,/^(?:\*)/,/^(?:\/)/,/^(?:\.)/,/^(?:\()/,/^(?:\))/,/^(?:,)/,/^(?:\{)/,/^(?:\})/,/^(?:\?)/,/^(?:\[)/,/^(?:\])/,/^(?:[_a-zA-Z][_a-zA-Z0-9]*)/,/^(?:$)/,/^(?:.)/],
 conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70],"inclusive":true}}
 });
 return lexer;

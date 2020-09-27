@@ -92,7 +92,7 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")|("'" [^"'"]* "'")
 "["                                     return '['
 "]"                                     return ']'
 
-["_" | a-z | A-Z]["_" | a-z | A-Z|0-9]* return 'IDENTIFICADOR';
+[_a-zA-Z][_a-zA-Z0-9]* return 'IDENTIFICADOR';
 <<EOF>>                                 return 'EOF';
 
 .                       { 
@@ -162,7 +162,7 @@ ini
     {
         
         $$ = {
-            instrucciones : $1,
+            instrucciones : $1.instrucciones,
             nodo : new Nodo(null, "INICIO", null)
         }
         $$.nodo.agregarHijos($1.nodo);
@@ -971,7 +971,7 @@ Expresion
     : 'NOT' Expresion
     {
         $$ = {
-            instrucciones : new Relacional($2, null, OperacionesLogicas.NEGADO, @1.first_line, @1.first_column),
+            instrucciones : new Relacional($2.instrucciones, null, OperacionesLogicas.NEGADO, @1.first_line, @1.first_column),
             nodo : new Nodo('!', null, null)
         }
         $$.nodo.agregarHijos($2.nodo);
@@ -979,7 +979,7 @@ Expresion
     | Expresion 'AND' Expresion
     {
         $$ = {
-            instrucciones : new Relacional($1, $3, OperacionesLogicas.AND, @1.first_line, @1.first_column),
+            instrucciones : new Relacional($1.instrucciones, $3.instrucciones, OperacionesLogicas.AND, @1.first_line, @1.first_column),
             nodo : new Nodo('&&', null, null)
         }
         $$.nodo.agregarHijos($1.nodo);
@@ -988,7 +988,7 @@ Expresion
     | Expresion 'OR' Expresion
     {
         $$ = {
-            instrucciones : new Relacional($1, $3, OperacionesLogicas.OR, @1.first_line, @1.first_column),
+            instrucciones : new Relacional($1.instrucciones, $3.instrucciones, OperacionesLogicas.OR, @1.first_line, @1.first_column),
             nodo : new Nodo('||', null, null) 
         }
         $$.nodo.agregarHijos($1.nodo);
@@ -997,7 +997,7 @@ Expresion
     | Expresion '==' Expresion
     {
         $$ = {
-            instrucciones : new Relacional($1, $3, OperacionesLogicas.IGUAL, @1.first_line, @1.first_column),
+            instrucciones : new Relacional($1.instrucciones, $3.instrucciones, OperacionesLogicas.IGUAL, @1.first_line, @1.first_column),
             nodo : new Nodo ('==', null, null)
         }
         $$.nodo.agregarHijos($1.nodo);
@@ -1006,7 +1006,7 @@ Expresion
     | Expresion '!=' Expresion
     {
         $$ = {
-            instrucciones : new Relacional($1, $3, OperacionesLogicas.NOIGUAL, @1.first_line, @1.first_column),
+            instrucciones : new Relacional($1.instrucciones, $3.instrucciones, OperacionesLogicas.NOIGUAL, @1.first_line, @1.first_column),
             nodo : new Nodo('!=', null, null)
         }
         $$.nodo.agregarHijos($1.nodo);
@@ -1015,7 +1015,7 @@ Expresion
     | Expresion '<' Expresion
     {
         $$ = {
-            instrucciones : new Relacional($1, $3, OperacionesLogicas.MENOR, @1.first_line, @1.first_column),
+            instrucciones : new Relacional($1.instrucciones, $3.instrucciones, OperacionesLogicas.MENOR, @1.first_line, @1.first_column),
             nodo : new Nodo('<', null, null)
         }
         $$.nodo.agregarHijos($1.nodo);
@@ -1024,7 +1024,7 @@ Expresion
     | Expresion '>' Expresion
     {
         $$ = {
-            instrucciones : new Relacional($1, $3, OperacionesLogicas.MAYOR, @1.first_line, @1.first_column),
+            instrucciones : new Relacional($1.instrucciones, $3.instrucciones, OperacionesLogicas.MAYOR, @1.first_line, @1.first_column),
             nodo : new Nodo('>', null, null)
         }
         $$.nodo.agregarHijos($1.nodo);
@@ -1033,7 +1033,7 @@ Expresion
     | Expresion '<=' Expresion
     {
         $$ = {
-            instrucciones : new Relacional($1, $3, OperacionesLogicas.MENORIGUAL, @1.first_line, @1.first_column),
+            instrucciones : new Relacional($1.instrucciones, $3.instrucciones, OperacionesLogicas.MENORIGUAL, @1.first_line, @1.first_column),
             nodo : new Nodo('<=', null, null)
         }
         $$.nodo.agregarHijos($1.nodo);
@@ -1042,7 +1042,7 @@ Expresion
     | Expresion '>=' Expresion
     {
         $$ = {
-            instrucciones : new Relacional($1, $3, OperacionesLogicas.MAYORIGUAL, @1.first_line, @1.first_column),
+            instrucciones : new Relacional($1.instrucciones, $3.instrucciones, OperacionesLogicas.MAYORIGUAL, @1.first_line, @1.first_column),
             nodo : new Nodo('>=', null, null)
         }
         $$.nodo.agregarHijos($1.nodo);
@@ -1051,7 +1051,7 @@ Expresion
     |'-' Expresion %prec NEGATIVO
     {
         $$ = {
-            instrucciones : new Aritmeticas($2, null, OpcionesAritmeticas.NEGATIVO, @1.first_line, @1.first_column),
+            instrucciones : new Aritmeticas($2.instrucciones, null, OpcionesAritmeticas.NEGATIVO, @1.first_line, @1.first_column),
             nodo : new Nodo('-', null, null)
         }
         $$.nodo.agregarHijos($2.nodo);
@@ -1059,7 +1059,7 @@ Expresion
     | Expresion '+' Expresion
     {
         $$ = {
-            instrucciones : new Aritmeticas($1, $3, OpcionesAritmeticas.MAS, @1.first_line, @1.first_column),
+            instrucciones : new Aritmeticas($1.instrucciones, $3.instrucciones, OpcionesAritmeticas.MAS, @1.first_line, @1.first_column),
             nodo : new Nodo('+', null, null)
         }
         $$.nodo.agregarHijos($1.nodo);
@@ -1068,7 +1068,7 @@ Expresion
     | Expresion '-' Expresion
     {
         $$ = {
-            instrucciones : new Aritmeticas($1, $3, OpcionesAritmeticas.MENOS, @1.first_line, @1.first_column),
+            instrucciones : new Aritmeticas($1.instrucciones, $3.instrucciones, OpcionesAritmeticas.MENOS, @1.first_line, @1.first_column),
             nodo : new Nodo('-', null, null)
         }
         $$.nodo.agregarHijos($1.nodo);
@@ -1077,7 +1077,7 @@ Expresion
     | Expresion '*' Expresion
     {
         $$ = {
-            instrucciones : new Aritmeticas($1, $3, OpcionesAritmeticas.POR, @1.first_line, @1.first_column),
+            instrucciones : new Aritmeticas($1.instrucciones, $3.instrucciones, OpcionesAritmeticas.POR, @1.first_line, @1.first_column),
             nodo : new Nodo('*', null, null)
         }
         $$.nodo.agregarHijos($1.nodo);
@@ -1086,7 +1086,7 @@ Expresion
     | Expresion '/' Expresion
     {
         $$ = {
-            instrucciones : new Aritmeticas($1, $3, OpcionesAritmeticas.DIV, @1.first_line, @1.first_column),
+            instrucciones : new Aritmeticas($1.instrucciones, $3.instrucciones, OpcionesAritmeticas.DIV, @1.first_line, @1.first_column),
             nodo : new Nodo('/', null, null)
         }
         $$.nodo.agregarHijos($1.nodo);
@@ -1095,7 +1095,7 @@ Expresion
     | Expresion '%' Expresion
     {
         $$ = {
-            instrucciones : new Aritmeticas($1, $3, OpcionesAritmeticas.MODULO, @1.first_line, @1.first_column),
+            instrucciones : new Aritmeticas($1.instrucciones, $3.instrucciones, OpcionesAritmeticas.MODULO, @1.first_line, @1.first_column),
             nodo : new Nodo('%', null, null)
         }
         $$.nodo.agregarHijos($1.nodo);
@@ -1104,7 +1104,7 @@ Expresion
     | Expresion '**' Expresion
     {
         $$ = {
-            instrucciones : new Aritmeticas($1, $3, OpcionesAritmeticas.POTENCIA, @1.first_line, @1.first_column),
+            instrucciones : new Aritmeticas($1.instrucciones, $3.instrucciones, OpcionesAritmeticas.POTENCIA, @1.first_line, @1.first_column),
             nodo : new Nodo('**', null, null, null)
         }
         $$.nodo.agregarHijos($1.nodo);

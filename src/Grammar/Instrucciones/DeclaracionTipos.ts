@@ -13,6 +13,6 @@ export class DeclaracionTipos extends Instruccion{
     }
     
     public ejecutar(entorno: Entorno) {
-        throw new Error("Method not implemented.")
+        entorno.guardarType(this.nombre, this.valores, this.linea, this.columna)
     }
 }
