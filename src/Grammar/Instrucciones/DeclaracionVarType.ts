@@ -21,7 +21,10 @@ export class DeclaracionVarType extends Instruccion{
     }
 
     public ejecutar(entorno: Entorno) {
-        throw new Error("Metodo no implementado")
+        if(this.valores != null)
+        {
+            
+        }
     }
     
 }

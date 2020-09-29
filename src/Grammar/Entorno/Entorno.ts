@@ -5,9 +5,11 @@ import { Type } from "../Retorno"
 import { ValoresTipo, VariablesTipo } from '../Expresiones/VariablesTipo';
 import { _Error } from '../Error';
 import { Expresion } from '../Expresion';
+import { DeclaracionVarType } from '../Instrucciones/DeclaracionVarType';
 
 export class Entorno{
     private variables : Map<string, Simbolo>
+    private variables_tips : Map<string, DeclaracionVarType>
     private funciones : Map<string, Funcion>
     private tipos : Map<string, Tipo> 
     private errores : any
@@ -20,7 +22,7 @@ export class Entorno{
     }
 
     //sirve para declarar variables y guardarlas en la tabla de simbolos
-    public guardarVariable(nombre : string, tipo : Type, valor : any, tiposim : TiposSimbolo, linea : number, columna : number){
+    public guardarVariable(nombre : string, tipo : any, valor : any, tiposim : TiposSimbolo, linea : number, columna : number){
         let entorno : Entorno | null = this;
         if(entorno != null){
             if(!entorno.variables.has(nombre)){
@@ -42,6 +44,20 @@ export class Entorno{
             if(entorno.variables.has(nombre))
             {
                 return entorno.variables.get(nombre);
+            }
+            entorno = entorno.anterior;
+        }
+        return null;
+    }
+
+    public getTipo(nombre : string)
+    {
+        let entorno : Entorno | null = this;
+        while(entorno != null)
+        {
+            if(entorno.tipos.has(nombre))
+            {
+                return entorno.tipos.get(nombre);
             }
             entorno = entorno.anterior;
         }

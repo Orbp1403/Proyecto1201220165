@@ -743,7 +743,7 @@ break;
 case 75:
 
         this.$ = {
-            instrucciones : new DeclaracionVarType($$[$0-6], $$[$0-1].instrucciones, $$[$0-4], TiposSimbolo.VAR, _$[$0-7].first_line, _$[$0-7].first_column),
+            instrucciones : new Declaracion($$[$0-6], $$[$0-1].instrucciones, $$[$0-4], TiposSimbolo.VAR, _$[$0-7].first_line, _$[$0-7].first_column),
             nodo : new Nodo(null, "Declaracion", null)
         }
         this.$.nodo.agregarHijos(new Nodo($$[$0-6], null, null));
@@ -755,7 +755,7 @@ break;
 case 76:
 
         this.$ = {
-            instrucciones : new DeclaracionVarType($$[$0-4], $$[$0].instrucciones, $$[$0-2], TiposSimbolo.VAR, _$[$0-5].first_line, _$[$0-5].first_column),
+            instrucciones : new Declaracion($$[$0-4], $$[$0].instrucciones, $$[$0-2], TiposSimbolo.VAR, _$[$0-5].first_line, _$[$0-5].first_column),
             nodo : new Nodo(null, "Declaracion", null)
         }
         this.$.nodo.agregarHijos(new Nodo($$[$0-4], null, null));
@@ -767,7 +767,7 @@ break;
 case 77:
 
         this.$ = {
-            instrucciones : new DeclaracionVarType($$[$0-2], null, $$[$0], TiposSimbolo.VAR, _$[$0-3].first_line, _$[$0-3].first_column),
+            instrucciones : new Declaracion($$[$0-2], null, $$[$0], TiposSimbolo.VAR, _$[$0-3].first_line, _$[$0-3].first_column),
             nodo : new Nodo(null, "Declaracion", null)
         }
         this.$.nodo.agregarHijos(new Nodo($$[$0-2], null, null));
@@ -800,7 +800,7 @@ break;
 case 80:
 
         this.$ = {
-            instrucciones : new DeclaracionVarType($$[$0-6], $$[$0-1].instrucciones, $$[$0-4], TiposSimbolo.CONST, _$[$0-7].first_line, _$[$0-7].first_column),
+            instrucciones : new Declaracion($$[$0-6], $$[$0-1].instrucciones, $$[$0-4], TiposSimbolo.CONST, _$[$0-7].first_line, _$[$0-7].first_column),
             nodo : new Nodo(null, "Declaracion", null)
         }
         this.$.nodo.agregarHijos(new Nodo($$[$0-6], null, null)) ;
@@ -812,7 +812,7 @@ break;
 case 81:
 
         this.$ = {
-            instrucciones : new DeclaracionVarType($$[$0-4], $$[$0], $$[$0-2], TiposSimbolo.CONST, _$[$0-5].first_line, _$[$0-5].first_column),
+            instrucciones : new Declaracion($$[$0-4], $$[$0], $$[$0-2], TiposSimbolo.CONST, _$[$0-5].first_line, _$[$0-5].first_column),
             nodo : new Nodo(null, "Declaracion", null)
         }
         this.$.nodo.agregarHijos(new Nodo($$[$0-4], null, null));

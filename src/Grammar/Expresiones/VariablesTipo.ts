@@ -7,6 +7,14 @@ export class VariablesTipo extends Expresion{
         super(linea, columna);
     }
 
+    public getNombre(){
+        return this.nombre;
+    }
+
+    public getTipo(){
+        return this.tipo;
+    }
+
     public ejecutar(entorno: Entorno): Retorno {
         throw new Error("Method not implemented.");
     }
@@ -20,5 +28,6 @@ export class ValoresTipo extends Expresion{
     public ejecutar(entorno: Entorno): Retorno {
         throw new Error("Method not implemented.");
     }
+
     
 }

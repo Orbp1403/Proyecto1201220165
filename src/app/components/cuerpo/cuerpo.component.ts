@@ -164,7 +164,7 @@ export class CuerpoComponent implements OnInit {
       {
         if(instruccion instanceof Declaracion)
         {
-          console.log(instruccion);
+          console.log("declaracion", instruccion);
           instruccion.ejecutar(entorno);
         }
       }

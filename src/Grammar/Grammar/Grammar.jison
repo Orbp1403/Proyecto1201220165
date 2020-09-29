@@ -853,7 +853,7 @@ Declaracion
     | LET IDENTIFICADOR DP IDENTIFICADOR '=' '{' Lvalorestype '}'
     {
         $$ = {
-            instrucciones : new DeclaracionVarType($2, $7.instrucciones, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+            instrucciones : new Declaracion($2, $7.instrucciones, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column),
             nodo : new Nodo(null, "Declaracion", null)
         }
         $$.nodo.agregarHijos(new Nodo($2, null, null));
@@ -864,7 +864,7 @@ Declaracion
     | LET IDENTIFICADOR DP IDENTIFICADOR '=' Expresion
     {
         $$ = {
-            instrucciones : new DeclaracionVarType($2, $6.instrucciones, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+            instrucciones : new Declaracion($2, $6.instrucciones, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column),
             nodo : new Nodo(null, "Declaracion", null)
         }
         $$.nodo.agregarHijos(new Nodo($2, null, null));
@@ -875,7 +875,7 @@ Declaracion
     | LET IDENTIFICADOR DP IDENTIFICADOR
     {
         $$ = {
-            instrucciones : new DeclaracionVarType($2, null, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+            instrucciones : new Declaracion($2, null, $4, TiposSimbolo.VAR, @1.first_line, @1.first_column),
             nodo : new Nodo(null, "Declaracion", null)
         }
         $$.nodo.agregarHijos(new Nodo($2, null, null));
@@ -905,7 +905,7 @@ Declaracion
     | CONST IDENTIFICADOR DP IDENTIFICADOR '=' '{' Lvalorestype '}'
     {
         $$ = {
-            instrucciones : new DeclaracionVarType($2, $7.instrucciones, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column),
+            instrucciones : new Declaracion($2, $7.instrucciones, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column),
             nodo : new Nodo(null, "Declaracion", null)
         }
         $$.nodo.agregarHijos(new Nodo($2, null, null)) ;
@@ -916,7 +916,7 @@ Declaracion
     | CONST IDENTIFICADOR DP IDENTIFICADOR '=' IDENTIFICADOR
     {
         $$ = {
-            instrucciones : new DeclaracionVarType($2, $6, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column),
+            instrucciones : new Declaracion($2, $6, $4, TiposSimbolo.CONST, @1.first_line, @1.first_column),
             nodo : new Nodo(null, "Declaracion", null)
         }
         $$.nodo.agregarHijos(new Nodo($2, null, null));

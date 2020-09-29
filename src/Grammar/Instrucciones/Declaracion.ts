@@ -8,11 +8,11 @@ import { _Error } from '../Error';
 
 export class Declaracion extends Instruccion{
     private nombre : string;
-    private valor : Expresion;
+    private valor : any;
     private tiposim : TiposSimbolo
-    private tipovar : Type;
+    private tipovar : any;
 
-    constructor(nombre : string, valor : Expresion | null, tipovar : Type | null, tiposim : TiposSimbolo, linea : number, columna : number){
+    constructor(nombre : string, valor : any, tipovar : any, tiposim : TiposSimbolo, linea : number, columna : number){
         super(linea, columna);
         this.nombre = nombre;
         this.valor = valor;
@@ -23,20 +23,68 @@ export class Declaracion extends Instruccion{
     public ejecutar(entorno: Entorno) {
         if(this.valor != null && this.tipovar != null)
         {   
-            const valor = this.valor.ejecutar(entorno);
-            if(valor.type == this.tipovar)
+            if(this.valor instanceof Expresion)
             {
-                entorno.guardarVariable(this.nombre, valor.type, valor.value, this.tiposim, this.linea, this.columna);
+                const valor = this.valor.ejecutar(entorno);
+                if(valor.type == this.tipovar)
+                {
+                    entorno.guardarVariable(this.nombre, valor.type, valor.value, this.tiposim, this.linea, this.columna);
+                }
+                else 
+                {
+                    throw new _Error(this.linea, this.columna, "Semantico", "El tipo declarado no es el mismo que el tipo del valor")
+                }
             }
-            else 
+            else
             {
-                throw new _Error(this.linea, this.columna, "Semantico", "El tipo declarado no es el mismo que el tipo del valor")
+                console.log("valor", this.valor);
+                let tipo = entorno.getTipo(this.tipovar);
+                console.log("tipo", tipo);
+                if(tipo.atributos_tipo.length == this.valor.length)
+                {
+                    let existentodos = new Array();
+                    for(let i = 0; i < tipo.atributos_tipo.length; i++)
+                    {
+                        existentodos.push(false);
+                    }
+                    // * verifica si todos los atributos del type estan 
+                    for(let i = 0; i < tipo.atributos_tipo.length; i++)
+                    {
+                        let atributo = tipo.atributos_tipo[i];
+                        console.log("atributo", atributo.getNombre());
+                        for(let j = 0; j < this.valor.length; j++)
+                        {
+                            console.log("valor", j, this.valor[j]);    
+                            if(atributo.getNombre() == this.valor[j].nombre)
+                            {
+                                existentodos[i] = true;
+                                break;
+                            }
+                        }
+                    }
+                    for(let i = 0; i < existentodos.length; i++)
+                    {
+                        if(existentodos[i] == false)
+                        {
+                            throw new _Error(this.linea, this.columna, "Semantico", "No se encuentran todos los atributos del type " + this.tipovar);
+                        }
+                    }
+                    // * termina la verificacion
+                    console.log("paso")
+                }
+                else
+                {
+                    throw new _Error(this.linea, this.columna, "Semantico", "El numero de atributos no coinciden con el type");
+                }
             }
         }
         else if(this.valor != null && this.tipovar == null)
         {
-            const valor = this.valor.ejecutar(entorno);
-            entorno.guardarVariable(this.nombre, valor.type, valor.value, this.tiposim, this.linea, this.columna);
+            if(this.valor instanceof Expresion)
+            {
+                const valor = this.valor.ejecutar(entorno);
+                entorno.guardarVariable(this.nombre, valor.type, valor.value, this.tiposim, this.linea, this.columna);
+            }
         }
         else if(this.valor == null && this.tipovar != null)
         {
