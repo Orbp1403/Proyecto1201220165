@@ -5,6 +5,7 @@ import { TiposSimbolo } from '../Entorno/Simbolo';
 import { Type } from '../Retorno';
 import { Asignacion } from './Asignacion'
 import { _Error } from '../Error';
+import { ValoresTipo } from '../Expresiones/VariablesTipo';
 
 export class Declaracion extends Instruccion{
     private nombre : string;
@@ -37,9 +38,11 @@ export class Declaracion extends Instruccion{
             }
             else
             {
-                console.log("valor", this.valor);
                 let tipo = entorno.getTipo(this.tipovar);
-                console.log("tipo", tipo);
+                if(tipo == null)
+                {
+                    throw new _Error(this.linea, this.columna, "Semantico", "El tipo de la variable no existe en los types declarados");
+                }
                 if(tipo.atributos_tipo.length == this.valor.length)
                 {
                     let existentodos = new Array();
@@ -51,10 +54,8 @@ export class Declaracion extends Instruccion{
                     for(let i = 0; i < tipo.atributos_tipo.length; i++)
                     {
                         let atributo = tipo.atributos_tipo[i];
-                        console.log("atributo", atributo.getNombre());
                         for(let j = 0; j < this.valor.length; j++)
                         {
-                            console.log("valor", j, this.valor[j]);    
                             if(atributo.getNombre() == this.valor[j].nombre)
                             {
                                 existentodos[i] = true;
@@ -70,7 +71,31 @@ export class Declaracion extends Instruccion{
                         }
                     }
                     // * termina la verificacion
-                    console.log("paso")
+                    // * inicia la verificacion de los tipos de valores
+                    for(let i = 0; i < tipo.atributos_tipo.length; i++)
+                    {
+                        let atributo = tipo.atributos_tipo[i];
+                        for(let j = 0; j < this.valor.length; j++)
+                        {
+                            if(atributo.getNombre() == this.valor[i].nombre)
+                            {
+                                let auxvalor = this.valor[i].valor.ejecutar(entorno);
+                                console.log(typeof(atributo.getTipo()))
+                                if(atributo.getTipo() != auxvalor.type || (auxvalor.type == Type.NULL && typeof(atributo.getTipo() == "string")))
+                                {
+                                    throw new  _Error(this.linea, this.columna, "Semantico", "El tipo del atributo: " + atributo.getNombre() + " no coincide con el declarado.")
+                                }
+                            }
+                        }
+                    }
+                    // * termina la verficacion de los tipos de los valores
+                    let auxvalor : Array<ValoresTipo> = new Array()
+                    for(let i = 0; i < this.valor.length; i++)
+                    {
+                        let auxvalor1 = this.valor[i].valor.ejecutar(entorno);
+                        auxvalor.push(auxvalor1);
+                    }
+                    entorno.guardarVariable(this.nombre, this.tipovar, auxvalor, this.tiposim, this.linea, this.columna);
                 }
                 else
                 {
