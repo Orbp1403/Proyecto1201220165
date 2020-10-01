@@ -6,6 +6,7 @@ import { ValoresTipo, VariablesTipo } from '../Expresiones/VariablesTipo';
 import { _Error } from '../Error';
 import { Expresion } from '../Expresion';
 import { DeclaracionVarType } from '../Instrucciones/DeclaracionVarType';
+import { ENOBUFS } from 'constants';
 
 export class Entorno{
     private variables : Map<string, Simbolo>
@@ -96,5 +97,19 @@ export class Entorno{
             throw new _Error(linea, columna, "Semantico", "Ya existe un type con el nombre: " + nombre);
         }
     }
-    //TODO guardar funciones y modificar los valores de las variables guardadas en los entornos
+    // obtener las funciones para su ejecucion en las llamadas
+
+    public getFuncion(nombre : string) : Funcion
+    {
+        let entorno : Entorno | null = this;
+        while(entorno != null)
+        {
+            if(entorno.funciones.has(nombre))
+            {
+                return entorno.funciones.get(nombre);
+            }
+            entorno = entorno.anterior;
+        }
+        return null;
+    }
 }

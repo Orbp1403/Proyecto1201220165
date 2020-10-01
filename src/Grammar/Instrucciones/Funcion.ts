@@ -17,6 +17,10 @@ export class Funcion extends Instruccion{
         return this.columna;
     }
 
+    public getParametros(){
+        return this.parametros;
+    }
+
     public ejecutar(entorno: Entorno) {
         entorno.guardarFuncion(this.nombre, this);
     }

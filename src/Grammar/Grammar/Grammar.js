@@ -1087,10 +1087,10 @@ case 108:
         this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
-case 109: case 116:
+case 109:
 
         this.$ = {
-            instrucciones : new Llamada($$[$0-2], [], _$[$0-2].first_line, _$[$0-2].first_column),
+            instrucciones : new Llamada($$[$0-2], new Array(), _$[$0-2].first_line, _$[$0-2].first_column),
             nodo : new Nodo(null, 'Llamada', null)
         };
         this.$.nodo.agregarHijos(new Nodo($$[$0-2], null, null));
@@ -1138,6 +1138,15 @@ case 115:
             nodo : new Nodo(null, 'ATRIB', null)
         }
         this.$.nodo.agregarHijos(new Nodo($$[$0], null, null));
+    
+break;
+case 116:
+
+        this.$ = {
+            instrucciones : new Llamada($$[$0-2], [], _$[$0-2].first_line, _$[$0-2].first_column),
+            nodo : new Nodo(null, 'Llamada', null)
+        };
+        this.$.nodo.agregarHijos(new Nodo($$[$0-2], null, null));
     
 break;
 case 118:
@@ -1232,7 +1241,7 @@ case 127:
         else
         {
             this.$ = {
-                instrucciones : new Funcion($$[$0-2], $$[$0].instrucciones_f.instrucciones, $$[$0].parametros, $$[$0].tipo, _$[$0-3].first_line, _$[$0-3].first_column),
+                instrucciones : new Funcion($$[$0-2], $$[$0].instrucciones_f.instrucciones, new Array(), $$[$0].tipo, _$[$0-3].first_line, _$[$0-3].first_column),
                 nodo : new Nodo(null, "Funcion", null)
             }
             this.$.nodo.agregarHijos(new Nodo($$[$0-2], null, null));

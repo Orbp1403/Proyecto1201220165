@@ -6,6 +6,7 @@ import { Type } from '../Retorno';
 import { Asignacion } from './Asignacion'
 import { _Error } from '../Error';
 import { ValoresTipo } from '../Expresiones/VariablesTipo';
+import { Llamada } from './Llamada';
 
 export class Declaracion extends Instruccion{
     private nombre : string;
@@ -26,6 +27,7 @@ export class Declaracion extends Instruccion{
         {   
             if(this.valor instanceof Expresion)
             {
+                console.log("entro aqui")
                 const valor = this.valor.ejecutar(entorno);
                 if(valor.type == this.tipovar)
                 {
@@ -38,68 +40,78 @@ export class Declaracion extends Instruccion{
             }
             else
             {
-                let tipo = entorno.getTipo(this.tipovar);
-                if(tipo == null)
+                if(this.valor instanceof Llamada)
                 {
-                    throw new _Error(this.linea, this.columna, "Semantico", "El tipo de la variable no existe en los types declarados");
-                }
-                if(tipo.atributos_tipo.length == this.valor.length)
-                {
-                    let existentodos = new Array();
-                    for(let i = 0; i < tipo.atributos_tipo.length; i++)
-                    {
-                        existentodos.push(false);
-                    }
-                    // * verifica si todos los atributos del type estan 
-                    for(let i = 0; i < tipo.atributos_tipo.length; i++)
-                    {
-                        let atributo = tipo.atributos_tipo[i];
-                        for(let j = 0; j < this.valor.length; j++)
-                        {
-                            if(atributo.getNombre() == this.valor[j].nombre)
-                            {
-                                existentodos[i] = true;
-                                break;
-                            }
-                        }
-                    }
-                    for(let i = 0; i < existentodos.length; i++)
-                    {
-                        if(existentodos[i] == false)
-                        {
-                            throw new _Error(this.linea, this.columna, "Semantico", "No se encuentran todos los atributos del type " + this.tipovar);
-                        }
-                    }
-                    // * termina la verificacion
-                    // * inicia la verificacion de los tipos de valores
-                    for(let i = 0; i < tipo.atributos_tipo.length; i++)
-                    {
-                        let atributo = tipo.atributos_tipo[i];
-                        for(let j = 0; j < this.valor.length; j++)
-                        {
-                            if(atributo.getNombre() == this.valor[i].nombre)
-                            {
-                                let auxvalor = this.valor[i].valor.ejecutar(entorno);
-                                console.log(typeof(atributo.getTipo()))
-                                if(atributo.getTipo() != auxvalor.type || (auxvalor.type == Type.NULL && typeof(atributo.getTipo() == "string")))
-                                {
-                                    throw new  _Error(this.linea, this.columna, "Semantico", "El tipo del atributo: " + atributo.getNombre() + " no coincide con el declarado.")
-                                }
-                            }
-                        }
-                    }
-                    // * termina la verficacion de los tipos de los valores
-                    let auxvalor : Array<ValoresTipo> = new Array()
-                    for(let i = 0; i < this.valor.length; i++)
-                    {
-                        let auxvalor1 = this.valor[i].valor.ejecutar(entorno);
-                        auxvalor.push(auxvalor1);
-                    }
-                    entorno.guardarVariable(this.nombre, this.tipovar, auxvalor, this.tiposim, this.linea, this.columna);
+                    const valor = this.valor.ejecutar(entorno);
+                    console.log("Es llamada");
+                    // TODO ejecutar funciones para las llamadas
                 }
                 else
                 {
-                    throw new _Error(this.linea, this.columna, "Semantico", "El numero de atributos no coinciden con el type");
+                    let tipo = entorno.getTipo(this.tipovar);
+                    if(tipo == null)
+                    {
+                        throw new _Error(this.linea, this.columna, "Semantico", "El tipo de la variable no existe en los types declarados");
+                    }
+                    if(tipo.atributos_tipo.length == this.valor.length)
+                    {
+                        let existentodos = new Array();
+                        for(let i = 0; i < tipo.atributos_tipo.length; i++)
+                        {
+                            existentodos.push(false);
+                        }
+                        // * verifica si todos los atributos del type estan 
+                        for(let i = 0; i < tipo.atributos_tipo.length; i++)
+                        {
+                            let atributo = tipo.atributos_tipo[i];
+                            for(let j = 0; j < this.valor.length; j++)
+                            {
+                                if(atributo.getNombre() == this.valor[j].nombre)
+                                {
+                                    existentodos[i] = true;
+                                    break;
+                                }
+                            }
+                        }
+                        for(let i = 0; i < existentodos.length; i++)
+                        {
+                            if(existentodos[i] == false)
+                            {
+                                throw new _Error(this.linea, this.columna, "Semantico", "No se encuentran todos los atributos del type " + this.tipovar);
+                            }
+                        }
+                        // * termina la verificacion
+                        // * inicia la verificacion de los tipos de valores
+                        for(let i = 0; i < tipo.atributos_tipo.length; i++)
+                        {
+                            let atributo = tipo.atributos_tipo[i];
+                            for(let j = 0; j < this.valor.length; j++)
+                            {
+                                if(atributo.getNombre() == this.valor[i].nombre)
+                                {
+                                    let auxvalor = this.valor[i].valor.ejecutar(entorno);
+                                    console.log(typeof(atributo.getTipo()))
+                                    if(atributo.getTipo() != auxvalor.type || (auxvalor.type == Type.NULL && typeof(atributo.getTipo() == "string")))
+                                    {
+                                        throw new  _Error(this.linea, this.columna, "Semantico", "El tipo del atributo: " + atributo.getNombre() + " no coincide con el declarado.")
+                                    }
+                                }
+                            }
+                        }
+                        // * termina la verficacion de los tipos de los valores
+                        let auxvalor : Array<ValoresTipo> = new Array()
+                        for(let i = 0; i < this.valor.length; i++)
+                        {
+                            let auxvalor1 = this.valor[i].valor.ejecutar(entorno);
+                            auxvalor.push(auxvalor1);
+                        }
+                        //* guarda la variable declarada de tipo type
+                        entorno.guardarVariable(this.nombre, this.tipovar, auxvalor, this.tiposim, this.linea, this.columna);
+                    }
+                    else
+                    {
+                        throw new _Error(this.linea, this.columna, "Semantico", "El numero de atributos no coinciden con el type");
+                    }
                 }
             }
         }
@@ -109,6 +121,11 @@ export class Declaracion extends Instruccion{
             {
                 const valor = this.valor.ejecutar(entorno);
                 entorno.guardarVariable(this.nombre, valor.type, valor.value, this.tiposim, this.linea, this.columna);
+            }
+            else if(this.valor instanceof Llamada)
+            {
+                const valor = this.valor.ejecutar(entorno);
+                // TODO ejecutar funciones para las llamadas
             }
         }
         else if(this.valor == null && this.tipovar != null)

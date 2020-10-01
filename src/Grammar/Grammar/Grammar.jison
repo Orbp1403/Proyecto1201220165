@@ -1178,7 +1178,7 @@ Expresion
     | IDENTIFICADOR '(' ')'
     {
         $$ = {
-            instrucciones : new Llamada($1, [], @1.first_line, @1.first_column),
+            instrucciones : new Llamada($1, new Array(), @1.first_line, @1.first_column),
             nodo : new Nodo(null, 'Llamada', null)
         };
         $$.nodo.agregarHijos(new Nodo($1, null, null));
@@ -1337,7 +1337,7 @@ Funcion
         else
         {
             $$ = {
-                instrucciones : new Funcion($2, $4.instrucciones_f.instrucciones, $4.parametros, $4.tipo, @1.first_line, @1.first_column),
+                instrucciones : new Funcion($2, $4.instrucciones_f.instrucciones, new Array(), $4.tipo, @1.first_line, @1.first_column),
                 nodo : new Nodo(null, "Funcion", null)
             }
             $$.nodo.agregarHijos(new Nodo($2, null, null));
