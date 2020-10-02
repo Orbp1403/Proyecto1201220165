@@ -162,16 +162,57 @@ export class CuerpoComponent implements OnInit {
   {
     if(instruccion instanceof SentenciaIf)
     {
-      let cuerpo = instruccion.ejecutar(entorno);
-      for(let instr of cuerpo)
+       const nuevoentorno = new Entorno(entorno);
+      try
       {
-        console.log("instr", instr);
-        this.ejecutar_instrucciones(instr, entorno);
+        let cuerpo = instruccion.ejecutar(nuevoentorno);
+        for(let instr of cuerpo)
+        {
+          console.log("instr", instr);
+          this.aux_ejecutar_instrucciones(instr, nuevoentorno);
+        }
+      }
+      catch(error)
+      {
+        this.errores.push(error);
       }
     }
     else if(instruccion instanceof Imprimir)
     {
-      this.textoaimprimir += instruccion.ejecutar(entorno);
+      try
+      {
+        this.textoaimprimir += instruccion.ejecutar(entorno);
+      }
+      catch(error)
+      {
+        this.errores.push(error);
+      }
+      
+    }
+  }
+
+  async aux_ejecutar_instrucciones(instruccion : any, entorno : Entorno)
+  {
+    if(instruccion instanceof Imprimir)
+    {
+      try{
+        this.textoaimprimir += instruccion.ejecutar(entorno);
+      }
+      catch(error)
+      {
+        this.errores.push(error);
+      }
+    }
+    else
+    {
+      try
+      {
+        instruccion.ejecutar(entorno);
+      }
+      catch(error)
+      {
+        this.errores.push(error);
+      }
     }
   }
 
