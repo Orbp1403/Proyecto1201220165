@@ -9,6 +9,6 @@ export class SentenciaTernaria extends Instruccion{
     }
 
     public ejecutar(entorno: Entorno): Retorno {
-        throw new Error("Method not implemented.");
+        throw new Error("Method not implemented.TERNARIA");
     }
 }

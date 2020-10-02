@@ -10,16 +10,14 @@ import { ENOBUFS } from 'constants';
 
 export class Entorno{
     private variables : Map<string, Simbolo>
-    private variables_tips : Map<string, DeclaracionVarType>
     private funciones : Map<string, Funcion>
     private tipos : Map<string, Tipo> 
     private errores : any
 
-    constructor(public anterior : Entorno | null, errores : any){
+    constructor(public anterior : Entorno | null){
         this.variables = new Map();
         this.funciones = new Map();
         this.tipos = new Map();
-        this.errores = errores;
     }
 
     //sirve para declarar variables y guardarlas en la tabla de simbolos
@@ -41,7 +39,6 @@ export class Entorno{
         let entorno : Entorno | null = this;
         while(entorno != null)
         {
-            console.log("varibale", entorno.variables)
             if(entorno.variables.has(nombre))
             {
                 return entorno.variables.get(nombre);

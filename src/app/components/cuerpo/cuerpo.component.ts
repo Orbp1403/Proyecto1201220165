@@ -14,6 +14,9 @@ import { DeclaracionVarType } from 'src/Grammar/Instrucciones/DeclaracionVarType
 import { DeclaracionTipos } from 'src/Grammar/Instrucciones/DeclaracionTipos';
 import { Declaracion } from 'src/Grammar/Instrucciones/Declaracion';
 import { Funcion } from 'src/Grammar/Instrucciones/Funcion';
+import { SentenciaIf } from 'src/Grammar/Instrucciones/SentenciaIf';
+import { Instruccion } from 'src/Grammar/Instruccion';
+import { Imprimir } from 'src/Grammar/Instrucciones/Imprimir';
 //declare const jquery-linedEtextarea.js
 
 const $ = go.GraphObject.make;
@@ -61,8 +64,18 @@ export class CuerpoComponent implements OnInit {
     readOnly: true,
   }
 
+  OptionsTerminal : any = {
+    theme : 'lucario',
+    mode : 'text',
+    lineNumbers : false,
+    lineWrapping : true,
+    editable : false,
+    readOnly : true
+  }
+
   code;
   output;
+  terminal;
   public diagrama : go.Diagram = null;
   hayarbol : boolean = false;
   mostrararbol : boolean = false;
@@ -74,6 +87,7 @@ export class CuerpoComponent implements OnInit {
   hayerrores : boolean = false;
   mostrarerrores : boolean = false;
   errores : any;
+  textoaimprimir : string = "";
 
   constructor() {}
 
@@ -93,7 +107,7 @@ export class CuerpoComponent implements OnInit {
     grammar.inicioerrores();
     const ast = parser.parse(this.code);
     this.errores = grammar.geterrores();
-    const entorno = new Entorno(null, this.errores);
+    const entorno = new Entorno(null);
     if(this.errores.length != 0)
     {
       this.hayerrores = true;
@@ -130,6 +144,34 @@ export class CuerpoComponent implements OnInit {
           contador++;
         }
       }
+      else
+      {
+        this.textoaimprimir = "";
+        for(let i = 0; i < ast.instrucciones.length; i++)
+        {
+          let instruccion = ast.instrucciones[i];
+          this.ejecutar_instrucciones(instruccion, entorno);
+        }
+        console.log(this.textoaimprimir);
+        this.terminal = this.textoaimprimir;
+      }
+    }
+  }
+
+  async ejecutar_instrucciones(instruccion : any, entorno : Entorno)
+  {
+    if(instruccion instanceof SentenciaIf)
+    {
+      let cuerpo = instruccion.ejecutar(entorno);
+      for(let instr of cuerpo)
+      {
+        console.log("instr", instr);
+        this.ejecutar_instrucciones(instr, entorno);
+      }
+    }
+    else if(instruccion instanceof Imprimir)
+    {
+      this.textoaimprimir += instruccion.ejecutar(entorno);
     }
   }
 

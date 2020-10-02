@@ -51,7 +51,7 @@ export class Relacional extends Expresion{
                     {
                         auxderecho = false;
                     }
-                    resultado = {value : (auxizquierdo && auxderecho).toString(), type : Type.BOOLEANO}
+                    resultado = {value : (auxizquierdo && auxderecho), type : Type.BOOLEANO}
                 }
                 else
                 {
@@ -81,7 +81,7 @@ export class Relacional extends Expresion{
                     {
                         auxderecho = false;
                     }
-                    resultado = {value : (auxizquierdo || auxderecho).toString(), type : Type.BOOLEANO}
+                    resultado = {value : (auxizquierdo || auxderecho), type : Type.BOOLEANO}
                 }
                 else
                 {
@@ -92,7 +92,7 @@ export class Relacional extends Expresion{
             {
                 if(izquierdo.type == Type.NUMERO && derecho.type == Type.NUMERO)
                 {
-                    resultado = {value : (Number(izquierdo.value.toString()) > Number(derecho.value.toString())).toString(), type : Type.BOOLEANO}
+                    resultado = {value : (Number(izquierdo.value.toString()) > Number(derecho.value.toString())), type : Type.BOOLEANO}
                 }
                 else if(izquierdo.type == Type.CADENA && derecho.type ==Type.CADENA)
                 {
@@ -100,7 +100,7 @@ export class Relacional extends Expresion{
                 }
                 else if(izquierdo.type == Type.BOOLEANO && derecho.type == Type.BOOLEANO)
                 {
-                    resultado = {value : (Boolean(izquierdo.value.toString()) > Boolean(derecho.value.toString())).toString(), type : Type.BOOLEANO}
+                    resultado = {value : (Boolean(izquierdo.value.toString()) > Boolean(derecho.value.toString())), type : Type.BOOLEANO}
                 }
                 else
                 {
@@ -111,7 +111,7 @@ export class Relacional extends Expresion{
             {
                 if(izquierdo.type == Type.NUMERO && derecho.type == Type.NUMERO)
                 {
-                    resultado = {value : (Number(izquierdo.value.toString()) >= Number(derecho.value.toString())).toString(), type : Type.BOOLEANO}
+                    resultado = {value : (Number(izquierdo.value.toString()) >= Number(derecho.value.toString())), type : Type.BOOLEANO}
                 }
                 else if(izquierdo.type == Type.CADENA && derecho.type ==Type.CADENA)
                 {
@@ -119,7 +119,7 @@ export class Relacional extends Expresion{
                 }
                 else if(izquierdo.type == Type.BOOLEANO && derecho.type == Type.BOOLEANO)
                 {
-                    resultado = {value : (Boolean(izquierdo.value.toString()) >= Boolean(derecho.value.toString())).toString(), type : Type.BOOLEANO}
+                    resultado = {value : (Boolean(izquierdo.value.toString()) >= Boolean(derecho.value.toString())), type : Type.BOOLEANO}
                 }
                 else
                 {
@@ -130,7 +130,7 @@ export class Relacional extends Expresion{
             {
                 if(izquierdo.type == Type.NUMERO && derecho.type == Type.NUMERO)
                 {
-                    resultado = {value : (Number(izquierdo.value.toString()) < Number(derecho.value.toString())).toString(), type : Type.BOOLEANO}
+                    resultado = {value : (Number(izquierdo.value.toString()) < Number(derecho.value.toString())), type : Type.BOOLEANO}
                 }
                 else if(izquierdo.type == Type.CADENA && derecho.type ==Type.CADENA)
                 {
@@ -138,7 +138,7 @@ export class Relacional extends Expresion{
                 }
                 else if(izquierdo.type == Type.BOOLEANO && derecho.type == Type.BOOLEANO)
                 {
-                    resultado = {value : (Boolean(izquierdo.value.toString()) < Boolean(derecho.value.toString())).toString(), type : Type.BOOLEANO}
+                    resultado = {value : (Boolean(izquierdo.value.toString()) < Boolean(derecho.value.toString())), type : Type.BOOLEANO}
                 }
                 else
                 {
@@ -149,7 +149,7 @@ export class Relacional extends Expresion{
             {
                 if(izquierdo.type == Type.NUMERO && derecho.type == Type.NUMERO)
                 {
-                    resultado = {value : (Number(izquierdo.value.toString()) <= Number(derecho.value.toString())).toString(), type : Type.BOOLEANO}
+                    resultado = {value : (Number(izquierdo.value.toString()) <= Number(derecho.value.toString())), type : Type.BOOLEANO}
                 }
                 else if(izquierdo.type == Type.CADENA && derecho.type ==Type.CADENA)
                 {
@@ -157,7 +157,7 @@ export class Relacional extends Expresion{
                 }
                 else if(izquierdo.type == Type.BOOLEANO && derecho.type == Type.BOOLEANO)
                 {
-                    resultado = {value : (Boolean(izquierdo.value.toString()) <= Boolean(derecho.value.toString())).toString(), type : Type.BOOLEANO}
+                    resultado = {value : (Boolean(izquierdo.value.toString()) <= Boolean(derecho.value.toString())), type : Type.BOOLEANO}
                 }
                 else
                 {
@@ -168,7 +168,7 @@ export class Relacional extends Expresion{
             {
                 if(izquierdo.type == Type.NUMERO && derecho.type == Type.NUMERO)
                 {
-                    resultado = {value : (Number(izquierdo.value.toString()) == Number(derecho.value.toString())).toString(), type : Type.BOOLEANO}
+                    resultado = {value : (Number(izquierdo.value.toString()) == Number(derecho.value.toString())), type : Type.BOOLEANO}
                 }
                 else if(izquierdo.type == Type.CADENA && derecho.type ==Type.CADENA)
                 {
@@ -176,7 +176,7 @@ export class Relacional extends Expresion{
                 }
                 else if(izquierdo.type == Type.BOOLEANO && derecho.type == Type.BOOLEANO)
                 {
-                    resultado = {value : (Boolean(izquierdo.value.toString()) == Boolean(derecho.value.toString())).toString(), type : Type.BOOLEANO}
+                    resultado = {value : (Boolean(izquierdo.value.toString()) == Boolean(derecho.value.toString())), type : Type.BOOLEANO}
                 }
                 else
                 {
@@ -187,7 +187,7 @@ export class Relacional extends Expresion{
             {
                 if(izquierdo.type == Type.NUMERO && derecho.type == Type.NUMERO)
                 {
-                    resultado = {value : (Number(izquierdo.value.toString()) != Number(derecho.value.toString())).toString(), type : Type.BOOLEANO}
+                    resultado = {value : (Number(izquierdo.value.toString()) != Number(derecho.value.toString())), type : Type.BOOLEANO}
                 }
                 else if(izquierdo.type == Type.CADENA && derecho.type ==Type.CADENA)
                 {
@@ -195,7 +195,7 @@ export class Relacional extends Expresion{
                 }
                 else if(izquierdo.type == Type.BOOLEANO && derecho.type == Type.BOOLEANO)
                 {
-                    resultado = {value : (Boolean(izquierdo.value.toString()) != Boolean(derecho.value.toString())).toString(), type : Type.BOOLEANO}
+                    resultado = {value : (Boolean(izquierdo.value.toString()) != Boolean(derecho.value.toString())), type : Type.BOOLEANO}
                 }
                 else
                 {

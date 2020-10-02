@@ -1133,14 +1133,14 @@ Expresion
         else if($1.includes("'"))
         {
             $$ = {
-                instrucciones : new Literal($1.replace(/["'"]+/g, ''), @1.first_line, @1.first_column),
+                instrucciones : new Literal($1.replace(/["'"]+/g, ''), @1.first_line, @1.first_column, 1),
                 nodo : new Nodo($1.replace(/["'"]+/g, ''), null, null)
             }
         }
         else
         {
             $$ = {
-                instrucciones : new Literal($1, @1.first_line, @1.first_column),
+                instrucciones : new Literal($1, @1.first_line, @1.first_column, 1),
                 nodo : new Nodo($1, null, null)
             }
         }
@@ -1175,22 +1175,9 @@ Expresion
         $$.nodo.agregarHijos(new Nodo($1, null, null));
         $$.nodo.agregarHijos($2.nodo);
     }
-    | IDENTIFICADOR '(' ')'
+    | Llamada
     {
-        $$ = {
-            instrucciones : new Llamada($1, new Array(), @1.first_line, @1.first_column),
-            nodo : new Nodo(null, 'Llamada', null)
-        };
-        $$.nodo.agregarHijos(new Nodo($1, null, null));
-    }
-    | IDENTIFICADOR '(' Listaparam ')'
-    {
-        $$ = {
-            instrucciones : new Llamada($1, $3.instrucciones, @1.first_line, @1.first_column),
-            nodo : new Nodo(null, "Llamada", null)
-        }
-        $$.nodo.agregarHijos(new Nodo($1, null, null));
-        $$.nodo.agregarHijos($3.nodo);
+        $$ = $1;
     }
     | NULL
     {
@@ -1233,7 +1220,7 @@ Llamada
     : IDENTIFICADOR '(' ')'
     {
         $$ = {
-            instrucciones : new Llamada($1, [], @1.first_line, @1.first_column),
+            instrucciones : new Llamada($1, new Array(), @1.first_line, @1.first_column),
             nodo : new Nodo(null, 'Llamada', null)
         };
         $$.nodo.agregarHijos(new Nodo($1, null, null));
@@ -1250,7 +1237,7 @@ Llamada
     | 'CONSOLE' '.' 'LOG' '(' ')'
     {
         $$ = {
-            instrucciones : new Imprimir([], @1.first_line, @1.first_column),
+            instrucciones : new Imprimir(new Array(), @1.first_line, @1.first_column),
             nodo : new Nodo(null, "Imprimir", null)
         }
     }

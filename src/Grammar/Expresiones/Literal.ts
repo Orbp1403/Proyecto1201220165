@@ -8,6 +8,7 @@ export class Literal extends Expresion{
     }
 
     public ejecutar(entorno : Entorno) : Retorno{
+        console.log("valor",this.valor, this.type);
         if(this.type == 0){
             return {value : Number(this.valor), type : Type.NUMERO}
         }else if(this.type == 1){

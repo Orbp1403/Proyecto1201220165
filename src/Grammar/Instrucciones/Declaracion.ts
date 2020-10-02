@@ -99,10 +99,14 @@ export class Declaracion extends Instruccion{
                             }
                         }
                         // * termina la verficacion de los tipos de los valores
-                        let auxvalor : Array<ValoresTipo> = new Array()
+                        let auxvalor = new Array()
                         for(let i = 0; i < this.valor.length; i++)
                         {
-                            let auxvalor1 = this.valor[i].valor.ejecutar(entorno);
+                            let auxvalor1 =
+                            {
+                                valor : this.valor[i].valor.ejecutar(entorno),
+                                nombre : this.valor[i].nombre
+                            }
                             auxvalor.push(auxvalor1);
                         }
                         //* guarda la variable declarada de tipo type

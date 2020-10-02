@@ -8,7 +8,7 @@ export class SentenciaSwitch extends Instruccion{
     }
 
     public ejecutar(entorno: Entorno) {
-        throw new Error("Method not implemented.");
+        throw new Error("Method not implemented.SWITCH");
     }
 
 }

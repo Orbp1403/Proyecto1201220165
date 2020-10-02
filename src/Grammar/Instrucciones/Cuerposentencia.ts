@@ -7,7 +7,10 @@ export class Cuerposentencia extends Instruccion{
     }
 
     public ejecutar(entorno: Entorno) {
-        throw new Error("Method not implemented.");
+        if(this.cuerpo != null)
+        {
+            return this.cuerpo
+        }
     }
     
 }
