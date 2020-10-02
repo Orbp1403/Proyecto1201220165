@@ -598,7 +598,7 @@ break;
 case 61:
 
         this.$ = {
-            instrucciones : new Asignacion($$[$0-3], null, $$[$0-1], _$[$0-3].first_line, _$[$0-3].first_column),
+            instrucciones : new Asignacion($$[$0-3], null, $$[$0-1].instrucciones, _$[$0-3].first_line, _$[$0-3].first_column),
             nodo : new Nodo("Asignacion")
         }
         this.$.nodo.agregarHijos(new Nodo($$[$0-3], null, null));
@@ -2310,8 +2310,8 @@ parseError: function parseError (str, hash) {
                 textoerror += hash.expected[i];
             }
         }
-        lerrores.push(new _Error(hash.loc.first_line, hash.loc.last_column + 1, "Sintactico", textoerror))
-        errores.push(new _Error(hash.loc.first_line, hash.loc.last_column + 1, "Sintactico", textoerror));
+
+        lerrores.push(new _Error(hash.loc.first_line, hash.loc.last_column + 1, "Sintactico", textoerror));
     } else {
         var error = new Error(str);
         error.hash = hash;
@@ -2605,30 +2605,13 @@ var lexer = ({
 
 EOF:1,
 
-parseError: function parseError (str, hash) {
-    console.log(hash)
-    if (hash.recoverable) {
-        this.trace(str);
-        let textoerror = "Se encontro: " + hash.text + ", se esperaba: ";
-        for(let i = 0; i < hash.expected.length; i++)
-        {
-            if(i != hash.expected.length - 1)
-            {
-                textoerror += hash.expected[i] + ",";
-            }
-            else
-            {
-                textoerror += hash.expected[i];
-            }
+parseError:function parseError(str, hash) {
+        if (this.yy.parser) {
+            this.yy.parser.parseError(str, hash);
+        } else {
+            throw new Error(str);
         }
-        lerrores.push(new _Error(hash.loc.first_line, hash.loc.last_column + 1, "Sintactico", textoerror));
-        errores.push(new _Error(hash.loc.first_line, hash.loc.last_column + 1, "Sintactico", textoerror));
-    } else {
-        var error = new Error(str);
-        error.hash = hash;
-        throw error;
-    }
-},
+    },
 
 // resets the lexer, sets new input
 setInput:function (input, yy) {

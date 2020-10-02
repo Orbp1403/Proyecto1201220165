@@ -713,7 +713,7 @@ Asignacion
     | IDENTIFICADOR '=' Expresion PYC
     {
         $$ = {
-            instrucciones : new Asignacion($1, null, $3, @1.first_line, @1.first_column),
+            instrucciones : new Asignacion($1, null, $3.instrucciones, @1.first_line, @1.first_column),
             nodo : new Nodo("Asignacion")
         }
         $$.nodo.agregarHijos(new Nodo($1, null, null));

@@ -18,7 +18,7 @@ export class Variable extends Expresion{
         }
         else
         {
-            
+            //TODO sacar el valor de los atributos
         }
         return resultado;
     }

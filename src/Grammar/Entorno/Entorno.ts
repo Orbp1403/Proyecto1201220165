@@ -48,6 +48,27 @@ export class Entorno{
         return null;
     }
 
+    //asignar valor varibable
+    public setValor_Variable(nombre : string, valor : any)
+    {
+        let entorno : Entorno | null = this
+        while(entorno != null)
+        {
+            if(entorno.variables.has(nombre))
+            {
+                const auxvar = entorno.variables.get(nombre);
+                if(auxvar.tipo == Type.UNDEFINED)
+                {
+                    auxvar.tipo = valor.type
+                }
+                auxvar.valor = valor;
+                entorno.variables.set(nombre, new Simbolo(valor.value, auxvar.nombre, auxvar.tipo, auxvar.variable));
+            }
+            entorno = entorno.anterior;
+        }
+        console.log("entorno", this);
+    }
+
     public getTipo(nombre : string)
     {
         let entorno : Entorno | null = this;

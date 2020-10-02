@@ -151,19 +151,44 @@ export class CuerpoComponent implements OnInit {
         for(let i = 0; i < ast.instrucciones.length; i++)
         {
           let instruccion = ast.instrucciones[i];
-          if(instruccion instanceof DeclaracionTipos || instruccion instanceof Declaracion || instruccion instanceof Funcion)
+          try
           {
-            continue;
+            if(instruccion instanceof DeclaracionTipos || instruccion instanceof Declaracion || instruccion instanceof Funcion)
+            {
+              continue;
+            }
+            console.log('instruccion', instruccion);
+            const cont = instruccion.ejecutar(entorno);
+            if(cont != null || cont != undefined)
+            {
+              console.log("cont", cont);
+              this.textoaimprimir += cont.value;
+            }
           }
-          const cont = instruccion.ejecutar(entorno);
-          if(cont != null || cont != undefined)
+          catch(error)
           {
-            console.log("cont", cont);
-            this.textoaimprimir += cont.value;
+            lerrores.push(error);
           }
+          
         }
-        console.log(this.textoaimprimir);
-        this.terminal = this.textoaimprimir;
+        if(lerrores.length == 0)
+        {
+          console.log(this.textoaimprimir);
+          this.terminal = this.textoaimprimir;
+        }
+        else 
+        {
+          console.log(lerrores);
+          this.hayarbol = false;
+          this.hayerrores = true;
+          let contador = 1;
+          for(let i = 0; i < lerrores.length; i++)
+          {
+            lerrores[i].setNumero(contador);
+            contador++;
+          }
+          this.errores = lerrores;
+        }
       }
     }
   }
