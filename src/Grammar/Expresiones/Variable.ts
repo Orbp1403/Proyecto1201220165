@@ -12,7 +12,14 @@ export class Variable extends Expresion{
         //TODO sacar el valor de la variable para ejecutar
         let resultado : Retorno = null;
         let valorvariable = entorno.getVariable(this.nombre)
-        resultado = {value : valorvariable.valor, type : valorvariable.tipo}
+        if(this.atributos == null)
+        {
+            resultado = {value : valorvariable.valor, type : valorvariable.tipo}
+        }
+        else
+        {
+            
+        }
         return resultado;
     }
     

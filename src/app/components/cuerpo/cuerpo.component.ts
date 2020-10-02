@@ -17,6 +17,7 @@ import { Funcion } from 'src/Grammar/Instrucciones/Funcion';
 import { SentenciaIf } from 'src/Grammar/Instrucciones/SentenciaIf';
 import { Instruccion } from 'src/Grammar/Instruccion';
 import { Imprimir } from 'src/Grammar/Instrucciones/Imprimir';
+import { lerrores } from 'src/Grammar/Error';
 //declare const jquery-linedEtextarea.js
 
 const $ = go.GraphObject.make;
@@ -104,19 +105,20 @@ export class CuerpoComponent implements OnInit {
     this.hayerrores = false;
     this.hayarbol = false;
     const parser = require('../../../Grammar/Grammar/Grammar')
-    grammar.inicioerrores();
+    lerrores.splice(0, lerrores.length);
     const ast = parser.parse(this.code);
-    this.errores = grammar.geterrores();
+    console.log("erroreS", lerrores);
     const entorno = new Entorno(null);
-    if(this.errores.length != 0)
+    if(lerrores.length != 0)
     {
       this.hayerrores = true;
       let contador = 1;
-      for(let i = 0; i < this.errores.length; i++)
+      for(let i = 0; i < lerrores.length; i++)
       {
-        this.errores[i].setNumero(contador);
+        lerrores[i].setNumero(contador);
         contador++;
       } 
+      this.errores = lerrores;
     }
     if(this.hayerrores == false)
     {
@@ -131,18 +133,17 @@ export class CuerpoComponent implements OnInit {
       this.sacar_types(ast.instrucciones, entorno);
       this.sacar_funciones(ast.instrucciones, entorno);
       this.sacar_variables(ast.instrucciones, entorno);
-      console.log(entorno);
-      console.log(this.errores)
-      if(this.errores.length != 0)
+      if(lerrores.length != 0)
       {
         this.hayarbol = false;
         this.hayerrores = true;
         let contador = 1;
-        for(let i = 0; i < this.errores.length; i++)
+        for(let i = 0; i < lerrores.length; i++)
         {
-          this.errores[i].setNumero(contador);
+          lerrores[i].setNumero(contador);
           contador++;
         }
+        this.errores = lerrores;
       }
       else
       {
@@ -150,68 +151,19 @@ export class CuerpoComponent implements OnInit {
         for(let i = 0; i < ast.instrucciones.length; i++)
         {
           let instruccion = ast.instrucciones[i];
-          this.ejecutar_instrucciones(instruccion, entorno);
+          if(instruccion instanceof DeclaracionTipos || instruccion instanceof Declaracion || instruccion instanceof Funcion)
+          {
+            continue;
+          }
+          const cont = instruccion.ejecutar(entorno);
+          if(cont != null || cont != undefined)
+          {
+            console.log("cont", cont);
+            this.textoaimprimir += cont.value;
+          }
         }
         console.log(this.textoaimprimir);
         this.terminal = this.textoaimprimir;
-      }
-    }
-  }
-
-  async ejecutar_instrucciones(instruccion : any, entorno : Entorno)
-  {
-    if(instruccion instanceof SentenciaIf)
-    {
-       const nuevoentorno = new Entorno(entorno);
-      try
-      {
-        let cuerpo = instruccion.ejecutar(nuevoentorno);
-        for(let instr of cuerpo)
-        {
-          console.log("instr", instr);
-          this.aux_ejecutar_instrucciones(instr, nuevoentorno);
-        }
-      }
-      catch(error)
-      {
-        this.errores.push(error);
-      }
-    }
-    else if(instruccion instanceof Imprimir)
-    {
-      try
-      {
-        this.textoaimprimir += instruccion.ejecutar(entorno);
-      }
-      catch(error)
-      {
-        this.errores.push(error);
-      }
-      
-    }
-  }
-
-  async aux_ejecutar_instrucciones(instruccion : any, entorno : Entorno)
-  {
-    if(instruccion instanceof Imprimir)
-    {
-      try{
-        this.textoaimprimir += instruccion.ejecutar(entorno);
-      }
-      catch(error)
-      {
-        this.errores.push(error);
-      }
-    }
-    else
-    {
-      try
-      {
-        instruccion.ejecutar(entorno);
-      }
-      catch(error)
-      {
-        this.errores.push(error);
       }
     }
   }
@@ -233,7 +185,7 @@ export class CuerpoComponent implements OnInit {
       catch(error)
       {
         console.log(error);
-        this.errores.push(error);
+        lerrores.push(error);
       }
     }
   }
@@ -253,7 +205,7 @@ export class CuerpoComponent implements OnInit {
       }
       catch(error)
       {
-        this.errores.push(error);
+        lerrores.push(error);
       }
     }
   }
@@ -270,7 +222,7 @@ export class CuerpoComponent implements OnInit {
         }
       }catch(error)
       {
-        this.errores.push(error);
+        lerrores.push(error);
       }
     }
   }

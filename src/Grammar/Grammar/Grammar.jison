@@ -132,7 +132,7 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")|("'" [^"'"]* "'")
     const { Break } = require('../Instrucciones/Break');
     const { GraficarTs } = require('../Instrucciones/GraficarTs');
     const { Nodo } = require('../Arbol/Nodo');
-    const { _Error } = require('../Error');
+    const { _Error, lerrores } = require('../Error');
 %}
 
 /* Asociación de operadores y precedencia */

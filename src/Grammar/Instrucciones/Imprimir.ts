@@ -40,7 +40,7 @@ export class Imprimir extends Instruccion{
             retorno.value += '\n';
             console.log(retorno);
         }
-        return retorno.value;
+        return retorno;
     }
 
 }

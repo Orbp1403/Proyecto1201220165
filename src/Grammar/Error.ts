@@ -8,3 +8,5 @@ export class _Error{
         this.numero = numero;
     }
 }
+
+export let lerrores : Array<_Error> = new Array();

@@ -16,7 +16,6 @@ export class SentenciaIf extends Instruccion{
         {
             if(condicion.value == true)
             {
-                console.log("verdadero");
                 return this.cuerpo.ejecutar(entorno);
             }
             else
