@@ -27,7 +27,9 @@ export class Relacional extends Expresion{
         if(this.derecho != null)
         {
             const izquierdo = this.izquierdo.ejecutar(entorno);
+            console.log("izquierdo", izquierdo);
             const derecho = this.derecho.ejecutar(entorno);
+            console.log("derecho", derecho);
             if(this.tipo == OperacionesLogicas.AND)
             {
                 if(izquierdo.type == Type.BOOLEANO && derecho.type == Type.BOOLEANO)

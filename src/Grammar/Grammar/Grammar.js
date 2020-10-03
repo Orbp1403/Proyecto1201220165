@@ -188,7 +188,7 @@ break;
 case 21:
 
         this.$ = {
-            instrucciones : new SentenciaFor($$[$0-8], $$[$0-6].instrucciones, $$[$0-4].instrucciones, $$[$0-2].instrucciones, $$[$0].instrucciones, _$[$0-11].first_line, _$[$0-11].first_column) ,
+            instrucciones : new SentenciaFor(1, $$[$0-8], $$[$0-6].instrucciones, $$[$0-4].instrucciones, $$[$0-2].instrucciones, $$[$0].instrucciones, _$[$0-11].first_line, _$[$0-11].first_column) ,
             nodo : new Nodo(null, "For", null)
         }
         instruccion = new Nodo("=", null, null)
@@ -208,7 +208,7 @@ break;
 case 22:
 
         this.$ = {
-            instrucciones : new SentenciaFor($$[$0-8], $$[$0-6].instruccion, $$[$0-4].instruccion, $$[$0-2].instruccion, $$[$0].instruccion, _$[$0-10].first_line, _$[$0-10].first_column),
+            instrucciones : new SentenciaFor(0, $$[$0-8], $$[$0-6].instrucciones, $$[$0-4].instrucciones, $$[$0-2].instrucciones, $$[$0].instrucciones, _$[$0-10].first_line, _$[$0-10].first_column),
             nodo : new Nodo(null, "For", null)
         }
         instruccion = new Nodo("=", null, null);
@@ -1570,7 +1570,7 @@ break;
 case 168:
 
         this.$ = {
-            instrucciones : new SentenciaFor($$[$0].id, $$[$0].valor_inicio.instrucciones, $$[$0].condicion.instrucciones, $$[$0].incremento.instrucciones, $$[$0].instrucciones.instrucciones, _$[$0-2].first_line, _$[$0-2].first_column),
+            instrucciones : new SentenciaFor($$[$0].declarado, $$[$0].id, $$[$0].valor_inicio.instrucciones, $$[$0].condicion.instrucciones, $$[$0].incremento.instrucciones, $$[$0].instrucciones.instrucciones, _$[$0-2].first_line, _$[$0-2].first_column),
             nodo : new Nodo(null, "For", null)
         }
         instruccion = new Nodo("=", null, null)
@@ -1587,14 +1587,27 @@ case 168:
         }
     
 break;
-case 169: case 170:
+case 169:
 
         this.$ = {
             id : $$[$0-8],
             valor_inicio : $$[$0-6],
             condicion : $$[$0-4],
             incremento : $$[$0-2],
-            instrucciones : $$[$0]
+            instrucciones : $$[$0],
+            declarado : 1
+        }
+    
+break;
+case 170:
+
+        this.$ = {
+            id : $$[$0-8],
+            valor_inicio : $$[$0-6],
+            condicion : $$[$0-4],
+            incremento : $$[$0-2],
+            instrucciones : $$[$0],
+            declarado : 0
         }
     
 break;

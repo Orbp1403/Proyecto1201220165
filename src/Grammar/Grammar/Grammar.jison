@@ -304,7 +304,7 @@ Sentenciafor
     : 'FOR' '(' 'LET' IDENTIFICADOR '=' Expresion PYC Expresion PYC Aumento ')' InstruccionesSentencias
     {
         $$ = {
-            instrucciones : new SentenciaFor($4, $6.instrucciones, $8.instrucciones, $10.instrucciones, $12.instrucciones, @1.first_line, @1.first_column) ,
+            instrucciones : new SentenciaFor(1, $4, $6.instrucciones, $8.instrucciones, $10.instrucciones, $12.instrucciones, @1.first_line, @1.first_column) ,
             nodo : new Nodo(null, "For", null)
         }
         instruccion = new Nodo("=", null, null)
@@ -323,7 +323,7 @@ Sentenciafor
     | 'FOR' '(' IDENTIFICADOR '=' Expresion PYC Expresion PYC Aumento ')' InstruccionesSentencias
     {
         $$ = {
-            instrucciones : new SentenciaFor($3, $5.instruccion, $7.instruccion, $9.instruccion, $11.instruccion, @1.first_line, @1.first_column),
+            instrucciones : new SentenciaFor(0, $3, $5.instrucciones, $7.instrucciones, $9.instrucciones, $11.instrucciones, @1.first_line, @1.first_column),
             nodo : new Nodo(null, "For", null)
         }
         instruccion = new Nodo("=", null, null);
@@ -1762,7 +1762,7 @@ sentencia_for
     : FOR '(' sentencia_for1
     {
         $$ = {
-            instrucciones : new SentenciaFor($3.id, $3.valor_inicio.instrucciones, $3.condicion.instrucciones, $3.incremento.instrucciones, $3.instrucciones.instrucciones, @1.first_line, @1.first_column),
+            instrucciones : new SentenciaFor($3.declarado, $3.id, $3.valor_inicio.instrucciones, $3.condicion.instrucciones, $3.incremento.instrucciones, $3.instrucciones.instrucciones, @1.first_line, @1.first_column),
             nodo : new Nodo(null, "For", null)
         }
         instruccion = new Nodo("=", null, null)
@@ -1787,7 +1787,8 @@ sentencia_for1
             valor_inicio : $4,
             condicion : $6,
             incremento : $8,
-            instrucciones : $10
+            instrucciones : $10,
+            declarado : 1
         }
     }
     | Expresionesfuncion '=' Expresionesfuncion PYC Expresionesfuncion PYC Expresionesfuncion ')' InstruccionesFuncion
@@ -1797,7 +1798,8 @@ sentencia_for1
             valor_inicio : $3,
             condicion : $5,
             incremento : $7,
-            instrucciones : $9
+            instrucciones : $9,
+            declarado : 0
         }
     };
 

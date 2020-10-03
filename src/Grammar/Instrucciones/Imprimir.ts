@@ -37,9 +37,9 @@ export class Imprimir extends Instruccion{
             {
                 retorno.value += valor.value.toString();
             }
-            retorno.value += '\n';
             console.log(retorno);
         }
+        retorno.value += '\n';
         return retorno;
     }
 
