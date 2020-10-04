@@ -130,4 +130,18 @@ export class Entorno{
         }
         return null;
     }
+
+    public existeVariable(nombre : string) : boolean
+    {
+        let entorno : Entorno | null = this;
+        while(entorno != null)
+        {
+            if(entorno.variables.has(nombre))
+            {
+                return true;
+            }
+            entorno = entorno.anterior;
+        }
+        return false;
+    }
 }

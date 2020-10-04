@@ -21,6 +21,10 @@ export class Funcion extends Instruccion{
         return this.parametros;
     }
 
+    public getCuerpo(){
+        return this.cuerpo;
+    }
+
     public ejecutar(entorno: Entorno) {
         entorno.guardarFuncion(this.nombre, this);
     }

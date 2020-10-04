@@ -2,6 +2,8 @@ import { Instruccion } from "../Instruccion";
 import { Entorno } from "../Entorno/Entorno";
 import { Expresion } from "../Expresion";
 import { Retorno, Type } from '../Retorno';
+import { textoaimprimir } from '../Arbol/ValoresRetorno';
+import { lerrores } from '../Error';
 
 export class Imprimir extends Instruccion{
     constructor(private valor : Expresion[], linea : number, columna : number){
@@ -17,30 +19,37 @@ export class Imprimir extends Instruccion{
         }
         for(let i = 0; i < this.valor.length; i++)
         {
-            console.log("valor", this.valor[i].ejecutar(entorno));
-            let valor = this.valor[i].ejecutar(entorno);
-            console.log(valor);
-            if(typeof(valor.type) == "string")
-            {
-                retorno.value += "{ ";
-                for(let i = 0; i < valor.value.length; i++)
+            try{
+                console.log("valor", this.valor[i].ejecutar(entorno));
+                let valor = this.valor[i].ejecutar(entorno);
+                console.log(valor);
+                if(typeof(valor.type) == "string")
                 {
-                    retorno.value += valor.value[i].nombre + " : " + valor.value[i].valor.value;
-                    if(i != valor.value.length - 1)
+                    retorno.value += "{ ";
+                    for(let i = 0; i < valor.value.length; i++)
                     {
-                        retorno.value += ", ";
+                        retorno.value += valor.value[i].nombre + " : " + valor.value[i].valor.value;
+                        if(i != valor.value.length - 1)
+                        {
+                            retorno.value += ", ";
+                        }
                     }
+                    retorno.value += "}";
                 }
-                retorno.value += "}";
-            }
-            else
+                else
+                {
+                    retorno.value += valor.value.toString();
+                }
+                console.log(retorno);
+            }catch(error)
             {
-                retorno.value += valor.value.toString();
+                lerrores.push(error);
             }
-            console.log(retorno);
+            
         }
         retorno.value += '\n';
-        return retorno;
+        textoaimprimir.push(retorno.value);
+        //return retorno;
     }
 
 }

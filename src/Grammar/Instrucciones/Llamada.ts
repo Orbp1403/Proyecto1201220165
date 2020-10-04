@@ -2,6 +2,8 @@ import { Instruccion } from '../Instruccion';
 import { Expresion } from '../Expresion'
 import { Entorno } from '../Entorno/Entorno';
 import { _Error } from '../Error';
+import { ANALYZE_FOR_ENTRY_COMPONENTS } from '@angular/core';
+import { TiposSimbolo } from '../Entorno/Simbolo';
 
 export class Llamada extends Instruccion{
     
@@ -29,7 +31,19 @@ export class Llamada extends Instruccion{
                 }
                 if(todosbien == true)
                 {
-                    return funcion;
+                    let nuevoentorno : Entorno = new Entorno(entorno);
+                    for(let i = 0; i < funcion.getParametros().length; i++)
+                    {
+                        nuevoentorno.guardarVariable(funcion.getParametros()[i].getNombre(), funcion.getParametros()[i].getTipo(), this.parametros[i].ejecutar(nuevoentorno).value, TiposSimbolo.VAR, this.linea, this.columna);
+                    }
+                    console.log("nuevoentorno", nuevoentorno);
+                    console.log("cuerpo", funcion.getCuerpo());
+                    let instruccion = funcion.getCuerpo().ejecutar(nuevoentorno);
+
+                    if(instruccion != null || instruccion != undefined)
+                    {
+                        return instruccion;
+                    }
                 }
                 else
                 {

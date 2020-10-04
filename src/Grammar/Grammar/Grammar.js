@@ -142,7 +142,7 @@ case 8:
         }
     
 break;
-case 11: case 12: case 13: case 14: case 15: case 109: case 131: case 134: case 141: case 142: case 143: case 144: case 145: case 146: case 147: case 149: case 156: case 157: case 161: case 181: case 186: case 187: case 188: case 251: case 255: case 259:
+case 11: case 12: case 13: case 14: case 15: case 109: case 134: case 141: case 142: case 143: case 144: case 145: case 146: case 147: case 149: case 156: case 157: case 161: case 181: case 186: case 187: case 188: case 251: case 255: case 259:
 
         this.$ = $$[$0];
     
@@ -1262,6 +1262,21 @@ case 128:
         }
     
 break;
+case 131:
+
+        if($$[$0].instrucciones != null)
+        {
+            this.$ = {
+                instrucciones : new Cuerposentencia($$[$0].instrucciones, _$[$0-1].linea, _$[$0-1].columna),
+                nodo : $$[$0].nodo
+            }
+        }
+        else
+        {
+            this.$ = $$[$0];
+        }
+    
+break;
 case 133:
 
         this.$ = {
@@ -1831,10 +1846,11 @@ case 191:
         }
     
 break;
-case 192: case 194: case 195: case 202: case 203: case 206: case 207: case 210: case 211: case 216: case 217: case 220: case 221: case 225: case 226: case 228: case 231: case 232: case 235: case 236: case 239:
+case 192:
 
         hermano = eval('$$');
         this.$ = hermano[hermano.length-1];
+        console.log("expresionesfuncion", this.$);
     
 break;
 case 193:
@@ -1849,6 +1865,12 @@ case 193:
         this.$.nodo.agregarHijos(instruccion);
         this.$.nodo.agregarHijos(hermano[hermano.length - 3].nodo) 
         this.$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
+    
+break;
+case 194: case 195: case 202: case 203: case 206: case 207: case 210: case 211: case 216: case 217: case 220: case 221: case 225: case 226: case 228: case 231: case 232: case 235: case 236: case 239:
+
+        hermano = eval('$$');
+        this.$ = hermano[hermano.length-1];
     
 break;
 case 196:
@@ -2074,31 +2096,23 @@ break;
 case 233:
 
         hermano = eval('$$');
-        if(hermano[hermano.length-2].tipo == 7){
-            this.$ = {
-                instrucciones : new Incremento(hermano[hermano.length-2].instrucciones.nombre, OpcionesAritmeticas.MAS, new Literal(1, _$[$0].first_line, _$[$0].first_column, 0), hermano[hermano.length-2].instrucciones.linea, hermano[hermano.length-2].instrucciones.columna), 
-                nodo : new Nodo(null, "Incremento", null)
-            }
-            this.$.nodo.agregarHijos(new Nodo(hermano[hermano.length-2].instrucciones.nombre, null, null));
-            this.$.nodo.agregarHijos(new Nodo('--', null, null))
-        }else{
-            //TODO error
+        this.$ = {
+            instrucciones : new Incremento(hermano[hermano.length-2].instrucciones.nombre, OpcionesAritmeticas.MAS, new Literal(1, _$[$0].first_line, _$[$0].first_column, 0), hermano[hermano.length-2].instrucciones.linea, hermano[hermano.length-2].instrucciones.columna), 
+            nodo : new Nodo(null, "Incremento", null)
         }
+        this.$.nodo.agregarHijos(new Nodo(hermano[hermano.length-2].instrucciones.nombre, null, null));
+        this.$.nodo.agregarHijos(new Nodo('++', null, null))
     
 break;
 case 234:
 
         hermano = eval('$$');
-        if(hermano[hermano.length-2].tipo == 7){
-            this.$ = {
-                instrucciones : new Incremento(hermano[hermano.length-2].instrucciones.nombre, OpcionesAritmeticas.MENOS, new Literal(1, _$[$0].first_line, _$[$0].first_column, 0), hermano[hermano.length-2].instrucciones.linea, hermano[hermano.length-2].instrucciones.columna),
-                nodo : new Nodo(null, "Incremento", null)
-            }
-            this.$.nodo.agregarHijos(new Nodo(hermano[hermano.length-2].instrucciones.nombre, null, null));
-            this.$.nodo.agregarHijos(new Nodo('--', null, null))
-        }else{
-            //TODO error
+        this.$ = {
+            instrucciones : new Incremento(hermano[hermano.length-2].instrucciones.nombre, OpcionesAritmeticas.MENOS, new Literal(1, _$[$0].first_line, _$[$0].first_column, 0), hermano[hermano.length-2].instrucciones.linea, hermano[hermano.length-2].instrucciones.columna),
+            nodo : new Nodo(null, "Incremento", null)
         }
+        this.$.nodo.agregarHijos(new Nodo(hermano[hermano.length-2].instrucciones.nombre, null, null));
+        this.$.nodo.agregarHijos(new Nodo('--', null, null))
     
 break;
 case 237:

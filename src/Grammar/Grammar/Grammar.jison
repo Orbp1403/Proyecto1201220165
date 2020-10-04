@@ -1367,7 +1367,17 @@ Tipofuncion
 InstruccionesFuncion
     : '{' InstruccionesFuncion1
     {
-        $$ = $2;
+        if($2.instrucciones != null)
+        {
+            $$ = {
+                instrucciones : new Cuerposentencia($2.instrucciones, @1.linea, @1.columna),
+                nodo : $2.nodo
+            }
+        }
+        else
+        {
+            $$ = $2;
+        }
     };
 
 InstruccionesFuncion1
@@ -2063,6 +2073,7 @@ Expresionesfuncion
     {
         hermano = eval('$$');
         $$ = hermano[hermano.length-1];
+        console.log("expresionesfuncion", $$);
     };
 
 Auxexpresionesfuncion1 
@@ -2417,30 +2428,22 @@ Expresionesfuncion17
     : '++'
     {
         hermano = eval('$$');
-        if(hermano[hermano.length-2].tipo == 7){
-            $$ = {
-                instrucciones : new Incremento(hermano[hermano.length-2].instrucciones.nombre, OpcionesAritmeticas.MAS, new Literal(1, @1.first_line, @1.first_column, 0), hermano[hermano.length-2].instrucciones.linea, hermano[hermano.length-2].instrucciones.columna), 
-                nodo : new Nodo(null, "Incremento", null)
-            }
-            $$.nodo.agregarHijos(new Nodo(hermano[hermano.length-2].instrucciones.nombre, null, null));
-            $$.nodo.agregarHijos(new Nodo('--', null, null))
-        }else{
-            //TODO error
+        $$ = {
+            instrucciones : new Incremento(hermano[hermano.length-2].instrucciones.nombre, OpcionesAritmeticas.MAS, new Literal(1, @1.first_line, @1.first_column, 0), hermano[hermano.length-2].instrucciones.linea, hermano[hermano.length-2].instrucciones.columna), 
+            nodo : new Nodo(null, "Incremento", null)
         }
+        $$.nodo.agregarHijos(new Nodo(hermano[hermano.length-2].instrucciones.nombre, null, null));
+        $$.nodo.agregarHijos(new Nodo('++', null, null))
     }
     | '--'
     {
         hermano = eval('$$');
-        if(hermano[hermano.length-2].tipo == 7){
-            $$ = {
-                instrucciones : new Incremento(hermano[hermano.length-2].instrucciones.nombre, OpcionesAritmeticas.MENOS, new Literal(1, @1.first_line, @1.first_column, 0), hermano[hermano.length-2].instrucciones.linea, hermano[hermano.length-2].instrucciones.columna),
-                nodo : new Nodo(null, "Incremento", null)
-            }
-            $$.nodo.agregarHijos(new Nodo(hermano[hermano.length-2].instrucciones.nombre, null, null));
-            $$.nodo.agregarHijos(new Nodo('--', null, null))
-        }else{
-            //TODO error
+        $$ = {
+            instrucciones : new Incremento(hermano[hermano.length-2].instrucciones.nombre, OpcionesAritmeticas.MENOS, new Literal(1, @1.first_line, @1.first_column, 0), hermano[hermano.length-2].instrucciones.linea, hermano[hermano.length-2].instrucciones.columna),
+            nodo : new Nodo(null, "Incremento", null)
         }
+        $$.nodo.agregarHijos(new Nodo(hermano[hermano.length-2].instrucciones.nombre, null, null));
+        $$.nodo.agregarHijos(new Nodo('--', null, null))
     }
     | 
     {

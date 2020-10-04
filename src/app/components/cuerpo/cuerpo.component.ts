@@ -7,7 +7,7 @@ import {
 import { CompileSummaryKind } from '@angular/compiler';
 import * as go from 'gojs';
 import { Nodo } from 'src/Grammar/Arbol/Nodo';
-import { ValoresRetorno } from 'src/Grammar/Arbol/ValoresRetorno';
+import { textoaimprimir, ValoresRetorno } from 'src/Grammar/Arbol/ValoresRetorno';
 import *  as grammar from 'src/Grammar/Grammar/Grammar.js';
 import { Entorno } from 'src/Grammar/Entorno/Entorno';
 import { DeclaracionVarType } from 'src/Grammar/Instrucciones/DeclaracionVarType';
@@ -88,7 +88,6 @@ export class CuerpoComponent implements OnInit {
   hayerrores : boolean = false;
   mostrarerrores : boolean = false;
   errores : any;
-  textoaimprimir : string = "";
 
   constructor() {}
 
@@ -105,6 +104,7 @@ export class CuerpoComponent implements OnInit {
     this.hayerrores = false;
     this.hayarbol = false;
     const parser = require('../../../Grammar/Grammar/Grammar')
+    this.terminal = "";
     lerrores.splice(0, lerrores.length);
     const ast = parser.parse(this.code);
     console.log("erroreS", lerrores);
@@ -147,7 +147,7 @@ export class CuerpoComponent implements OnInit {
       }
       else
       {
-        this.textoaimprimir = "";
+        textoaimprimir.splice(0, textoaimprimir.length);
         for(let i = 0; i < ast.instrucciones.length; i++)
         {
           let instruccion = ast.instrucciones[i];
@@ -162,7 +162,7 @@ export class CuerpoComponent implements OnInit {
             if(cont != null || cont != undefined)
             {
               console.log("cont", cont);
-              this.textoaimprimir += cont.value;
+              //this.textoaimprimir += cont.value;
             }
           }
           catch(error)
@@ -173,8 +173,13 @@ export class CuerpoComponent implements OnInit {
         }
         if(lerrores.length == 0)
         {
-          console.log(this.textoaimprimir);
-          this.terminal = this.textoaimprimir;
+          console.log(textoaimprimir);
+          let textoaimprimir1 = "";
+          for(let i = 0;  i < textoaimprimir.length; i++)
+          {
+            textoaimprimir1 += textoaimprimir[i];
+          }
+          this.terminal = textoaimprimir1;
         }
         else 
         {
