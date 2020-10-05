@@ -32,6 +32,7 @@ export class Llamada extends Instruccion{
                 if(todosbien == true)
                 {
                     let nuevoentorno : Entorno = new Entorno(entorno);
+                    nuevoentorno.set_nombre("funcion");
                     for(let i = 0; i < funcion.getParametros().length; i++)
                     {
                         nuevoentorno.guardarVariable(funcion.getParametros()[i].getNombre(), funcion.getParametros()[i].getTipo(), this.parametros[i].ejecutar(nuevoentorno).value, TiposSimbolo.VAR, this.linea, this.columna);

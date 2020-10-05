@@ -175,7 +175,7 @@ break;
 case 20:
 
         this.$ = {
-            instrucciones : new SentenciaTernaria($$[$0-4].instrucciones, $$[$0-2].instrucciones, $$[$0-1].instrucciones, _$[$0-4].first_line, _$[$0-4].first_column),
+            instrucciones : new SentenciaTernaria($$[$0-4].instrucciones, $$[$0-2].instrucciones, $$[$0].instrucciones, _$[$0-4].first_line, _$[$0-4].first_column),
             nodo : new Nodo(null, "Ternaria", null)
         }
         instruccion = new Nodo(null, "Condicion", null);

@@ -13,11 +13,44 @@ export class Entorno{
     private funciones : Map<string, Funcion>
     private tipos : Map<string, Tipo> 
     private errores : any
+    private nombre_entorno : string | null;
 
     constructor(public anterior : Entorno | null){
         this.variables = new Map();
         this.funciones = new Map();
         this.tipos = new Map();
+    }
+
+    public set_nombre(nombre : string | null)
+    {
+        this.nombre_entorno = nombre;
+    }
+
+    public get_nombre(){
+        return this.nombre_entorno
+    }
+
+    public verificar_entorno_return(){
+        let entorno : Entorno | null = this;
+        while(entorno != null)
+        {
+            if(entorno.get_nombre() == "funcion"){
+                return true;
+            }
+            entorno = entorno.anterior;
+        }        
+        return false;
+    }
+
+    public verificar_entorno_break(){
+        let entorno : Entorno | null = this;
+        while(entorno != null){
+            if(entorno.get_nombre() == 'while' || entorno.get_nombre() == 'for' || entorno.get_nombre() == 'case'){
+                return true;
+            }
+            entorno = entorno.anterior;
+        }
+        return false;
     }
 
     //sirve para declarar variables y guardarlas en la tabla de simbolos
@@ -145,3 +178,5 @@ export class Entorno{
         return false;
     }
 }
+
+export let entornos : Array<string> = new Array();

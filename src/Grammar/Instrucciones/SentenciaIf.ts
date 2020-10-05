@@ -16,11 +16,15 @@ export class SentenciaIf extends Instruccion{
         {
             if(condicion.value == true)
             {
-                return this.cuerpo.ejecutar(entorno);
+                if(this.cuerpo != null){
+                    return this.cuerpo.ejecutar(entorno);
+                }
             }
             else
             {
-                return this.SentenciaElse.ejecutar(entorno);
+                if(this.SentenciaElse != null){
+                    return this.SentenciaElse.ejecutar(entorno);
+                }
             }
         }
         else

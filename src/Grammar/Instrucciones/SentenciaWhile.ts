@@ -2,7 +2,7 @@ import { Instruccion } from "../Instruccion";
 import { Entorno } from "../Entorno/Entorno";
 import { Expresion } from "../Expresion";
 import { Retorno, Type } from '../Retorno';
-import { _Error } from '../Error';
+import { lerrores, _Error } from '../Error';
 
 export class SentenciaWhile extends Instruccion{
     constructor(private condicion : Expresion, private cuerpo : Instruccion, linea : number, columna : number){
@@ -10,7 +10,9 @@ export class SentenciaWhile extends Instruccion{
     }
     
     public ejecutar(entorno: Entorno) {
-        let condicion = this.condicion.ejecutar(entorno);
+        let nuevoentorno = new Entorno(entorno);
+        nuevoentorno.set_nombre("while")
+        let condicion = this.condicion.ejecutar(nuevoentorno);
         if(condicion.type == Type.BOOLEANO)
         {
             let retorno : Retorno = {
@@ -19,16 +21,24 @@ export class SentenciaWhile extends Instruccion{
             };
             while(condicion.value == true)
             {
-                const elemento = this.cuerpo.ejecutar(entorno);
-                if(elemento != null || elemento != undefined)
-                {
-                    retorno.value += elemento.value;
+                try{
+                    const elemento = this.cuerpo.ejecutar(nuevoentorno);
+                    console.log("elemento",elemento)
+                    if(elemento != null || elemento != undefined)
+                    {
+                        if(elemento.tipo == 'break'){
+                            break;
+                        }
+                    }
+                    condicion = this.condicion.ejecutar(nuevoentorno);
+                    if(condicion.type != Type.BOOLEANO)
+                    {
+                        throw new _Error(this.condicion.linea, this.condicion.columna, "Semantico", "La condicion de la sentencia while no es booleana");
+                    }
+                }catch(error){
+                    lerrores.push(error);
                 }
-                condicion = this.condicion.ejecutar(entorno);
-                if(condicion.type != Type.BOOLEANO)
-                {
-                    throw new _Error(this.condicion.linea, this.condicion.columna, "Semantico", "La condicion de la sentencia while no es booleana");
-                }
+                
             }
             return retorno;
         }

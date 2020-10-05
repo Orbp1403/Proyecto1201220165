@@ -9,7 +9,7 @@ import * as go from 'gojs';
 import { Nodo } from 'src/Grammar/Arbol/Nodo';
 import { textoaimprimir, ValoresRetorno } from 'src/Grammar/Arbol/ValoresRetorno';
 import *  as grammar from 'src/Grammar/Grammar/Grammar.js';
-import { Entorno } from 'src/Grammar/Entorno/Entorno';
+import { Entorno, entornos } from 'src/Grammar/Entorno/Entorno';
 import { DeclaracionVarType } from 'src/Grammar/Instrucciones/DeclaracionVarType';
 import { DeclaracionTipos } from 'src/Grammar/Instrucciones/DeclaracionTipos';
 import { Declaracion } from 'src/Grammar/Instrucciones/Declaracion';
@@ -106,6 +106,7 @@ export class CuerpoComponent implements OnInit {
     const parser = require('../../../Grammar/Grammar/Grammar')
     this.terminal = "";
     lerrores.splice(0, lerrores.length);
+    entornos.splice(0, entornos.length);
     const ast = parser.parse(this.code);
     console.log("erroreS", lerrores);
     const entorno = new Entorno(null);

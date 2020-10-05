@@ -22,24 +22,26 @@ export class SentenciaDowhile extends Instruccion{
                 value : "",
                 type : Type.CADENA
             };
-            const elemento = this.cuerpo.ejecutar(entorno);
+            let nuevoentorno = new Entorno(entorno);
+            nuevoentorno.set_nombre("while");
+            const elemento = this.cuerpo.ejecutar(nuevoentorno);
             if(elemento != null || elemento != undefined)
             {
                 retorno.value += elemento.value;
             }
-            condicion = this.condicion.ejecutar(entorno);
+            condicion = this.condicion.ejecutar(nuevoentorno);
             if(condicion.type != Type.BOOLEANO)
             {
                 throw new _Error(this.condicion.linea, this.condicion.columna, "Semantico", "La condicion de la sentencia while no es booleana")
             }
             while(condicion.value == true)
             {
-                const elemento = this.cuerpo.ejecutar(entorno);
+                const elemento = this.cuerpo.ejecutar(nuevoentorno);
                 if(elemento != null || elemento != undefined)
                 {
                     retorno.value += elemento.value;
                 }
-                condicion = this.condicion.ejecutar(entorno);
+                condicion = this.condicion.ejecutar(nuevoentorno);
                 if(condicion.type != Type.BOOLEANO)
                 {
                     throw new _Error(this.condicion.linea, this.condicion.columna, "Semantico", "La condicion de la sentencia while no es booleana")

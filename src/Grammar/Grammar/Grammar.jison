@@ -290,7 +290,7 @@ SentenciaTernaria
     : Expresion '?' Expresion DP Expresion
     {
         $$ = {
-            instrucciones : new SentenciaTernaria($1.instrucciones, $3.instrucciones, $4.instrucciones, @1.first_line, @1.first_column),
+            instrucciones : new SentenciaTernaria($1.instrucciones, $3.instrucciones, $5.instrucciones, @1.first_line, @1.first_column),
             nodo : new Nodo(null, "Ternaria", null)
         }
         instruccion = new Nodo(null, "Condicion", null);
