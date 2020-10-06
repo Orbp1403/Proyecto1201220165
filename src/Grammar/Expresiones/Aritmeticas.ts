@@ -14,11 +14,11 @@ export class Aritmeticas extends Expresion{
 
     public ejecutar(entorno : Entorno): Retorno {
         let resultado : Retorno;
-        const izquierdo = this.izquierdo.ejecutar(entorno);
-        const derecho = this.derecho.ejecutar(entorno);
-        console.log(izquierdo);
-        console.log(derecho);
         if(this.izquierdo != null && this.derecho != null){
+            const izquierdo = this.izquierdo.ejecutar(entorno);
+            const derecho = this.derecho.ejecutar(entorno);
+            console.log("izquierdo", izquierdo);
+            console.log("derecho", derecho);
             if(this.tipo == OpcionesAritmeticas.MAS)
             {
                 if(izquierdo.type == Type.NUMERO && derecho.type == Type.NUMERO)
@@ -575,6 +575,7 @@ export class Aritmeticas extends Expresion{
                 }
             }
         }else{
+            console.log(this.tipo);
             const izquierdo = this.izquierdo.ejecutar(entorno);
             if(this.tipo == OpcionesAritmeticas.NEGATIVO){
                 if(izquierdo.type == Type.NUMERO)

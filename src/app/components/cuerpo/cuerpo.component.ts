@@ -131,7 +131,7 @@ export class CuerpoComponent implements OnInit {
       }
       this.mostrararbol = false;
       this.raiz = ast.nodo;
-      console.log(ast.instrucciones)
+      console.log("instrucciones", ast.instrucciones)
       this.sacar_types(ast.instrucciones, entorno);
       this.sacar_funciones(ast.instrucciones, entorno);
       this.sacar_variables(ast.instrucciones, entorno);

@@ -26,10 +26,10 @@ export class Relacional extends Expresion{
         let resultado : Retorno;
         if(this.derecho != null)
         {
+            console.log("izquierdo", this.izquierdo);
+            console.log("derecho", this.derecho);
             const izquierdo = this.izquierdo.ejecutar(entorno);
-            console.log("izquierdo", izquierdo);
             const derecho = this.derecho.ejecutar(entorno);
-            console.log("derecho", derecho);
             if(this.tipo == OperacionesLogicas.AND)
             {
                 if(izquierdo.type == Type.BOOLEANO && derecho.type == Type.BOOLEANO)
@@ -221,7 +221,7 @@ export class Relacional extends Expresion{
                     {
                         auxizquierdo = false;
                     }
-                    resultado = {value : (!auxizquierdo).toString(), type : Type.BOOLEANO}
+                    resultado = {value : (!auxizquierdo), type : Type.BOOLEANO}
                 }
                 else
                 {

@@ -113,6 +113,14 @@ export class Entorno{
         console.log("entorno", this);
     }
 
+    public getEntornoglobal(){
+        let entorno : Entorno | null = this;
+        while(entorno?.anterior != null){
+            entorno = entorno.anterior;
+        }
+        return entorno;
+    }
+
     public getTipo(nombre : string)
     {
         let entorno : Entorno | null = this;

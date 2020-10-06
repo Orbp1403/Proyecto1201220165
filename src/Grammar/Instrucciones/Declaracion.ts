@@ -23,6 +23,7 @@ export class Declaracion extends Instruccion{
     }
 
     public ejecutar(entorno: Entorno) {
+        console.log(this.valor);
         if(this.valor != null && this.tipovar != null)
         {   
             if(this.valor instanceof Expresion)
@@ -129,6 +130,7 @@ export class Declaracion extends Instruccion{
             if(this.valor instanceof Expresion)
             {
                 const valor = this.valor.ejecutar(entorno);
+                console.log(this.valor);
                 entorno.guardarVariable(this.nombre, valor.type, valor.value, this.tiposim, this.linea, this.columna);
             }
             else if(this.valor instanceof Llamada)
