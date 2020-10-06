@@ -1839,7 +1839,7 @@ sentencia_dowhile
     : DO InstruccionesFuncion WHILE '(' Expresionesfuncion ')' PYC
     {
         $$ = {
-            instrucciones : new SentenciaDowhile($5, $2, @1.first_line, @1.first_column),
+            instrucciones : new SentenciaDowhile($5.instrucciones, $2.instrucciones, @1.first_line, @1.first_column),
             nodo : new Nodo(null, "Do_while", null)
         }
         instruccion = new Nodo(null, "Condicion", null)
@@ -2531,14 +2531,14 @@ Expresionesfuncion18
         else if($1.includes("'"))
         {
             $$ = {
-                instrucciones : new Literal($1.replace(/["'"]+/g, ''), @1.first_line, @1.first_column),
+                instrucciones : new Literal($1.replace(/["'"]+/g, ''), @1.first_line, @1.first_column, 1),
                 nodo : new Nodo($1.replace(/["'"]+/g, ''), null, null)
             }
         }
         else
         {
             $$ = {
-                instrucciones : new Literal($1, @1.first_line, @1.first_column),
+                instrucciones : new Literal($1, @1.first_line, @1.first_column, 1),
                 nodo : new Nodo($1, null, null)
             }
         }

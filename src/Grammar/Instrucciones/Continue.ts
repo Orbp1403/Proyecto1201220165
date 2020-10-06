@@ -11,7 +11,9 @@ export class Continue extends Instruccion{
         if(entorno.verificar_entorno_continue()){
             let valorretorno = {
                 tipo : 'continue',
-                valor : null
+                valor : null,
+                linea : this.linea,
+                columna : this.columna
             }
             return valorretorno;
         }else{

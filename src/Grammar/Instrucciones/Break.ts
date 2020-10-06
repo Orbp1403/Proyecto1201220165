@@ -12,7 +12,9 @@ export class Break extends Instruccion{
         if(entorno.verificar_entorno_break()){
             let valorretorno = {
                 tipo : 'break',
-                valor : null
+                valor : null,
+                linea : this.linea,
+                columna : this.columna
             };
             console.log("valorretorno", valorretorno)
             return valorretorno;

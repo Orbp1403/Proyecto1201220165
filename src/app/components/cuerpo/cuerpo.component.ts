@@ -107,6 +107,7 @@ export class CuerpoComponent implements OnInit {
     this.terminal = "";
     lerrores.splice(0, lerrores.length);
     entornos.splice(0, entornos.length);
+    this.mostrarerrores = false;
     const ast = parser.parse(this.code);
     console.log("erroreS", lerrores);
     const entorno = new Entorno(null);

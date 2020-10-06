@@ -44,6 +44,11 @@ export class Declaracion extends Instruccion{
                 {
                     const valor = this.valor.ejecutar(entorno);
                     console.log("Es llamada");
+                    if(this.tipovar == valor.type){
+                        entorno.guardarVariable(this.nombre, valor.type, valor.value, this.tiposim, this.linea, this.columna);
+                    }else{
+                        throw new _Error(this.linea, this.columna, "Semantico", "El tipo de la variable no coincide con el valor de retorno.");
+                    }
                     // TODO ejecutar funciones para las llamadas
                 }
                 else
@@ -129,6 +134,7 @@ export class Declaracion extends Instruccion{
             else if(this.valor instanceof Llamada)
             {
                 const valor = this.valor.ejecutar(entorno);
+                entorno.guardarVariable(this.nombre, valor.type, valor.value, this.tiposim, this.linea, this.columna);
                 // TODO ejecutar funciones para las llamadas
             }
         }

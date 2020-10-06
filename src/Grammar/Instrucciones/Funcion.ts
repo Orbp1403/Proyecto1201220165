@@ -25,6 +25,14 @@ export class Funcion extends Instruccion{
         return this.cuerpo;
     }
 
+    public getTipo(){
+        return this.tipo;
+    }
+
+    public getNombre(){
+        return this.nombre;
+    }
+
     public ejecutar(entorno: Entorno) {
         entorno.guardarFuncion(this.nombre, this);
     }

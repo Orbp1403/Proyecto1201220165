@@ -9,6 +9,7 @@ export class SentenciaReturn extends Instruccion{
     }
 
     public ejecutar(entorno: Entorno) {
+        console.log('valor_retorno', this.valor_retorno);
         if(entorno.verificar_entorno_return()){
             let valor_retorno;
             if(this.valor_retorno != null)
@@ -21,7 +22,9 @@ export class SentenciaReturn extends Instruccion{
               
             let retorno = {
                 tipo : 'retorno',
-                valor : valor_retorno
+                valor : valor_retorno,
+                linea : this.linea,
+                columna : this.columna
             }
             return retorno;
         }else{

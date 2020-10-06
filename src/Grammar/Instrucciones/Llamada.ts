@@ -40,10 +40,15 @@ export class Llamada extends Instruccion{
                     console.log("nuevoentorno", nuevoentorno);
                     console.log("cuerpo", funcion.getCuerpo());
                     let instruccion = funcion.getCuerpo().ejecutar(nuevoentorno);
-
                     if(instruccion != null || instruccion != undefined)
                     {
-                        return instruccion;
+                        console.log("llamada", instruccion);
+                        if(funcion.getTipo() == instruccion.valor.type){
+                            console.log(instruccion.valor);
+                            return instruccion.valor;
+                        }else{
+                            throw new _Error(instruccion.linea, instruccion.columna, "Semantico", "El tipo de la funcion: " + funcion.getNombre() + " no coincide con el tipo de retorno");
+                        }
                     }
                 }
                 else

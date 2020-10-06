@@ -72,7 +72,19 @@ export class SentenciaFor extends Instruccion{
                     const instruccion = this.cuerpo.ejecutar(nuevoentorno);
                     if(instruccion != null || instruccion != undefined)
                     {
-                        retorno.value += instruccion.value;
+                        if(instruccion.tipo == 'break'){
+                            break;
+                        }else if(instruccion.tipo == 'continue'){
+                            const aumento = this.expresion_aumento.ejecutar(nuevoentorno);
+                            condicion = this.condicion.ejecutar(nuevoentorno);
+                            if(condicion.type != Type.BOOLEANO)
+                            {
+                                throw new _Error(this.linea, this.columna, "Semantico", "La condicion no es booleana");        
+                            }
+                            continue;
+                        }else if(instruccion.tipo == 'retorno'){
+                            return instruccion;
+                        }
                     }
                     const aumento = this.expresion_aumento.ejecutar(nuevoentorno);
                     condicion = this.condicion.ejecutar(nuevoentorno);

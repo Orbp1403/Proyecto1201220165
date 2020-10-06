@@ -1645,7 +1645,7 @@ break;
 case 175:
 
         this.$ = {
-            instrucciones : new SentenciaDowhile($$[$0-2], $$[$0-5], _$[$0-6].first_line, _$[$0-6].first_column),
+            instrucciones : new SentenciaDowhile($$[$0-2].instrucciones, $$[$0-5].instrucciones, _$[$0-6].first_line, _$[$0-6].first_column),
             nodo : new Nodo(null, "Do_while", null)
         }
         instruccion = new Nodo(null, "Condicion", null)
@@ -2169,14 +2169,14 @@ case 245:
         else if($$[$0].includes("'"))
         {
             this.$ = {
-                instrucciones : new Literal($$[$0].replace(/["'"]+/g, ''), _$[$0].first_line, _$[$0].first_column),
+                instrucciones : new Literal($$[$0].replace(/["'"]+/g, ''), _$[$0].first_line, _$[$0].first_column, 1),
                 nodo : new Nodo($$[$0].replace(/["'"]+/g, ''), null, null)
             }
         }
         else
         {
             this.$ = {
-                instrucciones : new Literal($$[$0], _$[$0].first_line, _$[$0].first_column),
+                instrucciones : new Literal($$[$0], _$[$0].first_line, _$[$0].first_column, 1),
                 nodo : new Nodo($$[$0], null, null)
             }
         }
