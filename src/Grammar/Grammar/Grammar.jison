@@ -133,6 +133,7 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")|("'" [^"'"]* "'")
     const { GraficarTs } = require('../Instrucciones/GraficarTs');
     const { Nodo } = require('../Arbol/Nodo');
     const { _Error, lerrores } = require('../Error');
+    const { Continue } = require('../Instrucciones/Continue');
 %}
 
 /* Asociación de operadores y precedencia */
@@ -262,12 +263,19 @@ Sentencias_control
     {
         $$ = $1;
     }
-    | error InstruccionesSentencias
+    | error '}'
     | 'BREAK' PYC
     {
         $$ = {
             instrucciones : new Break(@1.first_line, @1.first_column),
             nodo : new Nodo("Break", null, null)
+        }
+    }
+    | 'CONTINUE' PYC
+    {
+        $$ = {
+            instrucciones : new Continue(@1.first_line, @1.first_column),
+            nodo : new Nodo("Continue", null, null)
         }
     }
     | 'RETURN' PYC
@@ -1516,7 +1524,7 @@ Instruccionfuncion
             if($3.valor == null && $3.tipo != null)
             {
                 $$ = {
-                    instrucciones : new DeclaracionVarType($2, null, $3.tipo, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+                    instrucciones : new Declaracion($2, null, $3.tipo, TiposSimbolo.VAR, @1.first_line, @1.first_column),
                     nodo : new Nodo(null, "Declaracion", null)
                 }
                 $$.nodo.agregarHijos(new Nodo($2, null, null))
@@ -1525,7 +1533,7 @@ Instruccionfuncion
             else if($3.valor != null && $3.tipo != null)
             {
                 $$ = {
-                    instrucciones : new DeclaracionVarType($2, $3.valor, $3.tipo, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+                    instrucciones : new Declaracion($2, $3.valor, $3.tipo, TiposSimbolo.VAR, @1.first_line, @1.first_column),
                     nodo : new Nodo(null, "Declaracion", null)
                 }
                 $$.nodo.agregarHijos(new Nodo($2, null, null))
@@ -1564,7 +1572,7 @@ Instruccionfuncion
         else
         {
             $$ = {
-                instrucciones : new DeclaracionVarType($2, $3.valor, $3.tipo, TiposSimbolo.CONST, @1.first_line, @1.first_column),
+                instrucciones : new Declaracion($2, $3.valor, $3.tipo, TiposSimbolo.CONST, @1.first_line, @1.first_column),
                 nodo : new Nodo(null, "Declaracion", null)
             }
             $$.nodo.agregarHijos(new Nodo($2, null, null))
@@ -1597,11 +1605,16 @@ Instruccionfuncion
     {
         $$ = $1;
     }
+    | sentencia_continue
+    {
+        $$ = $1;
+    }
     | Sentencia_return
     {
         $$ = $1;
     }
-    | error PYC;
+    | error PYC
+    | error '}';
 
 Auxdeclaracion4
     : DP Auxdeclaracion5
@@ -1766,6 +1779,15 @@ sentencia_break
             instrucciones : new Break(@1.first_line, @1.first_column),
             nodo : new Nodo("Break", null, null)
         }
+    };
+
+sentencia_continue
+    : CONTINUE PYC
+    {
+        $$ = {
+            instrucciones : new Continue(@1.first_line, @1.first_column),
+            nodo : new Nodo("Continue", null, null)
+        };
     };
 
 sentencia_for

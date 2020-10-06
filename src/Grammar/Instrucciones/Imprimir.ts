@@ -41,6 +41,9 @@ export class Imprimir extends Instruccion{
                     retorno.value += valor.value.toString();
                 }
                 console.log(retorno);
+                if(i != this.valor.length - 1){
+                    retorno.value += ', ';
+                }
             }catch(error)
             {
                 lerrores.push(error);

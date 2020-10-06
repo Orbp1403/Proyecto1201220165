@@ -28,6 +28,8 @@ export class SentenciaWhile extends Instruccion{
                     {
                         if(elemento.tipo == 'break'){
                             break;
+                        }else if(elemento.tipo == 'continue'){
+                            continue;
                         }
                     }
                     condicion = this.condicion.ejecutar(nuevoentorno);

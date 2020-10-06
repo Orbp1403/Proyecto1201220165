@@ -22,6 +22,12 @@ export class Cuerposentencia extends Instruccion{
                     if(elementoejecutado.tipo == 'break'){
                         return elementoejecutado;
                     }
+                    else if(elementoejecutado.tipo == "retorno"){
+                        return elementoejecutado;
+                    }
+                    else if(elementoejecutado.tipo == 'continue'){
+                        return elementoejecutado;
+                    }
                 }
             }
             catch(error)

@@ -31,6 +31,7 @@
     "src/Grammar/Instrucciones/Break.ts",
     "src/Grammar/Instrucciones/Caso.ts",
     "src/Grammar/Instrucciones/CasoDef.ts",
+    "src/Grammar/Instrucciones/Continue.ts",
     "src/Grammar/Instrucciones/Cuerposentencia.ts",
     "src/Grammar/Instrucciones/Declaracion.ts",
     "src/Grammar/Instrucciones/DeclaracionTipos.ts",

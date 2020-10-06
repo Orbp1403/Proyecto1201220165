@@ -53,6 +53,17 @@ export class Entorno{
         return false;
     }
 
+    public verificar_entorno_continue(){
+        let entorno : Entorno | null = this;
+        while(entorno != null){
+            if(entorno.get_nombre() == 'while' || entorno.get_nombre() == 'for'){
+                return true;
+            }
+            entorno = entorno.anterior;
+        }
+        return false;   
+    }
+
     //sirve para declarar variables y guardarlas en la tabla de simbolos
     public guardarVariable(nombre : string, tipo : any, valor : any, tiposim : TiposSimbolo, linea : number, columna : number){
         let entorno : Entorno | null = this;
