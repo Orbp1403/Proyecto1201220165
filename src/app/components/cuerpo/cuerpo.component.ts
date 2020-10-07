@@ -109,7 +109,6 @@ export class CuerpoComponent implements OnInit {
     entornos.splice(0, entornos.length);
     this.mostrarerrores = false;
     const ast = parser.parse(this.code);
-    console.log("erroreS", lerrores);
     const entorno = new Entorno(null);
     if(lerrores.length != 0)
     {
@@ -131,7 +130,6 @@ export class CuerpoComponent implements OnInit {
       }
       this.mostrararbol = false;
       this.raiz = ast.nodo;
-      console.log("instrucciones", ast.instrucciones)
       this.sacar_types(ast.instrucciones, entorno);
       this.sacar_funciones(ast.instrucciones, entorno);
       this.sacar_variables(ast.instrucciones, entorno);
@@ -159,13 +157,7 @@ export class CuerpoComponent implements OnInit {
             {
               continue;
             }
-            console.log('instruccion', instruccion);
             const cont = instruccion.ejecutar(entorno);
-            if(cont != null || cont != undefined)
-            {
-              console.log("cont", cont);
-              //this.textoaimprimir += cont.value;
-            }
           }
           catch(error)
           {
@@ -175,7 +167,6 @@ export class CuerpoComponent implements OnInit {
         }
         if(lerrores.length == 0)
         {
-          console.log(textoaimprimir);
           let textoaimprimir1 = "";
           for(let i = 0;  i < textoaimprimir.length; i++)
           {
@@ -185,7 +176,6 @@ export class CuerpoComponent implements OnInit {
         }
         else 
         {
-          console.log(lerrores);
           this.hayarbol = false;
           this.hayerrores = true;
           let contador = 1;
@@ -205,18 +195,15 @@ export class CuerpoComponent implements OnInit {
     for(let i = 0; i < instrucciones.length; i++)
     {
       let instruccion = instrucciones[i];
-      console.log(instruccion)
       try
       {
         if(instruccion instanceof DeclaracionTipos)
         {
-          console.log("entro")
           instruccion.ejecutar(entorno);
         }
       }
       catch(error)
       {
-        console.log(error);
         lerrores.push(error);
       }
     }
@@ -231,7 +218,6 @@ export class CuerpoComponent implements OnInit {
       {
         if(instruccion instanceof Declaracion)
         {
-          console.log("declaracion", instruccion);
           instruccion.ejecutar(entorno);
         }
       }
@@ -262,8 +248,6 @@ export class CuerpoComponent implements OnInit {
   async dibujar(){
     document.getElementById('contenedor').style.display = 'block';
     this.volverarbol(this.raiz);
-    console.log(this.arbol);
-    console.log(this.relaciones)
     this.mostrararbol = true;
     this.diagrama = $(go.Diagram, "arboldiv",
                     {
@@ -299,7 +283,6 @@ export class CuerpoComponent implements OnInit {
     this.graficarnodos(raiz);
     this.clave = 1;
     this.relacionarnodos(raiz, this.clave);
-    console.log(this.arbol)
   }
 
   async graficarnodos(raiz : Nodo)
@@ -312,8 +295,6 @@ export class CuerpoComponent implements OnInit {
       {
         return;
       }
-      console.log("raiz");
-      console.log(raiz);
       for(var i = 0; i < raiz.getHijos().length; i++)
       {
         let hijo : Nodo = raiz.getHijos()[i];

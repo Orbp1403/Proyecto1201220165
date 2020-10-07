@@ -57,8 +57,6 @@ export class SentenciaFor extends Instruccion{
             let nuevoentorno : Entorno = new Entorno(entorno);
             let valor_inicio = this.valor_inicio.ejecutar(nuevoentorno);
             nuevoentorno.guardarVariable(this.variablecontrol, valor_inicio.type, valor_inicio.value, TiposSimbolo.VAR, this.linea, this.columna);
-            console.log("nuevoentorno", nuevoentorno);
-            console.log("condicion", this.condicion);
             nuevoentorno.set_nombre("for");
             let condicion = this.condicion.ejecutar(nuevoentorno);
             let retorno : Retorno = {

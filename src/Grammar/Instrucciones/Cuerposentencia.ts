@@ -16,7 +16,6 @@ export class Cuerposentencia extends Instruccion{
             try
             {
                 const elementoejecutado = instr.ejecutar(nuevoentorno);
-                console.log("elemento ejecutado", elementoejecutado);
                 if(elementoejecutado != null || elementoejecutado != undefined)
                 {
                     if(elementoejecutado.tipo == 'break'){

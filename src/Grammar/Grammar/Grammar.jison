@@ -518,7 +518,7 @@ Casos
     | 'CASE' Expresion DP InstruccionSentencia
     {
         $$ = {
-            instrucciones : [new Caso($2, $4.instrucciones, @1.first_line, @1.first_column)],
+            instrucciones : [new Caso($2.instrucciones, $4.instrucciones, @1.first_line, @1.first_column)],
             nodo : new Nodo(null, "Caso", null)
         }
         $$.nodo.agregarHijos($2.nodo);
@@ -527,7 +527,7 @@ Casos
     | 'CASE' Expresion DP
     {
         $$ = {
-            instrucciones : [new Caso($2, null, @1.first_line, @1.first_column)],
+            instrucciones : [new Caso($2.instrucciones, null, @1.first_line, @1.first_column)],
             nodo : new Nodo(null, "Caso", null)
         }
         $$.nodo.agregarHijos($2.nodo)
@@ -1663,7 +1663,6 @@ Auxdeclaracion
     | '=' Expresionesfuncion PYC
     {
         hermano = eval('$$');
-        console.log()
         $$ = {
             estype : false,
             valor : hermano[hermano.length - 2].instrucciones,
@@ -1911,7 +1910,7 @@ Lcasos
         }
         else
         {
-            hermano[hermano.length - 1].casos.unshift(new Caso($2, hermano[hermano.length - 1].instrucciones, @1.first_line, @1.first_column))
+            hermano[hermano.length - 1].casos.unshift(new Caso($2.instrucciones, hermano[hermano.length - 1].instrucciones, @1.first_line, @1.first_column))
             $$ = {
                 casos : hermano[hermano.length - 1].casos,
                 nodo_casos : new Nodo(null, "Caso", null)
@@ -2429,7 +2428,6 @@ Llamadas_funcion
 Instruccionfuncion2
     : ')'
     {
-        console.log('entro a parentesis');
         hermano = eval('$$');
         $$ = {
             instrucciones : [],
@@ -2438,7 +2436,6 @@ Instruccionfuncion2
     }
     | Parametrosllamada ')'
     {
-        console.log("entro a parametros");
         $$ = $1;
     };
 

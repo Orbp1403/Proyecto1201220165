@@ -45,7 +45,7 @@ export class Entorno{
     public verificar_entorno_break(){
         let entorno : Entorno | null = this;
         while(entorno != null){
-            if(entorno.get_nombre() == 'while' || entorno.get_nombre() == 'for' || entorno.get_nombre() == 'case'){
+            if(entorno.get_nombre() == 'while' || entorno.get_nombre() == 'for' || entorno.get_nombre() == 'switch'){
                 return true;
             }
             entorno = entorno.anterior;
@@ -110,7 +110,6 @@ export class Entorno{
             }
             entorno = entorno.anterior;
         }
-        console.log("entorno", this);
     }
 
     public getEntornoglobal(){
@@ -157,7 +156,6 @@ export class Entorno{
     public guardarType(nombre : string, valores : VariablesTipo[], linea : number, columna : number)
     {
         let entorno : Entorno = this;
-        console.log(entorno);
         if(!entorno.tipos.has(nombre))
         {
             entorno.tipos.set(nombre, new Tipo(nombre, valores));

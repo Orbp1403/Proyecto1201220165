@@ -21,8 +21,6 @@ export class Llamada extends Instruccion{
             {
                 for(let i = 0; i < funcion.getParametros().length; i++)
                 {
-                    console.log('parametro', this.parametros[i].ejecutar(entorno));
-                    console.log('entorno', entorno);
                     let auxparametro = this.parametros[i].ejecutar(entorno);
                     if(funcion.getParametros()[i].getTipo() != auxparametro.type)
                     {
@@ -33,26 +31,24 @@ export class Llamada extends Instruccion{
                 }
                 if(todosbien == true)
                 {
-                    console.log("paso");
                     let nuevoentorno : Entorno = new Entorno(entorno.getEntornoglobal());
                     nuevoentorno.set_nombre("funcion");
                     for(let i = 0; i < funcion.getParametros().length; i++)
                     {
                         nuevoentorno.guardarVariable(funcion.getParametros()[i].getNombre(), funcion.getParametros()[i].getTipo(), this.parametros[i].ejecutar(entorno).value, TiposSimbolo.VAR, this.linea, this.columna);
                     }
-                    console.log("nuevoentorno", nuevoentorno);
-                    console.log("cuerpo", funcion.getCuerpo());
-                    let instruccion = funcion.getCuerpo().ejecutar(nuevoentorno);
-                    if(instruccion != null || instruccion != undefined)
-                    {
-                        console.log("llamada", instruccion);
-                        if(funcion.getTipo() == instruccion.valor.type){
-                            console.log(instruccion.valor);
-                            return instruccion.valor;
-                        }else{
-                            throw new _Error(instruccion.linea, instruccion.columna, "Semantico", "El tipo de la funcion: " + funcion.getNombre() + " no coincide con el tipo de retorno");
+                    if(funcion.getCuerpo() != null){
+                        let instruccion = funcion.getCuerpo().ejecutar(nuevoentorno);
+                        if(instruccion != null || instruccion != undefined)
+                        {
+                            if(funcion.getTipo() == instruccion.valor.type){
+                                return instruccion.valor;
+                            }else{
+                                throw new _Error(instruccion.linea, instruccion.columna, "Semantico", "El tipo de la funcion: " + funcion.getNombre() + " no coincide con el tipo de retorno");
+                            }
                         }
                     }
+                    
                 }
                 else
                 {

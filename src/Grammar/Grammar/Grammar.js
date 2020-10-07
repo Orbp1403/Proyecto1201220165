@@ -416,7 +416,7 @@ break;
 case 40:
 
         this.$ = {
-            instrucciones : [new Caso($$[$0-2], $$[$0].instrucciones, _$[$0-3].first_line, _$[$0-3].first_column)],
+            instrucciones : [new Caso($$[$0-2].instrucciones, $$[$0].instrucciones, _$[$0-3].first_line, _$[$0-3].first_column)],
             nodo : new Nodo(null, "Caso", null)
         }
         this.$.nodo.agregarHijos($$[$0-2].nodo);
@@ -426,7 +426,7 @@ break;
 case 41:
 
         this.$ = {
-            instrucciones : [new Caso($$[$0-1], null, _$[$0-2].first_line, _$[$0-2].first_column)],
+            instrucciones : [new Caso($$[$0-1].instrucciones, null, _$[$0-2].first_line, _$[$0-2].first_column)],
             nodo : new Nodo(null, "Caso", null)
         }
         this.$.nodo.agregarHijos($$[$0-1].nodo)
@@ -1031,7 +1031,7 @@ case 102: case 211:
         this.$.nodo.agregarHijos($$[$0].nodo);
     
 break;
-case 103: case 133: case 178: case 221:
+case 103: case 133: case 178: case 221: case 234:
 
         this.$ = $$[$0-1];
     
@@ -1470,7 +1470,7 @@ case 141:
         }
     
 break;
-case 153:
+case 153: case 158:
 
         hermano = eval('$$');
         this.$ = {
@@ -1506,18 +1506,6 @@ case 157:
             valor : null,
             tipo : null
         };
-    
-break;
-case 158:
-
-        hermano = eval('$$');
-        console.log()
-        this.$ = {
-            estype : false,
-            valor : hermano[hermano.length - 2].instrucciones,
-            tipo : null,
-            nodo : hermano[hermano.length - 2].nodo
-        }
     
 break;
 case 161:
@@ -1723,7 +1711,7 @@ case 180:
         }
         else
         {
-            hermano[hermano.length - 1].casos.unshift(new Caso($$[$0-2], hermano[hermano.length - 1].instrucciones, _$[$0-3].first_line, _$[$0-3].first_column))
+            hermano[hermano.length - 1].casos.unshift(new Caso($$[$0-2].instrucciones, hermano[hermano.length - 1].instrucciones, _$[$0-3].first_line, _$[$0-3].first_column))
             this.$ = {
                 casos : hermano[hermano.length - 1].casos,
                 nodo_casos : new Nodo(null, "Caso", null)
@@ -1911,18 +1899,11 @@ case 232:
 break;
 case 233:
 
-        console.log('entro a parentesis');
         hermano = eval('$$');
         this.$ = {
             instrucciones : [],
             nodo : null
         };
-    
-break;
-case 234:
-
-        console.log("entro a parametros");
-        this.$ = $$[$0-1];
     
 break;
 case 236:

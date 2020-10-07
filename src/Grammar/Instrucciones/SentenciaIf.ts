@@ -10,7 +10,6 @@ export class SentenciaIf extends Instruccion{
     }
 
     public ejecutar(entorno: Entorno) {
-        console.log("ejecutar if");
         const condicion = this.condicion.ejecutar(entorno);
         if(condicion.type == Type.BOOLEANO)
         {

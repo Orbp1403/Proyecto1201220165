@@ -26,8 +26,6 @@ export class Relacional extends Expresion{
         let resultado : Retorno;
         if(this.derecho != null)
         {
-            console.log("izquierdo", this.izquierdo);
-            console.log("derecho", this.derecho);
             const izquierdo = this.izquierdo.ejecutar(entorno);
             const derecho = this.derecho.ejecutar(entorno);
             if(this.tipo == OperacionesLogicas.AND)

@@ -15,7 +15,6 @@ export class Incremento extends Instruccion{
         const valor_variable = entorno.getVariable(this.nombre);
         if(valor_variable != null)
         {
-            console.log("valor_variable", valor_variable);
             if(valor_variable.tipo == Type.NUMERO)
             {
                 let valor = this.valor.ejecutar(entorno);

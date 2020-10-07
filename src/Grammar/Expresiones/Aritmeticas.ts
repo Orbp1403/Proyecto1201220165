@@ -17,8 +17,6 @@ export class Aritmeticas extends Expresion{
         if(this.izquierdo != null && this.derecho != null){
             const izquierdo = this.izquierdo.ejecutar(entorno);
             const derecho = this.derecho.ejecutar(entorno);
-            console.log("izquierdo", izquierdo);
-            console.log("derecho", derecho);
             if(this.tipo == OpcionesAritmeticas.MAS)
             {
                 if(izquierdo.type == Type.NUMERO && derecho.type == Type.NUMERO)
@@ -336,7 +334,6 @@ export class Aritmeticas extends Expresion{
                 }
             }else if(this.tipo == OpcionesAritmeticas.DIV)
             {
-                console.log(derecho.value.toString())
                 if(derecho.value.toString() == "0" || derecho.value.toString() == "false" || derecho.type == Type.NULL)
                 {
                     throw new _Error(this.linea, this.columna, "Semantico", "Division por 0")
@@ -406,7 +403,6 @@ export class Aritmeticas extends Expresion{
             }
             else if(this.tipo == OpcionesAritmeticas.MODULO)
             {
-                console.log(derecho.value.toString())
                 if(derecho.value.toString() == "0" || derecho.value.toString() == "false" || derecho.type == Type.NULL)
                 {
                     throw new _Error(this.linea, this.columna, "Semantico", "Division por 0")
@@ -575,7 +571,6 @@ export class Aritmeticas extends Expresion{
                 }
             }
         }else{
-            console.log(this.tipo);
             const izquierdo = this.izquierdo.ejecutar(entorno);
             if(this.tipo == OpcionesAritmeticas.NEGATIVO){
                 if(izquierdo.type == Type.NUMERO)

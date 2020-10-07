@@ -23,7 +23,6 @@ export class SentenciaWhile extends Instruccion{
             {
                 try{
                     const elemento = this.cuerpo.ejecutar(nuevoentorno);
-                    console.log("elemento",elemento)
                     if(elemento != null || elemento != undefined)
                     {
                         if(elemento.tipo == 'break'){

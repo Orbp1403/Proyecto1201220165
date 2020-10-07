@@ -10,7 +10,6 @@ export class Variable extends Expresion{
     }
 
     public ejecutar(entorno: Entorno): Retorno {
-        //TODO sacar el valor de la variable para ejecutar
         let resultado : Retorno = null;
         if(entorno.existeVariable(this.nombre) == false)
         {

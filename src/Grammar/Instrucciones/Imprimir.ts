@@ -12,7 +12,6 @@ export class Imprimir extends Instruccion{
 
     public ejecutar(entorno: Entorno) {
         let retorno : Retorno;
-        console.log(this.valor);
         retorno = {
             value : "",
             type : Type.CADENA
@@ -20,9 +19,7 @@ export class Imprimir extends Instruccion{
         for(let i = 0; i < this.valor.length; i++)
         {
             try{
-                console.log("valor", this.valor[i].ejecutar(entorno));
                 let valor = this.valor[i].ejecutar(entorno);
-                console.log(valor);
                 if(typeof(valor.type) == "string")
                 {
                     retorno.value += "{ ";
@@ -40,7 +37,6 @@ export class Imprimir extends Instruccion{
                 {
                     retorno.value += valor.value.toString();
                 }
-                console.log(retorno);
                 if(i != this.valor.length - 1){
                     retorno.value += ', ';
                 }

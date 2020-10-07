@@ -24,10 +24,8 @@ export class Asignacion extends Instruccion{
             if(valor_actual != null)
             {
                 const valor =  this.valor.ejecutar(entorno);
-                console.log("valor_actual", valor_actual);
                 if(valor_actual.tipo == Type.UNDEFINED || valor_actual.tipo == valor.type)
                 {
-                    console.log("valor", valor);
                     entorno.setValor_Variable(this.nombre, valor);
                 }
                 else
