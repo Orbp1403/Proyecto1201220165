@@ -69,7 +69,7 @@ export class Entorno{
         let entorno : Entorno | null = this;
         if(entorno != null){
             if(!entorno.variables.has(nombre)){
-                entorno.variables.set(nombre, new Simbolo(valor, nombre, tipo, tiposim));
+                entorno.variables.set(nombre, new Simbolo(valor, nombre, tipo, tiposim, linea, columna));
                 return;
             }else{
                 throw new _Error(linea, columna, "Semantico", "Ya existe una variable con el nombre: " + nombre)
@@ -106,7 +106,7 @@ export class Entorno{
                     auxvar.tipo = valor.type
                 }
                 auxvar.valor = valor;
-                entorno.variables.set(nombre, new Simbolo(valor.value, auxvar.nombre, auxvar.tipo, auxvar.variable));
+                entorno.variables.set(nombre, new Simbolo(valor.value, auxvar.nombre, auxvar.tipo, auxvar.variable, auxvar.linea, auxvar.columna));
             }
             entorno = entorno.anterior;
         }
@@ -118,6 +118,18 @@ export class Entorno{
             entorno = entorno.anterior;
         }
         return entorno;
+    }
+
+    public getVariables(){
+        return this.variables;
+    }
+
+    public getFunciones(){
+        return this.funciones;
+    }
+
+    public getTypes(){
+        return this.tipos;
     }
 
     public getTipo(nombre : string)

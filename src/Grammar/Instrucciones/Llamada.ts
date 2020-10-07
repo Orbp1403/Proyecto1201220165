@@ -4,6 +4,7 @@ import { Entorno } from '../Entorno/Entorno';
 import { _Error } from '../Error';
 import { ANALYZE_FOR_ENTRY_COMPONENTS } from '@angular/core';
 import { TiposSimbolo } from '../Entorno/Simbolo';
+import { Type } from '../Retorno';
 
 export class Llamada extends Instruccion{
     
@@ -15,6 +16,7 @@ export class Llamada extends Instruccion{
         if(entorno.getFuncion(this.nombre) != null)
         {
             let funcion = entorno.getFuncion(this.nombre);
+            console.log(funcion);
             let todosbien = true
             let indiceparametro = 0;
             if(funcion.getParametros().length == this.parametros.length)
@@ -41,7 +43,7 @@ export class Llamada extends Instruccion{
                         let instruccion = funcion.getCuerpo().ejecutar(nuevoentorno);
                         if(instruccion != null || instruccion != undefined)
                         {
-                            if(funcion.getTipo() == instruccion.valor.type){
+                            if(funcion.getTipo() == instruccion.valor.type || (funcion.getTipo() == Type.VOID && instruccion.valor == null)){
                                 return instruccion.valor;
                             }else{
                                 throw new _Error(instruccion.linea, instruccion.columna, "Semantico", "El tipo de la funcion: " + funcion.getNombre() + " no coincide con el tipo de retorno");

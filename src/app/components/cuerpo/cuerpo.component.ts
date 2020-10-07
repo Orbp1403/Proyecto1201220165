@@ -2,7 +2,7 @@ import {
   Component,
   OnInit,
   ɵSWITCH_CHANGE_DETECTOR_REF_FACTORY__POST_R3__,
-  EventEmitter,
+  EventEmitter, ElementRef
 } from '@angular/core';
 import { CompileSummaryKind } from '@angular/compiler';
 import * as go from 'gojs';
@@ -18,6 +18,9 @@ import { SentenciaIf } from 'src/Grammar/Instrucciones/SentenciaIf';
 import { Instruccion } from 'src/Grammar/Instruccion';
 import { Imprimir } from 'src/Grammar/Instrucciones/Imprimir';
 import { lerrores } from 'src/Grammar/Error';
+import { Elemento_tabla, tabla_simbolos } from 'src/Grammar/Entorno/Tabla_simbolos';
+import { Type } from 'src/Grammar/Retorno';
+import { ViewChild } from '@angular/core'
 //declare const jquery-linedEtextarea.js
 
 const $ = go.GraphObject.make;
@@ -29,6 +32,7 @@ const $ = go.GraphObject.make;
 })
 
 export class CuerpoComponent implements OnInit {
+  @ViewChild('tabla1') tabla1 : ElementRef
   name = 'Angular 6';
   OptionsCode: any = {
     theme: 'lucario',
@@ -87,7 +91,9 @@ export class CuerpoComponent implements OnInit {
   clavepadre : number;
   hayerrores : boolean = false;
   mostrarerrores : boolean = false;
+  mostrartabla : boolean = false;
   errores : any;
+  tablasimbolos : any;
 
   constructor() {}
 
@@ -107,9 +113,11 @@ export class CuerpoComponent implements OnInit {
     this.terminal = "";
     lerrores.splice(0, lerrores.length);
     entornos.splice(0, entornos.length);
+    tabla_simbolos.splice(0, tabla_simbolos.length);
     this.mostrarerrores = false;
     const ast = parser.parse(this.code);
     const entorno = new Entorno(null);
+    this.mostrartabla = false;
     if(lerrores.length != 0)
     {
       this.hayerrores = true;
@@ -173,6 +181,14 @@ export class CuerpoComponent implements OnInit {
             textoaimprimir1 += textoaimprimir[i];
           }
           this.terminal = textoaimprimir1;
+          console.log(entorno);
+          this.graficar_tabla(entorno);
+          this.mostrartabla = true;
+          for(let auxtabla of tabla_simbolos){
+            console.log(auxtabla.nombre);
+          }
+          console.log(this.tabla1);
+          this.tablasimbolos = tabla_simbolos;
         }
         else 
         {
@@ -188,6 +204,79 @@ export class CuerpoComponent implements OnInit {
         }
       }
     }
+  }
+
+  async graficar_tabla(entorno : Entorno){
+    let ent : Entorno | null = entorno;
+    let tabla : Elemento_tabla = new Elemento_tabla("Ultima tabla de simbolos", "", "", 0, 0);
+      tabla_simbolos.push(tabla);
+      while(ent != null){
+          let variables = ent.getVariables();
+          let funciones = ent.getFunciones();
+          console.log(variables);
+          console.log(funciones);
+          for(var [llave_variable, valor_variable] of variables){
+              let elemento = {
+                ambito : "",
+                nombre : "",
+                tipo : "",
+                fila : 0,
+                columna : 0
+              };
+              elemento.nombre = llave_variable;
+              if(ent.anterior == null){
+                  elemento.ambito = "global";
+              }else{
+                  elemento.ambito = "local"
+              }
+              if(valor_variable.tipo == Type.NUMERO){
+                  elemento.tipo = "number"
+              }else if(valor_variable.tipo == Type.CADENA){
+                  elemento.tipo = "string";
+              }else if(valor_variable.tipo == Type.BOOLEANO){
+                  elemento.tipo = "boolean";
+              }else if(valor_variable.tipo == Type.NULL){
+                  elemento.tipo = "null";
+              }else if(valor_variable.tipo == Type.UNDEFINED){
+                  elemento.tipo = "undefined";
+              }else{
+                  elemento.tipo = (valor_variable.tipo);
+              }
+              elemento.fila = (valor_variable.linea);
+              elemento.columna = (valor_variable.columna);
+              tabla_simbolos.push(new Elemento_tabla(elemento.nombre, elemento.ambito, elemento.tipo, elemento.fila, elemento.columna));
+          }
+          console.log('paso');
+          for(var [llave_funcion, valor_funcion] of funciones){
+            let elemento = {
+              ambito : "",
+              nombre : "",
+              tipo : "",
+              fila : 0,
+              columna : 0
+            };
+            elemento.nombre = llave_funcion;
+            if(ent.anterior == null){
+                elemento.ambito = "global";
+            }else{
+                elemento.ambito = "local"
+            }
+            if(valor_funcion.getTipo() == Type.NUMERO){
+                elemento.tipo = "number"
+            }else if(valor_funcion.getTipo() == Type.CADENA){
+                elemento.tipo = "string";
+            }else if(valor_funcion.getTipo() == Type.BOOLEANO){
+                elemento.tipo = "boolean";
+            }else if(valor_funcion.getTipo() == Type.VOID){
+                elemento.tipo = "void";
+            }
+            elemento.fila = (valor_funcion.linea);
+            elemento.columna = (valor_funcion.columna);
+            tabla_simbolos.push(new Elemento_tabla(elemento.nombre, elemento.ambito, elemento.tipo, elemento.fila, elemento.columna));
+          }
+          console.log('tabla_simbolos', tabla_simbolos);
+          ent = ent.anterior;
+      }
   }
 
   async sacar_types(instrucciones : any, entorno : Entorno)

@@ -2421,7 +2421,7 @@ Llamadas_funcion
     {
         $$ = {
             instrucciones : new GraficarTs(@1.first_line, @1.first_column),
-            nodo : new Nodo(NULL, "GraficarTs", null)
+            nodo : new Nodo(null, "GraficarTs", null)
         }
     };
 

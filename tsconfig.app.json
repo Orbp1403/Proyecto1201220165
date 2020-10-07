@@ -15,6 +15,7 @@
     // * INICIO DE ENTORNO
     "src/Grammar/Entorno/Entorno.ts",
     "src/Grammar/Entorno/Simbolo.ts",
+    "src/Grammar/Entorno/Tabla_simbolos.ts",
     "src/Grammar/Entorno/Tipo.ts",
     // * FIN DE ENTORNO
     // * INICIO DE EXPRESIONES

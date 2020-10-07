@@ -11,7 +11,7 @@ export class Simbolo{
     public tipo : any;
     public variable : TiposSimbolo;
 
-    constructor(valor : any, nombre : string, tipo : any, tiposim : TiposSimbolo){
+    constructor(valor : any, nombre : string, tipo : any, tiposim : TiposSimbolo, public linea : number,public columna : number){
         this.valor = valor;
         this.nombre = nombre;
         this.tipo = tipo;

@@ -1166,7 +1166,7 @@ case 119:
         this.$.nodo.agregarHijos($$[$0-1].nodo);
     
 break;
-case 120:
+case 120: case 232:
 
         this.$ = {
             instrucciones : new GraficarTs(_$[$0-2].first_line, _$[$0-2].first_column),
@@ -1886,14 +1886,6 @@ case 231:
         if(hermano[hermano.length - 1].nodo != null)
         {
             this.$.nodo.agregarHijos(hermano[hermano.length - 1].nodo)
-        }
-    
-break;
-case 232:
-
-        this.$ = {
-            instrucciones : new GraficarTs(_$[$0-2].first_line, _$[$0-2].first_column),
-            nodo : new Nodo(NULL, "GraficarTs", null)
         }
     
 break;

@@ -75,6 +75,32 @@
     </div>
   </div>
 </div>
+<div class="container" *ngIf="mostrartabla == true" >
+  <div class="row">
+    <div class="col-md-12">
+      <h4>Tabla de simbolos:</h4>
+      &nbsp;
+      <table class="table table-bordered table-dark">
+        <thead class="thead-dark">
+          <td>Nombre</td>
+          <td>Ambito</td>
+          <td>Tipo</td>
+          <td>Linea</td>
+          <td>Columna</td>
+        </thead>
+        <tbody>
+          <tr *ngFor="let auxtabla of tablasimbolos">
+            <td> {{ auxtabla.nombre }}</td>
+            <td> {{ auxtabla.ambito}} </td>
+            <td> {{ auxtabla.tipo }} </td>
+            <td> {{ auxtabla.fila }} </td>
+            <td> {{ auxtabla.columna }} </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
 <div id="contenedor">
   <br>
