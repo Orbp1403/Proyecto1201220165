@@ -6,7 +6,6 @@ import { ValoresTipo, VariablesTipo } from '../Expresiones/VariablesTipo';
 import { _Error } from '../Error';
 import { Expresion } from '../Expresion';
 import { DeclaracionVarType } from '../Instrucciones/DeclaracionVarType';
-import { ENOBUFS } from 'constants';
 
 export class Entorno{
     private variables : Map<string, Simbolo>

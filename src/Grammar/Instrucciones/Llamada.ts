@@ -4,7 +4,7 @@ import { Entorno } from '../Entorno/Entorno';
 import { _Error } from '../Error';
 import { ANALYZE_FOR_ENTRY_COMPONENTS } from '@angular/core';
 import { TiposSimbolo } from '../Entorno/Simbolo';
-import { Type } from '../Retorno';
+import { Retorno, Type } from '../Retorno';
 
 export class Llamada extends Instruccion{
     
@@ -21,6 +21,7 @@ export class Llamada extends Instruccion{
             let indiceparametro = 0;
             if(funcion.getParametros().length == this.parametros.length)
             {
+                let auxparametros : Array<Retorno> = new Array();
                 for(let i = 0; i < funcion.getParametros().length; i++)
                 {
                     let auxparametro = this.parametros[i].ejecutar(entorno);
@@ -29,6 +30,8 @@ export class Llamada extends Instruccion{
                         todosbien = false;
                         indiceparametro = i;
                         break;
+                    }else{
+                        auxparametros.push(auxparametro);
                     }
                 }
                 if(todosbien == true)
@@ -37,14 +40,17 @@ export class Llamada extends Instruccion{
                     nuevoentorno.set_nombre("funcion");
                     for(let i = 0; i < funcion.getParametros().length; i++)
                     {
-                        nuevoentorno.guardarVariable(funcion.getParametros()[i].getNombre(), funcion.getParametros()[i].getTipo(), this.parametros[i].ejecutar(entorno).value, TiposSimbolo.VAR, this.linea, this.columna);
+                        nuevoentorno.guardarVariable(funcion.getParametros()[i].getNombre(), funcion.getParametros()[i].getTipo(), auxparametros[i].value, TiposSimbolo.VAR, this.linea, this.columna);
                     }
                     if(funcion.getCuerpo() != null){
                         let instruccion = funcion.getCuerpo().ejecutar(nuevoentorno);
                         if(instruccion != null || instruccion != undefined)
                         {
                             if(funcion.getTipo() == instruccion.valor.type || (funcion.getTipo() == Type.VOID && instruccion.valor == null)){
-                                return instruccion.valor;
+                                return {
+                                    value : instruccion.valor.value,
+                                    type : instruccion.valor.type
+                                };
                             }else{
                                 throw new _Error(instruccion.linea, instruccion.columna, "Semantico", "El tipo de la funcion: " + funcion.getNombre() + " no coincide con el tipo de retorno");
                             }

@@ -192,6 +192,7 @@ export class CuerpoComponent implements OnInit {
         }
         else 
         {
+          console.log(lerrores);
           this.hayarbol = false;
           this.hayerrores = true;
           let contador = 1;
