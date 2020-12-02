@@ -23,6 +23,7 @@
     "src/Grammar/Expresiones/Literal.ts",
     "src/Grammar/Expresiones/Opcionesaritmeticas.ts",
     "src/Grammar/Expresiones/Relacional.ts",
+    "src/Grammar/Expresiones/Variable_arreglo.ts",
     "src/Grammar/Expresiones/Variable.ts",
     "src/Grammar/Expresiones/VariablesTipo.ts",
     // * FIN DE EXPRESIONES
@@ -34,6 +35,7 @@
     "src/Grammar/Instrucciones/CasoDef.ts",
     "src/Grammar/Instrucciones/Continue.ts",
     "src/Grammar/Instrucciones/Cuerposentencia.ts",
+    "src/Grammar/Instrucciones/Declaracion_Arreglo.ts",
     "src/Grammar/Instrucciones/Declaracion.ts",
     "src/Grammar/Instrucciones/DeclaracionTipos.ts",
     "src/Grammar/Instrucciones/DeclaracionVarType.ts",

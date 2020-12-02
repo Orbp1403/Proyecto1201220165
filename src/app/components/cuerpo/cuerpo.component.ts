@@ -21,6 +21,8 @@ import { lerrores } from 'src/Grammar/Error';
 import { Elemento_tabla, tabla_simbolos } from 'src/Grammar/Entorno/Tabla_simbolos';
 import { Type } from 'src/Grammar/Retorno';
 import { ViewChild } from '@angular/core'
+import { Asignacion } from 'src/Grammar/Instrucciones/Asignacion';
+import { Declaracion_Arreglo } from 'src/Grammar/Instrucciones/Declaracion_Arreglo';
 //declare const jquery-linedEtextarea.js
 
 const $ = go.GraphObject.make;
@@ -161,7 +163,7 @@ export class CuerpoComponent implements OnInit {
           let instruccion = ast.instrucciones[i];
           try
           {
-            if(instruccion instanceof DeclaracionTipos || instruccion instanceof Declaracion || instruccion instanceof Funcion)
+            if(instruccion instanceof DeclaracionTipos || instruccion instanceof Declaracion || instruccion instanceof Funcion || instruccion instanceof Declaracion_Arreglo || instruccion instanceof Asignacion)
             {
               continue;
             }
@@ -306,7 +308,7 @@ export class CuerpoComponent implements OnInit {
       let instruccion = instrucciones[i];
       try
       {
-        if(instruccion instanceof Declaracion)
+        if(instruccion instanceof Declaracion || instruccion instanceof Asignacion || instruccion instanceof Declaracion_Arreglo)
         {
           instruccion.ejecutar(entorno);
         }

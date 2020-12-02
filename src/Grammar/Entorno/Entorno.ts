@@ -68,10 +68,24 @@ export class Entorno{
         let entorno : Entorno | null = this;
         if(entorno != null){
             if(!entorno.variables.has(nombre)){
-                entorno.variables.set(nombre, new Simbolo(valor, nombre, tipo, tiposim, linea, columna));
+                entorno.variables.set(nombre, new Simbolo(valor, nombre, tipo, tiposim, linea, columna, false));
                 return;
             }else{
                 throw new _Error(linea, columna, "Semantico", "Ya existe una variable con el nombre: " + nombre)
+            }
+        }
+    }
+
+    public guardarArray(nombre : string, tipo : any, valor : any, tiposim : TiposSimbolo, linea : number, columna : number, size : number){
+        let entorno : Entorno | null = this;
+        if(entorno != null){
+            if(!entorno.variables.has(nombre)){
+                let varsim = new Simbolo(valor, nombre, tipo, tiposim, linea, columna, true);
+                varsim.setsize(size);
+                entorno.variables.set(nombre, varsim);
+                return
+            }else{
+                throw new _Error(linea, columna, "Semantico", "Ya existe una variable con el nombre: " + nombre);
             }
         }
     }
@@ -105,7 +119,7 @@ export class Entorno{
                     auxvar.tipo = valor.type
                 }
                 auxvar.valor = valor;
-                entorno.variables.set(nombre, new Simbolo(valor.value, auxvar.nombre, auxvar.tipo, auxvar.variable, auxvar.linea, auxvar.columna));
+                entorno.variables.set(nombre, new Simbolo(valor.value, auxvar.nombre, auxvar.tipo, auxvar.variable, auxvar.linea, auxvar.columna, auxvar.isarray));
             }
             entorno = entorno.anterior;
         }

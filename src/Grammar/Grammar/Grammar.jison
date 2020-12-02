@@ -134,6 +134,8 @@ cadena (\"[^\"]*\")|("`"[^"`"]*"`")|("'" [^"'"]* "'")
     const { Nodo } = require('../Arbol/Nodo');
     const { _Error, lerrores } = require('../Error');
     const { Continue } = require('../Instrucciones/Continue');
+    const { Declaracion_Arreglo } = require('../Instrucciones/Declaracion_Arreglo')
+    const { Variable_arreglo } = require('../Expresiones/Variable_arreglo');
 %}
 
 /* Asociación de operadores y precedencia */
@@ -817,6 +819,7 @@ TipoatributosType
 
 
 Declaracion
+/***** variables normales *****/
     : LET IDENTIFICADOR DP Tipo '=' Expresion
     {
         $$ = {
@@ -928,6 +931,39 @@ Declaracion
         $$.nodo.agregarHijos(new Nodo($4, null, null));
         $$.nodo.agregarHijos(new Nodo('=', null, null));
         $$.nodo.agregarHijos(new Nodo($6, null, null));
+    }
+    /***** arreglos ****/
+    | LET IDENTIFICADOR DP Tipo '[' ']' '=' '[' Valor_arreglo ']'
+    {
+        $$ = {
+            instrucciones : new Declaracion_Arreglo($2, null, $4, $9.instrucciones, TiposSimbolo.VAR, @1.first_line, @1.first_column),
+            nodo : new Nodo(null, "Declaracion", null)
+        }
+        $$.nodo.agregarHijos(new Nodo($2, null, null));
+        $$.nodo.agregarHijos(new Nodo(Type[$4], null, null));
+        $$.nodo.agregarHijos(new Nodo("[]", null, null));
+        $$.nodo.agregarHijos(new Nodo('=', null, null));
+        $$.nodo.agregarHijos($9.nodo);
+    };
+
+Valor_arreglo 
+    : Valor_arreglo ',' Expresion
+    {
+        $1.instrucciones.push($3.instrucciones);
+        $$ = {
+            instrucciones : $1.instrucciones,
+            nodo : new Nodo("Valores", null, null)
+        }
+        $$.nodo.agregarHijos($1.nodo);
+        $$.nodo.agregarHijos($3.nodo);
+    }
+    | Expresion
+    {
+        $$ = {
+            instrucciones : [$1.instrucciones],
+            nodo : new Nodo("Valores", null, null)
+        }
+        $$.nodo.agregarHijos($1.nodo);
     };
 
 Lvalorestype
@@ -1179,6 +1215,17 @@ Expresion
         }
         $$.nodo.agregarHijos(new Nodo($1, null, null));
         $$.nodo.agregarHijos($2.nodo);
+    }
+    | IDENTIFICADOR '[' Expresion ']'
+    {
+        $$ = {
+            instrucciones : new Variable_arreglo($1, $3.instrucciones, @1.first_line, @1.first_column),
+            nodo : new Nodo(null, 'EXP', null)
+        }
+        $$.nodo.agregarHijos(new Nodo($1, null, null));
+        $$.nodo.agregarHijos(new Nodo('[', null, null));
+        $$.nodo.agregarHijos($3.nodo);
+        $$.nodo.agregarHijos(new Nodo(']', null, null));
     }
     | Llamada
     {
